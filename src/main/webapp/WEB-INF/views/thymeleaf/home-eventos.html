@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eventos</title>
-    <link rel="stylesheet" href="/Proyecto-tw1/src/main/webapp/resources/core/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="/Proyecto-tw1/src/main/webapp/resources/core/css/home-eventos.css" />
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
 </head>
 <body>
 <!-- HEADER -->
@@ -75,7 +75,7 @@
                 <!-- IMAGEN -->
                 <div class="col-12 col-lg-5">
                     <img
-                            src="/Proyecto-tw1/src/main/webapp/resources/core/img/salon.jpg"
+                            th:src="@{/img/salon.jpg}"
                             class="img-fluid hero-image"
                             alt="Salón preparado para un evento"
                     />
@@ -185,7 +185,7 @@
 
                     <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
 
-                        <img src="/Proyecto-tw1/src/main/webapp/resources/core/img/salon.jpg"
+                        <img th:src="@{/img/salon.jpg}"
                              class="card-img-top pack-img"
                              alt="Fiesta de 15 años">
 
@@ -224,7 +224,7 @@
 
                     <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
 
-                        <img src="/Proyecto-tw1/src/main/webapp/resources/core/img/salon.jpg"
+                        <img th:src="@{/img/salon.jpg}"
                              class="card-img-top pack-img"
                              alt="Casamiento premium">
 
@@ -263,7 +263,7 @@
 
                     <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
 
-                        <img src="/Proyecto-tw1/src/main/webapp/resources/core/img/salon.jpg"
+                        <img th:src="@{/img/salon.jpg}"
                              class="card-img-top pack-img"
                              alt="Cumpleaños de adultos">
 
