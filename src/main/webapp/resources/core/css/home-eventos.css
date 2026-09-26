@@ -1,0 +1,276 @@
+/* -------------------------
+   ESTILOS GENERALES
+------------------------- */
+
+body {
+    background-color: #f8f7fc;
+    color: #171331;
+}
+
+
+/* -------------------------
+   HEADER
+------------------------- */
+
+.encabezado {
+    background-color: #17104d;
+}
+
+.encabezado a {
+    font-size: 0.95rem;
+}
+
+.encabezado nav > a {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+
+/* -------------------------
+   HERO
+------------------------- */
+
+.hero {
+    background:
+            linear-gradient(
+                    135deg,
+                    #17104d 0%,
+                    #251466 55%,
+                    #45209b 100%
+            );
+
+    color: white;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    line-height: 1.05;
+}
+
+.hero p {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-image {
+    width: 100%;
+    height: 290px;
+    object-fit: cover;
+
+    border-radius: 50% 50% 18px 50%;
+
+    border: 4px solid rgba(180, 87, 255, 0.45);
+}
+
+.hero-search {
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.18);
+}
+
+.btn-buscar {
+    background: linear-gradient(
+            90deg,
+            #ff6e92,
+            #ff7f72
+    );
+
+    color: white;
+    border: none;
+}
+
+.btn-buscar:hover {
+    color: white;
+    opacity: 0.9;
+}
+
+.btn-crear-evento {
+    background: linear-gradient(
+            90deg,
+            #ff70a0,
+            #ff9d82
+    );
+
+    color: #25124e;
+    border: none;
+    font-weight: 600;
+}
+
+.btn-crear-evento:hover {
+    color: #25124e;
+    opacity: 0.9;
+}
+
+
+/* -------------------------
+   PACKS
+------------------------- */
+
+.seccion-clara {
+    background-color: #faf9ff;
+}
+
+.linea-titulo {
+    width: 38px;
+    height: 4px;
+    background-color: #8a3ffc;
+    border-radius: 10px;
+}
+
+.card {
+    transition: transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+
+    box-shadow:
+            0 12px 30px rgba(67, 41, 140, 0.15) !important;
+}
+
+.pack-img {
+    height: 180px;
+    object-fit: cover;
+}
+
+.btn-pack {
+    background: linear-gradient(
+            90deg,
+            #7440d8,
+            #874cf0
+    );
+
+    color: white;
+    border: none;
+}
+
+.btn-pack:hover {
+    background-color: #5e31be;
+    color: white;
+}
+
+
+/* -------------------------
+   TIPOS DE EVENTO
+------------------------- */
+
+.tipo-evento {
+    min-height: 110px;
+
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+
+    gap: 8px;
+
+    background-color: #f0ebff;
+
+    border-radius: 16px;
+
+    color: #351c78;
+
+    text-decoration: none;
+
+    transition:
+            transform 0.2s ease,
+            background-color 0.2s ease;
+}
+
+.tipo-evento:hover {
+    transform: translateY(-4px);
+    background-color: #e4d9ff;
+}
+
+.tipo-icono {
+    font-size: 2rem;
+}
+
+.tipo-evento span:last-child {
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+
+/* -------------------------
+   COMO FUNCIONA
+------------------------- */
+
+.como-funciona {
+    position: relative;
+    overflow: hidden;
+
+    color: white;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #251259,
+                    #37147d 60%,
+                    #4a20a0
+            );
+}
+
+.numero-paso {
+    width: 25px;
+    height: 25px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin: 0 auto 10px;
+
+    border-radius: 50%;
+
+    background-color: #b44cff;
+
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.icono-paso {
+    width: 55px;
+    height: 55px;
+
+    margin: auto;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 50%;
+
+    background-color: rgba(255, 255, 255, 0.12);
+
+    font-size: 1.6rem;
+}
+
+
+/* -------------------------
+   RESPONSIVE
+------------------------- */
+
+@media (max-width: 991px) {
+
+    .hero h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-image {
+        margin-top: 30px;
+        height: 250px;
+    }
+
+    .encabezado nav {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .encabezado ul {
+        order: 3;
+        width: 100%;
+
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
