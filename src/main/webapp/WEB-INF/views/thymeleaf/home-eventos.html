@@ -84,7 +84,8 @@
 
             <!-- BUSCADOR DE PRESUPUESTOS -->
 
-            <form class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
+            <form th:action="@{/paquetes}" method="get"
+                    class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
                 <!-- TIPO DE EVENTO -->
 
                 <div class="col-12 col-lg-3">
@@ -92,11 +93,12 @@
                         Tipo de evento
                     </label>
 
-                    <select id="tipoEvento" name="tipoEvento" class="form-select">
+                    <select id="tipoEvento" name="tipo" class="form-select">
                         <option value="">Seleccioná una opción</option>
-                        <option value="casamiento">Casamiento</option>
-                        <option value="quince">Fiesta de 15</option>
-                        <option value="cumpleanios">Cumpleaños</option>
+                        <option value="CASAMIENTO">Casamiento</option>
+                        <option value="FIESTA_DE_15">Fiesta de 15</option>
+                        <option value="CUMPLEANIOS">Cumpleaños</option>
+                        <option value="EMPRESARIAL">Empresarial</option>
                     </select>
                 </div>
 
@@ -320,28 +322,28 @@
             <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 text-center">
 
                 <div class="col">
-                    <a href="#" class="tipo-evento">
+                    <a th:href="@{/paquetes(tipo='CASAMIENTO')}" class="tipo-evento">
                         <span class="tipo-icono">♡</span>
                         <span>Casamientos</span>
                     </a>
                 </div>
 
                 <div class="col">
-                    <a href="#" class="tipo-evento">
+                    <a th:href="@{/paquetes(tipo='FIESTA_DE_15')}" class="tipo-evento">
                         <span class="tipo-icono">♕</span>
                         <span>15 años</span>
                     </a>
                 </div>
 
                 <div class="col">
-                    <a href="#" class="tipo-evento">
+                    <a th:href="@{/paquetes(tipo='CUMPLEANIOS')}" class="tipo-evento">
                         <span class="tipo-icono">♨</span>
                         <span>Cumpleaños</span>
                     </a>
                 </div>
 
                 <div class="col">
-                    <a href="#" class="tipo-evento">
+                    <a th:href="@{/paquetes(tipo='EMPRESARIAL')}" class="tipo-evento">
                         <span class="tipo-icono">▣</span>
                         <span>Empresariales</span>
                     </a>
