@@ -15,7 +15,13 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
       new Paquete("Casamiento clásico", TipoPaquete.CASAMIENTO),
       new Paquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS),
       new Paquete("Fiesta de quince", TipoPaquete.FIESTA_DE_15),
-      new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS),
+      new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS)
+    );
+  }
+
+  @Override
+  public List<Paquete> obtenerPredeterminados() {
+    return List.of(
       new Paquete(
         1L,
         "Básico",

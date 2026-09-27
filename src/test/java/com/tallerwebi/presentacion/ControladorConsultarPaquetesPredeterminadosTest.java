@@ -44,4 +44,22 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertEquals("paquetes-predeterminados", modelAndView.getViewName());
     assertEquals(List.of(paqueteBasico), modelAndView.getModel().get("paquetes"));
   }
+
+  @Test
+  public void muestraElDetalleDeUnPaqueteSegunSuId() {
+    //preparacion
+    Paquete paqueteBasico = new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS,
+            "Salón Los Álamos", "Catering Don José", List.of("DJ"), 80000.0);
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+
+    //ejecucion
+    ModelAndView modelAndView = controlador.mostrarDetalle(1L);
+
+    //validacion
+    assertEquals("paquete-detalle", modelAndView.getViewName());
+    assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
+  }
+
+
+
 }

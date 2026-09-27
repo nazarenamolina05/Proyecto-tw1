@@ -15,6 +15,18 @@ public class ServicioConsultarPaquetesPredeterminadosImpl
 
   @Override
   public List<Paquete> consultarTodos() {
-    return repositorioPaquete.obtenerTodos();
+    return repositorioPaquete.obtenerPredeterminados();
+  }
+
+  @Override
+  public Paquete consultarPorId(Long id) {
+    List<Paquete> paquetes = repositorioPaquete.obtenerPredeterminados();
+
+    for (Paquete paquete : paquetes) {
+      if (paquete.getId().equals(id)) {
+        return paquete;
+      }
+    }
+    return null;
   }
 }
