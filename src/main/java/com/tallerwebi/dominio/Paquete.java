@@ -17,8 +17,15 @@ public class Paquete {
     this.tipo = tipo;
   }
 
-  public Paquete(Long id, String nombre, TipoPaquete tipo, String salon,
-                 String catering, List<String> serviciosAdicionales, Double precioEstimado) {
+  public Paquete(
+    Long id,
+    String nombre,
+    TipoPaquete tipo,
+    String salon,
+    String catering,
+    List<String> serviciosAdicionales,
+    Double precioEstimado
+  ) {
     this.id = id;
     this.nombre = nombre;
     this.tipo = tipo;
@@ -47,6 +54,7 @@ public class Paquete {
   public Long getId() {
     return id;
   }
+
   public String getNombre() {
     return nombre;
   }
@@ -55,5 +63,3 @@ public class Paquete {
     return tipo;
   }
 }
-
-
