@@ -12,41 +12,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
 
-public class ControladorConsultarPaquetesPredeterminadosTest {
+public class ControladorHomeEventosTest {
 
   private ServicioConsultarPaquetesPredeterminados servicio;
-  private ControladorConsultarPaquetesPredeterminados controlador;
+  private ControladorHomeEventos controlador;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioConsultarPaquetesPredeterminados.class);
-    controlador = new ControladorConsultarPaquetesPredeterminados(servicio);
+    controlador = new ControladorHomeEventos(servicio);
   }
 
   @Test
-  public void muestraElListadoDePaquetesPredeterminados() {
-    //preparacion
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
-      "Catering Don José",
-      List.of("DJ"),
-      150000.0
-    );
-    when(servicio.consultarTodos()).thenReturn(List.of(paqueteBasico));
-
-    //ejecucion
-    ModelAndView modelAndView = controlador.listarPaquetesPredeterminados();
-
-    //validacion
-    assertEquals("paquetes-predeterminados", modelAndView.getViewName());
-    assertEquals(List.of(paqueteBasico), modelAndView.getModel().get("paquetes"));
-  }
-
-  @Test
-  public void muestraElDetalleDeUnPaqueteSegunSuId() {
+  public void muestraElHomeConLosPaquetesPredeterminados() {
     //preparacion
     Paquete paqueteBasico = new Paquete(
       1L,
@@ -57,13 +35,13 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
       List.of("DJ"),
       80000.0
     );
-    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    when(servicio.consultarTodos()).thenReturn(List.of(paqueteBasico));
 
     //ejecucion
-    ModelAndView modelAndView = controlador.mostrarDetalle(1L);
+    ModelAndView modelAndView = controlador.inicioPagina();
 
     //validacion
-    assertEquals("paquete-detalle", modelAndView.getViewName());
-    assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
+    assertEquals("home-eventos", modelAndView.getViewName());
+    assertEquals(List.of(paqueteBasico), modelAndView.getModel().get("paquetes"));
   }
 }

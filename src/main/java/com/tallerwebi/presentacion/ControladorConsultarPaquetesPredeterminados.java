@@ -15,7 +15,9 @@ public class ControladorConsultarPaquetesPredeterminados {
 
   private ServicioConsultarPaquetesPredeterminados servicio;
 
-  public ControladorConsultarPaquetesPredeterminados(ServicioConsultarPaquetesPredeterminados servicio) {
+  public ControladorConsultarPaquetesPredeterminados(
+    ServicioConsultarPaquetesPredeterminados servicio
+  ) {
     this.servicio = servicio;
   }
 
@@ -35,7 +37,4 @@ public class ControladorConsultarPaquetesPredeterminados {
     modelo.put("paquete", paquete);
     return new ModelAndView("paquete-detalle", modelo);
   }
-
-
-
 }
