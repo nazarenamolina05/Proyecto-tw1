@@ -1,7 +1,12 @@
 package com.tallerwebi.dominio;
 
-import jakarta.persistence.*;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 
 @Entity
@@ -21,12 +26,9 @@ public class Reserva {
 
     private LocalDate fecha;
     private Double presupuesto;
-    private String estado; // "confirmada", "cancelada", "finalizada"
 
-
-    // getters y setters
-
-    public Long getId() {
+    @Enumerated(EnumType.STRING)
+    private EstadoReserva estado;    public Long getId() {
         return id;
     }
 
@@ -74,11 +76,11 @@ public class Reserva {
         this.presupuesto = presupuesto;
     }
 
-    public String getEstado() {
+    public EstadoReserva getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoReserva estado) {
         this.estado = estado;
     }
 }
