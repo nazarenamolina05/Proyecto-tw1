@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Detalle del paquete</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
+    <link rel="stylesheet" th:href="@{/css/paquete-detalle.css}" />
+</head>
+<body>
+
+<header class="encabezado py-3">
+    <div class="container">
+        <nav class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/home-eventos}" class="text-light text-decoration-none fw-bold">Eventos</a>
+            <a th:href="@{/home-eventos#packs}" class="text-light text-decoration-none">Volver a los packs</a>
+        </nav>
+    </div>
+</header>
+
+<main class="seccion-clara py-5">
+    <div class="container">
+
+        <div th:if="${paquete != null}" class="card detalle-card">
+            <div class="row g-0">
+
+                <div class="col-lg-6">
+                    <img th:src="@{/img/salon.jpg}" class="detalle-img" th:alt="${paquete.nombre}" />
+                </div>
+
+                <div class="col-lg-6 p-4 p-lg-5 d-flex flex-column">
+
+                    <div>
+                        <span class="detalle-tipo" th:switch="${paquete.tipo.name()}">
+                            <span th:case="'CUMPLEANIOS'">Cumpleaños</span>
+                            <span th:case="'FIESTA_DE_15'">Fiesta de 15</span>
+                            <span th:case="'CASAMIENTO'">Casamiento</span>
+                            <span th:case="'EMPRESARIAL'">Empresarial</span>
+                        </span>
+                    </div>
+
+                    <h1 class="fw-bold mt-3 mb-4" th:text="${paquete.nombre}">Nombre del paquete</h1>
+
+                    <h5 class="fw-bold">Qué incluye</h5>
+                    <ul class="detalle-lista mb-4">
+                        <li th:text="${paquete.salon}">Salón</li>
+                        <li th:text="${paquete.catering}">Catering</li>
+                        <li th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</li>
+                    </ul>
+
+                    <div class="detalle-precio mt-auto">
+                        <small>Precio estimado</small>
+                        <div class="monto">
+                            $ <span th:text="${#numbers.formatDecimal(paquete.precioEstimado, 0, 'POINT', 0, 'COMMA')}">0</span>
+                        </div>
+                    </div>
+
+                    <a href="#" class="btn btn-pack w-100 rounded-pill mt-3">Reservar</a>
+
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${paquete == null}" class="text-center py-5">
+            <h2 class="fw-bold">No encontramos ese paquete</h2>
+            <a th:href="@{/home-eventos#packs}" class="btn btn-pack rounded-pill px-4 mt-3">
+                Ver los packs disponibles
+            </a>
+        </div>
+
+    </div>
+</main>
+
+</body>
+</html>

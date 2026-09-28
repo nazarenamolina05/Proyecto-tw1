@@ -18,4 +18,37 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
       new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS)
     );
   }
+
+  @Override
+  public List<Paquete> obtenerPredeterminados() {
+    return List.of(
+      new Paquete(
+        1L,
+        "Básico",
+        TipoPaquete.CUMPLEANIOS,
+        "Salón Los Álamos",
+        "Catering Don José",
+        List.of("DJ"),
+        80000.0
+      ),
+      new Paquete(
+        2L,
+        "Estándar",
+        TipoPaquete.FIESTA_DE_15,
+        "Salón Jardín del Sol",
+        "Catering Fiesta Plena",
+        List.of("DJ", "Fotografía"),
+        150000.0
+      ),
+      new Paquete(
+        3L,
+        "Premium",
+        TipoPaquete.CASAMIENTO,
+        "Salón Gran Bahía",
+        "Catering Alta Cocina",
+        List.of("DJ", "Fotografía", "Video", "Decoración"),
+        300000.0
+      )
+    );
+  }
 }

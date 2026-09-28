@@ -85,7 +85,7 @@
             <!-- BUSCADOR DE PRESUPUESTOS -->
 
             <form th:action="@{/paquetes}" method="get"
-                    class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
+                  class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
                 <!-- TIPO DE EVENTO -->
 
                 <div class="col-12 col-lg-3">
@@ -160,148 +160,56 @@
 
     <!-- PACKS -->
     <section id="packs" class="seccion-clara py-5">
-
         <div class="container">
 
-            <!-- TITULO -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                <div>
-                    <h2 class="fw-bold mb-1">Nuestros Packs</h2>
-                    <div class="linea-titulo"></div>
-                </div>
-
-                <a href="#"
-                   class="text-decoration-none text-dark">
-                    Ver todos los packs →
-                </a>
-
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1">Paquetes Predeterminados</h2>
+                <div class="linea-titulo"></div>
             </div>
 
-
-            <!-- TARJETAS -->
             <div class="row g-4">
 
-                <!-- PACK 1 -->
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
+                    <article class="pack-card">
 
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-
-                        <img th:src="@{/img/salon.jpg}"
-                             class="card-img-top pack-img"
-                             alt="Fiesta de 15 años">
-
-                        <div class="card-body">
-
-                            <h5 class="card-title fw-bold">
-                                Fiesta de 15 años
-                            </h5>
-
-                            <p class="card-text small mb-1">
-                                ♫ Salón + Catering + DJ
-                            </p>
-
-                            <p class="card-text small">
-                                ♙ Hasta 80 invitados
-                            </p>
-
-                            <h5 class="fw-bold">
-                                $ 290.000
-                            </h5>
-
-                            <a href="#"
-                               class="btn btn-pack w-100 rounded-pill mt-2">
-                                Reservar
-                            </a>
-
+                        <div class="pack-media">
+                            <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}" />
+                            <span class="pack-tag" th:switch="${paquete.tipo.name()}">
+                            <span th:case="'CUMPLEANIOS'">Cumpleaños</span>
+                            <span th:case="'FIESTA_DE_15'">Fiesta de 15</span>
+                            <span th:case="'CASAMIENTO'">Casamiento</span>
+                            <span th:case="'EMPRESARIAL'">Empresarial</span>
+                        </span>
                         </div>
 
-                    </div>
+                        <div class="pack-body">
+                            <h3 class="pack-nombre" th:text="${paquete.nombre}">Nombre</h3>
 
-                </div>
+                            <p class="pack-linea" th:text="${paquete.salon}">Salón</p>
+                            <p class="pack-linea pack-linea-suave" th:text="${paquete.catering}">Catering</p>
 
+                            <div class="pack-chips">
+                                <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</span>
+                            </div>
 
-                <!-- PACK 2 -->
-                <div class="col-12 col-md-4">
+                            <div class="pack-precio">
+                                <small>Precio estimado</small>
+                                <div class="pack-monto">
+                                    $ <span th:text="${#numbers.formatDecimal(paquete.precioEstimado, 0, 'POINT', 0, 'COMMA')}">0</span>
+                                </div>
+                            </div>
 
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-
-                        <img th:src="@{/img/salon.jpg}"
-                             class="card-img-top pack-img"
-                             alt="Casamiento premium">
-
-                        <div class="card-body">
-
-                            <h5 class="card-title fw-bold">
-                                Casamiento Premium
-                            </h5>
-
-                            <p class="card-text small mb-1">
-                                ♫ Salón + Catering + Fotografía
-                            </p>
-
-                            <p class="card-text small">
-                                ♙ Hasta 150 invitados
-                            </p>
-
-                            <h5 class="fw-bold">
-                                $ 580.000
-                            </h5>
-
-                            <a href="#"
-                               class="btn btn-pack w-100 rounded-pill mt-2">
-                                Reservar
+                            <a th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
+                               class="btn btn-pack w-100 rounded-pill">
+                                Ver más
                             </a>
-
                         </div>
 
-                    </div>
-
-                </div>
-
-
-                <!-- PACK 3 -->
-                <div class="col-12 col-md-4">
-
-                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-
-                        <img th:src="@{/img/salon.jpg}"
-                             class="card-img-top pack-img"
-                             alt="Cumpleaños de adultos">
-
-                        <div class="card-body">
-
-                            <h5 class="card-title fw-bold">
-                                Cumpleaños Adultos
-                            </h5>
-
-                            <p class="card-text small mb-1">
-                                ♫ Salón + Catering + Animación
-                            </p>
-
-                            <p class="card-text small">
-                                ♙ Hasta 120 invitados
-                            </p>
-
-                            <h5 class="fw-bold">
-                                $ 210.000
-                            </h5>
-
-                            <a href="#"
-                               class="btn btn-pack w-100 rounded-pill mt-2">
-                                Reservar
-                            </a>
-
-                        </div>
-
-                    </div>
-
+                    </article>
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
     <!-- TIPOS DE EVENTO -->
