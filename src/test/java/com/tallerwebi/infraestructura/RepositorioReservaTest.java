@@ -23,74 +23,74 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(classes = { HibernateInfraestructuraTestConfig.class })
 public class RepositorioReservaTest {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+  @Autowired
+  private SessionFactory sessionFactory;
 
-    private RepositorioReserva repositorioReserva;
+  private RepositorioReserva repositorioReserva;
 
-    @BeforeEach
-    public void init() {
-        repositorioReserva = new RepositorioReservaImpl(sessionFactory);
+  @BeforeEach
+  public void init() {
+    repositorioReserva = new RepositorioReservaImpl(sessionFactory);
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerSoloLasReservasDelUsuarioIndicado() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Usuario otroUsuario = this.dadoQueExisteUnUsuario("otro@test.com");
+    this.dadoQueExisteUnaReserva(usuario, "Cumpleanios familiar");
+    this.dadoQueExisteUnaReserva(usuario, "Casamiento clásico");
+    this.dadoQueExisteUnaReserva(otroUsuario, "Fiesta de quince");
+
+    List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
+
+    this.entoncesObtengoLaCantidadDeReservas(obtenidas, 2);
+    this.entoncesTodasLasReservasSonDelUsuario(obtenidas, usuario);
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverUnaListaVaciaSiElUsuarioNoTieneReservas() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+
+    List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
+
+    assertThat(obtenidas, is(empty()));
+  }
+
+  private Usuario dadoQueExisteUnUsuario(String email) {
+    Usuario usuario = new Usuario();
+    usuario.setEmail(email);
+    usuario.setPassword("123");
+    usuario.setRol("USER");
+    this.sessionFactory.getCurrentSession().persist(usuario);
+    return usuario;
+  }
+
+  private void dadoQueExisteUnaReserva(Usuario usuario, String nombrePaquete) {
+    Reserva reserva = new Reserva();
+    reserva.setUsuario(usuario);
+    reserva.setNombrePaquete(nombrePaquete);
+    reserva.setTipo(TipoPaquete.CUMPLEANIOS);
+    reserva.setFecha(LocalDate.now().plusDays(30));
+    reserva.setPresupuesto(100000.0);
+    reserva.setEstado(EstadoReserva.CONFIRMADA);
+    this.sessionFactory.getCurrentSession().persist(reserva);
+  }
+
+  private List<Reserva> cuandoBuscoLasReservasDe(Usuario usuario) {
+    return repositorioReserva.buscarPorUsuario(usuario);
+  }
+
+  private void entoncesObtengoLaCantidadDeReservas(List<Reserva> reservas, int esperada) {
+    assertThat(reservas.size(), is(equalTo(esperada)));
+  }
+
+  private void entoncesTodasLasReservasSonDelUsuario(List<Reserva> reservas, Usuario usuario) {
+    for (Reserva reserva : reservas) {
+      assertThat(reserva.getUsuario().getEmail(), is(equalTo(usuario.getEmail())));
     }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void deberiaObtenerSoloLasReservasDelUsuarioIndicado() {
-        Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
-        Usuario otroUsuario = this.dadoQueExisteUnUsuario("otro@test.com");
-        this.dadoQueExisteUnaReserva(usuario, "Cumpleanios familiar");
-        this.dadoQueExisteUnaReserva(usuario, "Casamiento clásico");
-        this.dadoQueExisteUnaReserva(otroUsuario, "Fiesta de quince");
-
-        List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
-
-        this.entoncesObtengoLaCantidadDeReservas(obtenidas, 2);
-        this.entoncesTodasLasReservasSonDelUsuario(obtenidas, usuario);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void deberiaDevolverUnaListaVaciaSiElUsuarioNoTieneReservas() {
-        Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
-
-        List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
-
-        assertThat(obtenidas, is(empty()));
-    }
-
-    private Usuario dadoQueExisteUnUsuario(String email) {
-        Usuario usuario = new Usuario();
-        usuario.setEmail(email);
-        usuario.setPassword("123");
-        usuario.setRol("USER");
-        this.sessionFactory.getCurrentSession().persist(usuario);
-        return usuario;
-    }
-
-    private void dadoQueExisteUnaReserva(Usuario usuario, String nombrePaquete) {
-        Reserva reserva = new Reserva();
-        reserva.setUsuario(usuario);
-        reserva.setNombrePaquete(nombrePaquete);
-        reserva.setTipo(TipoPaquete.CUMPLEANIOS);
-        reserva.setFecha(LocalDate.now().plusDays(30));
-        reserva.setPresupuesto(100000.0);
-        reserva.setEstado(EstadoReserva.CONFIRMADA);
-        this.sessionFactory.getCurrentSession().persist(reserva);
-    }
-
-    private List<Reserva> cuandoBuscoLasReservasDe(Usuario usuario) {
-        return repositorioReserva.buscarPorUsuario(usuario);
-    }
-
-    private void entoncesObtengoLaCantidadDeReservas(List<Reserva> reservas, int esperada) {
-        assertThat(reservas.size(), is(equalTo(esperada)));
-    }
-
-    private void entoncesTodasLasReservasSonDelUsuario(List<Reserva> reservas, Usuario usuario) {
-        for (Reserva reserva : reservas) {
-            assertThat(reserva.getUsuario().getEmail(), is(equalTo(usuario.getEmail())));
-        }
-    }
+  }
 }

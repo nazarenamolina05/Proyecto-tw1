@@ -12,75 +12,77 @@ import java.time.LocalDate;
 @Entity
 public class Reserva {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne
-    private Usuario usuario;
+  @ManyToOne
+  private Usuario usuario;
 
-    private String nombrePaquete; // provisorio, hasta que Paquete/Evento sea una entidad persistente
+  private String nombrePaquete; // provisorio, hasta que Paquete/Evento sea una entidad persistente
 
-    @Enumerated(EnumType.STRING)
-    private TipoPaquete tipo;
+  @Enumerated(EnumType.STRING)
+  private TipoPaquete tipo;
 
-    private LocalDate fecha;
-    private Double presupuesto;
+  private LocalDate fecha;
+  private Double presupuesto;
 
-    @Enumerated(EnumType.STRING)
-    private EstadoReserva estado;    public Long getId() {
-        return id;
-    }
+  @Enumerated(EnumType.STRING)
+  private EstadoReserva estado;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Usuario getUsuario() {
-        return usuario;
-    }
+  public void setId(Long id) {
+    this.id = id;
+  }
 
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+  public Usuario getUsuario() {
+    return usuario;
+  }
 
-    public String getNombrePaquete() {
-        return nombrePaquete;
-    }
+  public void setUsuario(Usuario usuario) {
+    this.usuario = usuario;
+  }
 
-    public void setNombrePaquete(String nombrePaquete) {
-        this.nombrePaquete = nombrePaquete;
-    }
+  public String getNombrePaquete() {
+    return nombrePaquete;
+  }
 
-    public TipoPaquete getTipo() {
-        return tipo;
-    }
+  public void setNombrePaquete(String nombrePaquete) {
+    this.nombrePaquete = nombrePaquete;
+  }
 
-    public void setTipo(TipoPaquete tipo) {
-        this.tipo = tipo;
-    }
+  public TipoPaquete getTipo() {
+    return tipo;
+  }
 
-    public LocalDate getFecha() {
-        return fecha;
-    }
+  public void setTipo(TipoPaquete tipo) {
+    this.tipo = tipo;
+  }
 
-    public void setFecha(LocalDate fecha) {
-        this.fecha = fecha;
-    }
+  public LocalDate getFecha() {
+    return fecha;
+  }
 
-    public Double getPresupuesto() {
-        return presupuesto;
-    }
+  public void setFecha(LocalDate fecha) {
+    this.fecha = fecha;
+  }
 
-    public void setPresupuesto(Double presupuesto) {
-        this.presupuesto = presupuesto;
-    }
+  public Double getPresupuesto() {
+    return presupuesto;
+  }
 
-    public EstadoReserva getEstado() {
-        return estado;
-    }
+  public void setPresupuesto(Double presupuesto) {
+    this.presupuesto = presupuesto;
+  }
 
-    public void setEstado(EstadoReserva estado) {
-        this.estado = estado;
-    }
+  public EstadoReserva getEstado() {
+    return estado;
+  }
+
+  public void setEstado(EstadoReserva estado) {
+    this.estado = estado;
+  }
 }

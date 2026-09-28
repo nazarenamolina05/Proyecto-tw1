@@ -41,6 +41,7 @@ public class ControladorLogin {
     );
     if (usuarioBuscado != null) {
       request.getSession().setAttribute("ROL", usuarioBuscado.getRol());
+      request.getSession().setAttribute("USUARIO", usuarioBuscado); // linea nueva agregada para reservas
       return new ModelAndView("redirect:/home");
     } else {
       Map<String, Object> model = new ModelMap();

@@ -1,0 +1,13 @@
+<table>
+    <tr>
+        <th>Fecha</th>
+        <th>Paquete</th>
+        <th>Estado</th>
+    </tr>
+    <tr th:each="reserva : ${reservas}">
+        <td th:text="${reserva.fecha}"></td>
+        <td th:text="${reserva.nombrePaquete}"></td>
+        <td th:text="${reserva.estado}"></td>
+    </tr>
+</table>
+<p th:if="${reservas.isEmpty()}">No tenés reservas todavía.</p>
