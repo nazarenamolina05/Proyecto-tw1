@@ -85,7 +85,7 @@
             <!-- BUSCADOR DE PRESUPUESTOS -->
 
             <form th:action="@{/paquetes}" method="get"
-                    class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
+                  class="row g-3 mt-4 bg-white text-dark p-3 rounded-4 hero-search">
                 <!-- TIPO DE EVENTO -->
 
                 <div class="col-12 col-lg-3">
@@ -160,66 +160,57 @@
 
     <!-- PACKS -->
     <section id="packs" class="seccion-clara py-5">
-
         <div class="container">
 
-            <!-- TITULO -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-
-                <div>
-                    <h2 class="fw-bold mb-1">Nuestros Packs</h2>
-                    <div class="linea-titulo"></div>
-                </div>
-
-                <a href="#"
-                   class="text-decoration-none text-dark">
-                    Ver todos los packs →
-                </a>
-
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1">Paquetes Predeterminados</h2>
+                <div class="linea-titulo"></div>
             </div>
 
-        </div>
+            <div class="row g-4">
 
+                <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
+                    <article class="pack-card">
+
+                        <div class="pack-media">
+                            <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}" />
+                            <span class="pack-tag" th:switch="${paquete.tipo.name()}">
+                            <span th:case="'CUMPLEANIOS'">Cumpleaños</span>
+                            <span th:case="'FIESTA_DE_15'">Fiesta de 15</span>
+                            <span th:case="'CASAMIENTO'">Casamiento</span>
+                            <span th:case="'EMPRESARIAL'">Empresarial</span>
+                        </span>
+                        </div>
+
+                        <div class="pack-body">
+                            <h3 class="pack-nombre" th:text="${paquete.nombre}">Nombre</h3>
+
+                            <p class="pack-linea" th:text="${paquete.salon}">Salón</p>
+                            <p class="pack-linea pack-linea-suave" th:text="${paquete.catering}">Catering</p>
+
+                            <div class="pack-chips">
+                                <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</span>
+                            </div>
+
+                            <div class="pack-precio">
+                                <small>Precio estimado</small>
+                                <div class="pack-monto">
+                                    $ <span th:text="${#numbers.formatDecimal(paquete.precioEstimado, 0, 'POINT', 0, 'COMMA')}">0</span>
+                                </div>
+                            </div>
+
+                            <a th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
+                               class="btn btn-pack w-100 rounded-pill">
+                                Ver más
+                            </a>
+                        </div>
+
+                    </article>
+                </div>
+
+            </div>
+        </div>
     </section>
-
-    <!-- TARJETAS -->
-    <div class="row g-4">
-
-        <div class="col-12 col-md-4" th:each="paquete : ${paquetes}">
-
-            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-
-                <img th:src="@{/img/salon.jpg}"
-                     class="card-img-top pack-img"
-                     th:alt="${paquete.nombre}">
-
-                <div class="card-body">
-
-                    <h5 class="card-title fw-bold" th:text="${paquete.nombre}">
-                        Nombre del paquete
-                    </h5>
-
-                    <p class="card-text small mb-1">
-                        ♫ <span th:text="${paquete.salon}">Salón</span> +
-                        <span th:text="${paquete.catering}">Catering</span>
-                    </p>
-
-                    <h5 class="fw-bold">
-                        $ <span th:text="${paquete.precioEstimado}">0</span>
-                    </h5>
-
-                    <a th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
-                       class="btn btn-pack w-100 rounded-pill mt-2">
-                        Ver más
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
 
     <!-- TIPOS DE EVENTO -->
 

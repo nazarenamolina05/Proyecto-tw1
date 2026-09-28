@@ -24,28 +24,6 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
   }
 
   @Test
-  public void muestraElListadoDePaquetesPredeterminados() {
-    //preparacion
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
-      "Catering Don José",
-      List.of("DJ"),
-      150000.0
-    );
-    when(servicio.consultarTodos()).thenReturn(List.of(paqueteBasico));
-
-    //ejecucion
-    ModelAndView modelAndView = controlador.listarPaquetesPredeterminados();
-
-    //validacion
-    assertEquals("paquetes-predeterminados", modelAndView.getViewName());
-    assertEquals(List.of(paqueteBasico), modelAndView.getModel().get("paquetes"));
-  }
-
-  @Test
   public void muestraElDetalleDeUnPaqueteSegunSuId() {
     //preparacion
     Paquete paqueteBasico = new Paquete(

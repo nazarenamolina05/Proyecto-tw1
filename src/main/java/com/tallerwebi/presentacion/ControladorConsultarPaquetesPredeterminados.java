@@ -21,14 +21,6 @@ public class ControladorConsultarPaquetesPredeterminados {
     this.servicio = servicio;
   }
 
-  @GetMapping(path = "/paquetes-predeterminados")
-  public ModelAndView listarPaquetesPredeterminados() {
-    Map<String, Object> modelo = new ModelMap();
-    List<Paquete> paquetes = servicio.consultarTodos();
-    modelo.put("paquetes", paquetes);
-    return new ModelAndView("paquetes-predeterminados", modelo);
-  }
-
   @GetMapping(path = "/paquetes-predeterminados/{id}")
   public ModelAndView mostrarDetalle(@PathVariable("id") Long id) {
     Map<String, Object> modelo = new ModelMap();

@@ -1,0 +1,189 @@
+/* ============================================
+   Detalle de paquete predeterminado
+   ============================================ */
+
+.detalle-card {
+    --detalle-noche: #1a1052;
+    --detalle-violeta: #6d3fd6;
+    --detalle-violeta-suave: #f3eeff;
+    --detalle-coral: #ff7a85;
+    --detalle-texto: #3d3560;
+    --detalle-texto-suave: #8a82a8;
+    --detalle-borde: #ebe4fa;
+
+    background: #fff;
+    border: 1px solid var(--detalle-borde);
+    border-radius: 1.5rem;
+    overflow: hidden;
+    box-shadow:
+            0 1px 2px rgba(26, 16, 82, 0.04),
+            0 16px 40px -12px rgba(109, 63, 214, 0.22);
+    color: var(--detalle-texto);
+}
+
+/* ---------- Imagen ---------- */
+
+.detalle-card .row > div:first-child {
+    position: relative;
+}
+
+.detalle-card .row > div:first-child::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+            180deg,
+            rgba(26, 16, 82, 0) 55%,
+            rgba(26, 16, 82, 0.35) 100%
+    );
+    pointer-events: none;
+}
+
+.detalle-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 360px;
+    object-fit: cover;
+}
+
+/* ---------- Etiqueta de tipo ---------- */
+
+.detalle-tipo {
+    display: inline-block;
+    background: var(--detalle-violeta-suave);
+    color: var(--detalle-violeta);
+    border: 1px solid var(--detalle-borde);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.95rem;
+    border-radius: 999px;
+}
+
+/* ---------- Titulo ---------- */
+
+.detalle-card h1 {
+    color: var(--detalle-noche);
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.detalle-card h1::after {
+    content: "";
+    display: block;
+    width: 3rem;
+    height: 0.25rem;
+    margin-top: 0.85rem;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--detalle-violeta), var(--detalle-coral));
+}
+
+.detalle-card h5 {
+    color: var(--detalle-texto-suave);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ---------- Lista "Que incluye" ---------- */
+
+.detalle-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.detalle-lista li {
+    position: relative;
+    padding: 0.8rem 0 0.8rem 2.4rem;
+    border-bottom: 1px solid var(--detalle-borde);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--detalle-texto);
+}
+
+.detalle-lista li:last-child {
+    border-bottom: 0;
+}
+
+/* circulo suave */
+.detalle-lista li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.4rem;
+    height: 1.4rem;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: var(--detalle-violeta-suave);
+    border: 1px solid var(--detalle-borde);
+}
+
+/* tilde dibujado con bordes (sin caracteres especiales) */
+.detalle-lista li::after {
+    content: "";
+    position: absolute;
+    left: 0.54rem;
+    top: 50%;
+    width: 0.32rem;
+    height: 0.6rem;
+    border: solid var(--detalle-violeta);
+    border-width: 0 2px 2px 0;
+    transform: translateY(-62%) rotate(45deg);
+}
+
+/* ---------- Precio ---------- */
+
+.detalle-precio {
+    background: linear-gradient(135deg, #f5f0ff 0%, #fff1f4 100%);
+    border: 1px solid var(--detalle-borde);
+    border-radius: 1rem;
+    padding: 1.1rem 1.35rem;
+}
+
+.detalle-precio small {
+    display: block;
+    color: var(--detalle-texto-suave);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.detalle-precio .monto {
+    color: var(--detalle-noche);
+    font-size: 2.3rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+/* ---------- Boton ---------- */
+
+.detalle-card .btn-pack {
+    padding: 0.85rem 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    box-shadow: 0 10px 22px -8px rgba(109, 63, 214, 0.65);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.detalle-card .btn-pack:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 26px -8px rgba(109, 63, 214, 0.75);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 991.98px) {
+    .detalle-img {
+        min-height: 220px;
+        max-height: 280px;
+    }
+}
