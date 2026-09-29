@@ -1,0 +1,59 @@
+/* -------------------------
+   MIS RESERVAS
+------------------------- */
+
+body {
+    background-color: #f8f7fc;
+    color: #171331;
+}
+
+.encabezado {
+    background-color: #17104d;
+}
+
+.linea-titulo {
+    width: 38px;
+    height: 4px;
+    background-color: #8a3ffc;
+    border-radius: 10px;
+}
+
+.tarjeta-reserva {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(67, 41, 140, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tarjeta-reserva:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(67, 41, 140, 0.15);
+}
+
+.badge-estado {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.estado-CONFIRMADA {
+    background-color: #e4d9ff;
+    color: #351c78;
+}
+
+.estado-SENIADA {
+    background-color: #fff0d9;
+    color: #7a4b00;
+}
+
+.estado-CANCELADA {
+    background-color: #ffe0e0;
+    color: #a02525;
+}
+
+.estado-FINALIZADA {
+    background-color: #dcf5e3;
+    color: #1e6b3a;
+}
