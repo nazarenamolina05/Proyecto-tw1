@@ -46,8 +46,16 @@
                     🔍
                 </button>
 
-                <a href="/login" class="btn btn-outline-light rounded-pill px-4"
+                <a th:if="${session.USUARIO == null}" th:href="@{/login}" class="btn btn-outline-light rounded-pill px-4"
                 >Ingresar</a
+                >
+
+                <a th:if="${session.USUARIO != null}" th:href="@{/mis-reservas}" class="btn btn-outline-light rounded-pill px-4"
+                >Mis reservas</a
+                >
+
+                <a th:if="${session.USUARIO != null}" href="#" class="btn btn-outline-light rounded-pill px-4"
+                >Mi perfil</a
                 >
             </div>
         </nav>
