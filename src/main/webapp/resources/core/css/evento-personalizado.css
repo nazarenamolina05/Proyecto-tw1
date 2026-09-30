@@ -1,0 +1,44 @@
+/* Tu home usa overflow-x: hidden en html y body, lo que rompe el "sticky".
+   "clip" oculta el desborde horizontal sin convertir el body en un scroll aparte. */
+html,
+body {
+    overflow-x: clip;
+}
+
+.opcion-elegida {
+    border-color: #6d3fd6;
+    box-shadow:
+            0 0 0 3px rgba(109, 63, 214, 0.25),
+            0 12px 32px -14px rgba(109, 63, 214, 0.4);
+}
+
+.btn-quitar {
+    background: #fff;
+    color: #6d3fd6;
+    border: 2px solid #6d3fd6;
+}
+
+
+/* El sticky va en el contenedor que tiene resumen + botón */
+.sidebar-sticky {
+    position: sticky;
+    top: 1rem;
+}
+
+/* .resumen ya NO lleva sticky */
+.resumen {
+    position: static;
+}
+
+
+
+.resumen-lista li {
+    padding: 0.45rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.resumen-total {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.1;
+}

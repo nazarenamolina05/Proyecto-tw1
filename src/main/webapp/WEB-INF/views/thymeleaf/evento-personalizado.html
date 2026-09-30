@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evento personalizado</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
+    <link rel="stylesheet" th:href="@{/css/evento-personalizado.css}" />
+</head>
+<body>
+
+<header class="encabezado py-3">
+    <div class="container">
+        <nav class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/home-eventos}" class="text-light text-decoration-none"><span>✦</span> <span>Eventos</span></a>
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/home-eventos}" class="text-light text-decoration-none">Inicio</a>
+                <a href="/login" class="btn btn-outline-light rounded-pill px-4">Ingresar</a>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- DATOS DEL EVENTO -->
+    <section class="hero py-5">
+        <div class="container">
+            <h1 class="fs-2 fw-bold">Armá tu evento personalizado</h1>
+            <p class="mt-2 mb-0">Elegí cada componente y mirá cómo se actualiza el presupuesto.</p>
+
+            <form th:action="@{/evento-personalizado}" method="post"
+                  class="row g-3 mt-3 bg-white text-dark p-3 rounded-4 hero-search">
+
+                <div class="col-12 col-lg-3">
+                    <label for="tipo" class="form-label">Tipo de evento</label>
+                    <select id="tipo" name="tipo" class="form-select" required>
+                        <option value="">Seleccioná una opción</option>
+                        <option value="CASAMIENTO" th:selected="${evento != null and evento.tipo.name() == 'CASAMIENTO'}">Casamiento</option>
+                        <option value="FIESTA_DE_15" th:selected="${evento != null and evento.tipo.name() == 'FIESTA_DE_15'}">Fiesta de 15</option>
+                        <option value="CUMPLEANIOS" th:selected="${evento != null and evento.tipo.name() == 'CUMPLEANIOS'}">Cumpleaños</option>
+                        <option value="EMPRESARIAL" th:selected="${evento != null and evento.tipo.name() == 'EMPRESARIAL'}">Empresarial</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <label for="fecha" class="form-label">Fecha</label>
+                    <input id="fecha" name="fecha" type="date" class="form-control" required
+                           th:value="${evento != null ? evento.fecha : ''}" />
+                </div>
+
+                <div class="col-12 col-lg-3">
+                    <label for="cantidadInvitados" class="form-label">Invitados</label>
+                    <input id="cantidadInvitados" name="cantidadInvitados" type="number" min="1"
+                           class="form-control" required
+                           th:value="${evento != null ? evento.cantidadInvitados : ''}" />
+                </div>
+
+                <div class="col-12 col-lg-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-buscar w-100 rounded-pill"
+                            th:text="${evento == null} ? 'Comenzar' : 'Actualizar datos'">Comenzar</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- SIN EVENTO TODAVÍA -->
+    <section class="seccion-clara py-5" th:if="${evento == null}">
+        <div class="container text-center">
+            <p class="mb-0">Completá el tipo de evento, la fecha y la cantidad de invitados para ver salones, catering y servicios.</p>
+        </div>
+    </section>
+
+    <!-- ARMADO -->
+    <section class="seccion-clara py-5" th:if="${evento != null}">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-12 col-lg-8">
+
+                    <!-- SALONES -->
+                    <div class="mb-3">
+                        <h2 class="fw-bold mb-1">Salón</h2>
+                        <div class="linea-titulo"></div>
+                    </div>
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 col-md-6 col-xl-4" th:each="salon : ${salones}">
+                            <article class="pack-card" th:classappend="${salon.id == salonElegidoId} ? 'opcion-elegida'">
+                                <div class="pack-body">
+                                    <h3 class="pack-nombre" th:text="${salon.nombre}">Salón</h3>
+                                    <div class="pack-precio">
+                                        <small>Precio fijo</small>
+                                        <div class="pack-monto">$ <span th:text="${#numbers.formatDecimal(salon.precio, 0, 'POINT', 0, 'COMMA')}">0</span></div>
+                                    </div>
+                                    <form th:action="@{/evento-personalizado/salon}" method="post">
+                                        <input type="hidden" name="id" th:value="${salon.id}" />
+                                        <button type="submit" class="btn btn-pack w-100 rounded-pill"
+                                                th:text="${salon.id == salonElegidoId} ? 'Elegido ✓' : 'Elegir'">Elegir</button>
+                                    </form>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+
+                    <!-- CATERING -->
+                    <div class="mb-3">
+                        <h2 class="fw-bold mb-1">Catering</h2>
+                        <div class="linea-titulo"></div>
+                    </div>
+                    <div class="row g-4 mb-5">
+                        <div class="col-12 col-md-6 col-xl-4" th:each="catering : ${caterings}">
+                            <article class="pack-card" th:classappend="${catering.id == cateringElegidoId} ? 'opcion-elegida'">
+                                <div class="pack-body">
+                                    <h3 class="pack-nombre" th:text="${catering.nombre}">Catering</h3>
+                                    <p class="pack-linea pack-linea-suave">
+                                        $ <span th:text="${#numbers.formatDecimal(catering.precioPorPersona, 0, 'POINT', 0, 'COMMA')}">0</span> por persona
+                                    </p>
+                                    <div class="pack-precio">
+                                        <small>Para <span th:text="${evento.cantidadInvitados}">0</span> invitados</small>
+                                        <div class="pack-monto">$ <span th:text="${#numbers.formatDecimal(catering.precioPorPersona * evento.cantidadInvitados, 0, 'POINT', 0, 'COMMA')}">0</span></div>
+                                    </div>
+                                    <form th:action="@{/evento-personalizado/catering}" method="post">
+                                        <input type="hidden" name="id" th:value="${catering.id}" />
+                                        <button type="submit" class="btn btn-pack w-100 rounded-pill"
+                                                th:text="${catering.id == cateringElegidoId} ? 'Elegido ✓' : 'Elegir'">Elegir</button>
+                                    </form>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+
+                    <!-- SERVICIOS ADICIONALES -->
+                    <div class="mb-3">
+                        <h2 class="fw-bold mb-1">Servicios adicionales</h2>
+                        <div class="linea-titulo"></div>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-12 col-md-6 col-xl-4" th:each="servicio : ${servicios}">
+                            <article class="pack-card"
+                                     th:with="elegido=${serviciosElegidosIds.contains(servicio.id)}"
+                                     th:classappend="${elegido} ? 'opcion-elegida'">
+                                <div class="pack-body">
+                                    <h3 class="pack-nombre" th:text="${servicio.nombre}">Servicio</h3>
+                                    <p class="pack-linea pack-linea-suave"
+                                       th:text="${servicio.precioPorInvitado} ? 'Se cobra por invitado' : 'Precio fijo'">Precio fijo</p>
+                                    <div class="pack-precio">
+                                        <small>Costo para este evento</small>
+                                        <div class="pack-monto">$ <span th:text="${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">0</span></div>
+                                    </div>
+                                    <form method="post"
+                                          th:action="${elegido} ? @{/evento-personalizado/servicio/quitar} : @{/evento-personalizado/servicio/agregar}">
+                                        <input type="hidden" name="id" th:value="${servicio.id}" />
+                                        <button type="submit" class="btn btn-pack w-100 rounded-pill"
+                                                th:classappend="${elegido} ? 'btn-quitar'"
+                                                th:text="${elegido} ? 'Quitar' : 'Agregar'">Agregar</button>
+                                    </form>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RESUMEN -->
+                <aside class="col-12 col-lg-4">
+                    <div class="sidebar-sticky">
+                        <div class="resumen como-funciona rounded-4 p-4">
+                            <h2 class="h5 fw-bold">Tu evento</h2>
+                            <p class="small mb-3">
+                                <span th:text="${evento.cantidadInvitados}">30</span> invitados ·
+                                <span th:text="${evento.fecha}">2026-11-15</span>
+                            </p>
+
+                            <ul class="list-unstyled resumen-lista mb-3">
+                                <li class="d-flex justify-content-between">
+                                    <span th:text="${evento.salon != null} ? ${evento.salon.nombre} : 'Salón'">Salón</span>
+                                    <span th:if="${evento.salon != null}"
+                                          th:text="'$ ' + ${#numbers.formatDecimal(evento.salon.precio, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                                    <span th:unless="${evento.salon != null}">—</span>
+                                </li>
+                                <li class="d-flex justify-content-between">
+                                    <span th:text="${evento.catering != null} ? ${evento.catering.nombre} : 'Catering'">Catering</span>
+                                    <span th:if="${evento.catering != null}"
+                                          th:text="'$ ' + ${#numbers.formatDecimal(evento.catering.precioPorPersona * evento.cantidadInvitados, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                                    <span th:unless="${evento.catering != null}">—</span>
+                                </li>
+                                <li class="d-flex justify-content-between" th:each="servicio : ${evento.serviciosAdicionales}">
+                                    <span th:text="${servicio.nombre}">Servicio</span>
+                                    <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                                </li>
+                            </ul>
+
+                            <small class="text-uppercase">Presupuesto total</small>
+                            <div class="resumen-total">$ <span th:text="${#numbers.formatDecimal(presupuesto, 0, 'POINT', 0, 'COMMA')}">0</span></div>
+                        </div>
+                        <div class="mt-4">
+                            <form th:action="@{/evento-personalizado/reservar}" method="post">
+                                <button type="submit" class="btn btn-buscar w-100 rounded-pill py-2"
+                                        th:disabled="${evento.salon == null or evento.catering == null}">
+                                    Guardar y reservar
+                                </button>
+                            </form>
+
+                            <p class="small mt-2 mb-0" th:if="${evento.salon == null or evento.catering == null}">
+                                Elegí un salón y un catering para poder reservar.
+                            </p>
+                            <p class="small mt-2 mb-0 text-warning" th:if="${param.error != null}">
+                                Faltan datos para reservar: elegí al menos un salón y un catering.
+                            </p>
+                        </div>
+                    </div>
+                </aside>
+
+            </div>
+        </div>
+    </section>
+</main>
+
+    <script>
+        (function () {
+            var KEY = 'scroll-evento';
+
+            // Antes de enviar un form de salón, catering o servicio, guardo la posición
+            document.querySelectorAll('.pack-card form').forEach(function (form) {
+                form.addEventListener('submit', function () {
+                    sessionStorage.setItem(KEY, window.scrollY);
+                });
+            });
+
+            // Al cargar la página, si hay una posición guardada, vuelvo ahí
+            var y = sessionStorage.getItem(KEY);
+            if (y !== null) {
+                sessionStorage.removeItem(KEY);
+                window.scrollTo({ top: parseInt(y, 10), left: 0, behavior: 'instant' });
+            }
+        })();
+    </script>
+
+</body>
+</html>
