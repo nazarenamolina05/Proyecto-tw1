@@ -24,3 +24,5 @@ hs_err_pid*
 
 # Reportes de codigo limpio y cobertura de pruebas
 .calidad-de-codigo/
+
+/src/main/java/com/tallerwebi/config/HibernateConfig.java
