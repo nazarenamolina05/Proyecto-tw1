@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.Paquete;
+import com.tallerwebi.dominio.Salon;
 import com.tallerwebi.dominio.ServicioBuscarPaquete;
 import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
@@ -27,8 +28,10 @@ public class ControladorBuscarPaqueteTest {
   @Test
   public void deberiaMostrarLosPaquetesDelTipoIndicado() {
     // Preparación
-    Paquete cumpleanios = new Paquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-    Paquete cumpleaniosPremium = new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
+    Paquete cumpleanios = crearPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
+
+    Paquete cumpleaniosPremium = crearPaquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
+
     List<Paquete> paquetesEsperados = List.of(cumpleanios, cumpleaniosPremium);
 
     when(servicioBuscarPaqueteMock.buscarPorTipo(TipoPaquete.CUMPLEANIOS))
@@ -45,8 +48,6 @@ public class ControladorBuscarPaqueteTest {
   @Test
   public void deberiaMostrarUnaListaVaciaSiNoHayPaquetesDelTipoIndicado() {
     // Preparación
-    Paquete cumpleanios = new Paquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-    Paquete cumpleaniosPremium = new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
     List<Paquete> paquetesEsperados = List.of();
 
     when(servicioBuscarPaqueteMock.buscarPorTipo(TipoPaquete.EMPRESARIAL))
@@ -58,5 +59,18 @@ public class ControladorBuscarPaqueteTest {
     // Validación
     assertThat(mav.getViewName(), equalTo("paquetes"));
     assertThat(mav.getModel().get("paquetes"), equalTo(paquetesEsperados));
+  }
+
+  // Método auxiliar para crear paquetes en los tests
+  private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
+    return new Paquete(
+      null,
+      nombre,
+      tipo,
+      new Salon("Salón de prueba", 50000.0),
+      "Catering de prueba",
+      List.of("DJ"),
+      100000.0
+    );
   }
 }

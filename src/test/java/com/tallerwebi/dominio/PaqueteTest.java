@@ -14,7 +14,7 @@ public class PaqueteTest {
     Long idEsperado = 1L;
     String nombreEsperado = "Básico";
     TipoPaquete tipoEsperado = TipoPaquete.CUMPLEANIOS;
-    String salonEsperado = "Salón Los Álamos";
+    Salon salonEsperado = new Salon("Salón los Alamos", 50000.0);
     String cateringEsperado = "Catering Don José";
     List<String> serviciosEsperados = List.of("DJ", "Fotografía");
     Double precioEsperado = 150000.0;
