@@ -44,7 +44,7 @@
 
                     <h5 class="fw-bold">Qué incluye</h5>
                     <ul class="detalle-lista mb-4">
-                        <li th:text="${paquete.salon}">Salón</li>
+                        <li th:text="${paquete.salon.nombre}">Salón</li>
                         <li th:text="${paquete.catering}">Catering</li>
                         <li th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</li>
                     </ul>
