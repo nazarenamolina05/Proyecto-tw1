@@ -22,75 +22,64 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
 
   @Test
   public void devuelveTodosLosPaquetesQueTraeElRepositorio() {
-    //preparacion
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
-      "Catering Don José",
-      List.of("DJ"),
-      150000.0
-    );
+    // Preparación
+    Paquete paqueteBasico = crearPaquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, 80000.0);
+
     when(repositorioPaquete.obtenerPredeterminados()).thenReturn(List.of(paqueteBasico));
 
-    //ejecucion
+    // Ejecución
     List<Paquete> paquetes = servicio.consultarTodos();
 
-    //validacion
+    // Validación
     assertEquals(1, paquetes.size());
     assertEquals(paqueteBasico, paquetes.get(0));
   }
 
   @Test
   public void devuelveElPaqueteQueCoincideConElIdBuscado() {
-    //preparacion
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
-    Paquete paqueteEstandar = new Paquete(
-      2L,
-      "Estándar",
-      TipoPaquete.FIESTA_DE_15,
-      "Salón Jardín del Sol",
-      "Catering Fiesta Plena",
-      List.of("DJ", "Fotografía"),
-      150000.0
-    );
+    // Preparación
+    Paquete paqueteBasico = crearPaquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, 80000.0);
+
+    Paquete paqueteEstandar = crearPaquete(2L, "Estándar", TipoPaquete.FIESTA_DE_15, 150000.0);
+
     when(repositorioPaquete.obtenerPredeterminados())
       .thenReturn(List.of(paqueteBasico, paqueteEstandar));
 
-    //ejecucion
+    // Ejecución
     Paquete paqueteEncontrado = servicio.consultarPorId(2L);
 
-    //validacion
+    // Validación
     assertEquals(paqueteEstandar, paqueteEncontrado);
   }
 
   @Test
   public void devuelveNullSiNoExisteUnPaqueteConEseId() {
-    //preparacion
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
+    // Preparación
+    Paquete paqueteBasico = crearPaquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, 80000.0);
+
     when(repositorioPaquete.obtenerPredeterminados()).thenReturn(List.of(paqueteBasico));
 
-    //ejecucion
+    // Ejecución
     Paquete paqueteEncontrado = servicio.consultarPorId(99L);
 
-    //validacion
+    // Validación
     assertNull(paqueteEncontrado);
+  }
+
+  // Método auxiliar que utiliza el constructor completo
+  private Paquete crearPaquete(Long id, String nombre, TipoPaquete tipo, Double precioEstimado) {
+    Paquete paquete = new Paquete(
+      id,
+      nombre,
+      tipo,
+      new Salon("Salón de prueba", 50000.0),
+      "Catering de prueba",
+      List.of("DJ", "Fotografía"),
+      precioEstimado
+    );
+
+    paquete.setPredeterminado(true);
+
+    return paquete;
   }
 }

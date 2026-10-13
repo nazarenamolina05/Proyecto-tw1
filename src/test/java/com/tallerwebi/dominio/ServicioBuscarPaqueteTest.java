@@ -5,15 +5,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class ServicioBuscarPaqueteTest {
 
-  RepositorioPaquete repositorioPaqueteMock;
-  ServicioBuscarPaquete servicioBuscarPaquete;
+  private RepositorioPaquete repositorioPaqueteMock;
+  private ServicioBuscarPaquete servicioBuscarPaquete;
 
   @BeforeEach
   public void init() {
@@ -21,46 +20,53 @@ public class ServicioBuscarPaqueteTest {
     servicioBuscarPaquete = new ServicioBuscarPaqueteImpl(repositorioPaqueteMock);
   }
 
-  @Test
-  void deberiaDevolverSoloLosPacksDelTipoDeEventoBuscado() {
-    //preparación
-    Paquete casamiento = new Paquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
-    Paquete cumpleanios = new Paquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-    Paquete fiestaDe15 = new Paquete("Fiesta de quince", TipoPaquete.FIESTA_DE_15);
-    Paquete cumpleaniosPremium = new Paquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
-    List<Paquete> paquetesDisponibles = List.of(
-      casamiento,
-      cumpleanios,
-      fiestaDe15,
-      cumpleaniosPremium
+  private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
+    return new Paquete(
+      null,
+      nombre,
+      tipo,
+      new Salon("Salón de prueba", 50000.0),
+      "Catering de prueba",
+      List.of("DJ"),
+      100000.0
     );
-    List<Paquete> paquetesEsperados = List.of(cumpleanios, cumpleaniosPremium);
-
-    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(paquetesDisponibles);
-
-    //ejecución
-    List<Paquete> paquetesObtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.CUMPLEANIOS);
-
-    // then: obtengo exactamente el pack con casamiento
-    //validación
-    assertThat(paquetesObtenidos, equalTo(paquetesEsperados));
   }
 
   @Test
-  void deberiaDevolverUnaListaVaciaSiNoHayEventosDelTipoBuscado() {
-    //preparación
-    Paquete casamiento = new Paquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
-    Paquete cumpleanios = new Paquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-    Paquete fiestaDe15 = new Paquete("Fiesta de quince", TipoPaquete.FIESTA_DE_15);
-    List<Paquete> paquetesDisponibles = List.of(casamiento, cumpleanios, fiestaDe15);
-    List<Paquete> paquetesEsperados = new ArrayList<>();
+  public void deberiaDevolverSoloLosPacksDelTipoDeEventoBuscado() {
+    // Preparación
+    Paquete casamiento = crearPaquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
 
-    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(paquetesDisponibles);
+    Paquete cumpleanios = crearPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
 
-    //ejecución
-    List<Paquete> paquetesObtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.EMPRESARIAL);
+    Paquete fiestaDe15 = crearPaquete("Fiesta de quince", TipoPaquete.FIESTA_DE_15);
 
-    //validación
-    assertThat(paquetesObtenidos, equalTo(paquetesEsperados));
+    Paquete cumpleaniosPremium = crearPaquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
+
+    List<Paquete> disponibles = List.of(casamiento, cumpleanios, fiestaDe15, cumpleaniosPremium);
+
+    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(disponibles);
+
+    // Ejecución
+    List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.CUMPLEANIOS);
+
+    // Validación
+    assertThat(obtenidos, equalTo(List.of(cumpleanios, cumpleaniosPremium)));
+  }
+
+  @Test
+  public void deberiaDevolverUnaListaVaciaSiNoHayEventosDelTipoBuscado() {
+    // Preparación
+    Paquete casamiento = crearPaquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
+
+    Paquete cumpleanios = crearPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
+
+    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(List.of(casamiento, cumpleanios));
+
+    // Ejecución
+    List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.EMPRESARIAL);
+
+    // Validación
+    assertThat(obtenidos, equalTo(List.of()));
   }
 }

@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.Paquete;
+import com.tallerwebi.dominio.Salon;
 import com.tallerwebi.dominio.ServicioConsultarPaquetesPredeterminados;
 import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
@@ -25,23 +26,43 @@ public class ControladorHomeEventosTest {
 
   @Test
   public void muestraElHomeConLosPaquetesPredeterminados() {
-    //preparacion
+    // Preparación
+    Salon salon = new Salon("Salón Los Álamos", 50000.0);
+
     Paquete paqueteBasico = new Paquete(
       1L,
       "Básico",
       TipoPaquete.CUMPLEANIOS,
-      "Salón Los Álamos",
+      salon,
       "Catering Don José",
       List.of("DJ"),
       80000.0
     );
-    when(servicio.consultarTodos()).thenReturn(List.of(paqueteBasico));
 
-    //ejecucion
+    paqueteBasico.setPredeterminado(true);
+
+    List<Paquete> paquetesEsperados = List.of(paqueteBasico);
+
+    when(servicio.consultarTodos()).thenReturn(paquetesEsperados);
+
+    // Ejecución
     ModelAndView modelAndView = controlador.inicioPagina();
 
-    //validacion
+    // Validación
     assertEquals("home-eventos", modelAndView.getViewName());
-    assertEquals(List.of(paqueteBasico), modelAndView.getModel().get("paquetes"));
+    assertEquals(paquetesEsperados, modelAndView.getModel().get("paquetes"));
+  }
+
+  @Test
+  public void muestraElHomeSinPaquetesCuandoNoHayPredeterminados() {
+    // Preparación
+    when(servicio.consultarTodos()).thenReturn(List.of());
+
+    // Ejecución
+    ModelAndView modelAndView = controlador.inicioPagina();
+
+    // Validación
+    assertEquals("home-eventos", modelAndView.getViewName());
+    assertEquals(List.of(), modelAndView.getModel().get("paquetes"));
   }
 }
