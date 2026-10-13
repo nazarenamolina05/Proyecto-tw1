@@ -1,0 +1,138 @@
+[33mdf41c5b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mH04-DisponibilidadDeSalones[m[33m, [m[1;31morigin/H04-DisponibilidadDeSalones[m[33m)[m Merge pull request #11 from nazarenamolina05/main
+[33mc6c1c6a[m Merge pull request #10 from nazarenamolina05/revert-9-H04-DisponibilidadDeSalones
+[33m61f2fc1[m[33m ([m[1;31morigin/revert-9-H04-DisponibilidadDeSalones[m[33m)[m Revert "Se agrego el funcionamiento de SalonReserva que define que salones estan libres, falta implementarlo en Reservas. Ademas falta hacer el controller"
+[33mecddf0b[m Merge pull request #9 from nazarenamolina05/H04-DisponibilidadDeSalones
+[33m94fb282[m Se agrego el funcionamiento de SalonReserva que define que salones estan libres, falta implementarlo en Reservas. Ademas falta hacer el controller
+[33m7de5c51[m[33m ([m[1;32mmain[m[33m)[m Merge pull request #8 from nazarenamolina05/Desarrollo-Santiago
+[33ma4dc6a3[m[33m ([m[1;31morigin/Desarrollo-Santiago[m[33m)[m Tests del controlador de evento personalizado
+[33m0e11de1[m Merge remote-tracking branch 'origin/main' into Desarrollo-Santiago
+[33m984e1bf[m Evento personalizado: seleccion, presupuesto, sticky y reinicio de sesion
+[33m36925c9[m Se agregar Catering, servicio Adicionales, con sus repositorio, test y el evento-personalizado con servicio controlador y vista
+[33mef1e82f[m[33m ([m[1;32mhu-04-disponibilidad-salones[m[33m)[m Merge pull request #7 from nazarenamolina05/HU-09-Consulta-reservas
+[33mf3d00ca[m[33m ([m[1;31morigin/HU-09-Consulta-reservas[m[33m)[m Ajustes de HU-09: estilos, navegación y redirect post-login
+[33m5d7f4ed[m Agrege salon y RepositorioSalon y sus test
+[33m5d62dc4[m Merge pull request #6 from nazarenamolina05/HU-09-Consulta-reservas
+[33m633fbc7[m Merge pull request #5 from nazarenamolina05/feature/hu01-consulta-paquetes-predeterminados
+[33mef8224c[m - Saco endpoint de listado sin uso (/paquetes-predeterminados), el listado ya se muestra en el home - Ajusto controlador y su test acorde
+[33m3ed83ff[m    HU-09: consultar mis reservas
+[33m3220c17[m Agrego repositorio con tests
+[33m276e0be[m avance entidad reserva
+[33m41a147b[m corrección de errores de covertura
+[33mbc4eacf[m Separo paquetes predeterminados de los publicados por usuarios y agrego consulta por id (HU-01)
+[33m47dfb46[m Agrego @FunctionalInterface a ServicioConsultarPaquetesPredeterminados para pasar validación PMD
+[33m506d9ae[m Agrego consulta de paquetes predeterminados (HU-01)
+[33m1ed3a65[m Desarrollo busqueda paquetes disponibles
+[33me1428b6[m Agrego Controlador Buscar Paquete con sus test
+[33ma9ba06d[m Implementación de búsqueda de paquetes por tipo con test unitarios
+[33me8d4ada[m controlador para la interfaz home, y rastreo de los archivos css…
+[33m37693d2[m controlador para la interfaz home, y rastreo para de los archivos css y de imganes en home-eventos del html
+[33m1b50153[m Agrego vista Home al main
+[33m09e8865[m vista home para comenzar a codear funcionalidades
+[33mc306e45[m estructura inicial vista home
+[33m13e0b5e[m agregar estructura inicial de la vista home
+[33m2db0277[m Merge pull request #76 from spizzirri/mejoras
+[33mcba0873[m Elimina el envío de crendenciales al momento de generar la imagen
+[33m34ab9fe[m Actualiza readme
+[33m0203992[m simplifica archivo docker para no pasar credenciales sensibles
+[33m1d14c45[m Agregar warnings a mvn compile
+[33mb528abd[m Reemplaza metodos deprecados
+[33mbf94d98[m Merge pull request #75 from spizzirri/java2X
+[33maead68a[m migra a Java 25 LTS
+[33m025f938[m migra a Java 21
+[33ma92e7cd[m Merge pull request #69 from spizzirri/ajustes-pruebas-repositorio
+[33m495a180[m Ajusta las pruebas para que se realicen contra la BD en memoria
+[33mea1f532[m Eliminar archivos package.json de la raiz
+[33mf331966[m Merge pull request #68 from spizzirri/actualizaciones-proyecto
+[33me47226e[m Actualiza la imagen para DockerfileJetty
+[33m8692a7b[m Reemplaza Bootstrap webjars por CDN
+[33m065ff69[m Merge pull request #67 from spizzirri/linter-cobertura
+[33mfc621ef[m Descomenta pruebas E2E
+[33mb728963[m Agrega JaCoCo para reportes de cobertura. Mejora las descripciones del README.
+[33m14766a5[m Agrega verificacion de codigo Java con PMD+CPD, verificación de formato y estilo con checkstyle y formateo automatico con Prettier (Maven plugin)
+[33ma9a70b5[m Merge pull request #64 from spizzirri/server
+[33m22ca5a1[m agrega archivos para levantar un servidor de ejemplo para probar apis
+[33m007ee58[m Merge pull request #54 from spizzirri/maven
+[33m6421579[m Agrego la seccion para preparar el ambiente de desarrollo y los comandos de Maven
+[33m9456209[m Agrego la sección para configurar el ambiente de desarrollo en el README
+[33m3d97d15[m Agrego la instalacion y configuracion de Maven en el SO + ajustes de acentos
+[33m76ae457[m Merge pull request #53 from spizzirri/tdd
+[33md91b9a8[m Actualizo el PDF de entrenamiento y la propuesta de resolucion + correcciones en README y DockerfileTomcat
+[33m3a217f6[m Corrige archivo Entrenamiento1_TDD y agrega ejemplo de posible resolucion
+[33ma4f5892[m Merge pull request #51 from spizzirri/feat/readme
+[33m3709a73[m Actualiza README
+[33m4a3367f[m Merge pull request #50 from spizzirri/feat/readme
+[33mb58a442[m Actualiza comando de docker para levantar la base de datos
+[33mf1e00ce[m Merge pull request #39 from spizzirri/mejoras
+[33m6cfe41b[m Mejoras hechas en clase
+[33m82f14eb[m Merge pull request #38 from spizzirri/js-test
+[33m30fdde3[m actualiza readme
+[33mf724307[m agrega tarea en yml
+[33mb9f1751[m configura pruebas unitarias js
+[33m50b8471[m Merge pull request #36 from spizzirri/pruebase2e
+[33md6624fb[m Refactoriza codigo
+[33m4d9e987[m elimina archivo fuera de uso
+[33m388264c[m Corrige metodo para limpiar base de datos antes de cada prueba
+[33mbf9ead5[m Agrega prueba e2e
+[33meff9072[m Merge pull request #35 from spizzirri/docker-compose
+[33m69abec2[m Implementa docker compose
+[33mc35a50a[m Merge pull request #26 from spizzirri/entrenamiento
+[33mce734a0[m agrega mas archivos de entrenamiento
+[33m30b1e46[m Merge pull request #25 from spizzirri/entrenamiento
+[33mb7cad2b[m Agrega entrenamiento para TDD
+[33m9d842f5[m Merge pull request #23 from spizzirri/unit-test
+[33md6bb952[m Agrega docu de jasmine
+[33m1622a55[m Merge pull request #22 from spizzirri/unit-test
+[33m35b857a[m Agrega ejemplo de pruebas unitarias con js
+[33md5b7efd[m Merge pull request #21 from spizzirri/dockerfile
+[33m1171f8e[m Actualiza el archivo readme
+[33m9886dba[m Corrijo comentarios para tomar el image id
+[33m1092eab[m Corrijo comentario para tomar el image id desde docker desktop
+[33mec0086f[m Agrego dockerfile para Tomcat9
+[33md592a1e[m Agrega dockerfile con SQL
+[33mc3a5afc[m Agrega dockerfile con jetty
+[33mb43a157[m Merge pull request #20 from spizzirri/readme
+[33m637b9c5[m Actualiza README
+[33m4a18b94[m Merge pull request #19 from spizzirri/feat/vitest
+[33m4fe771c[m Agrega vitest para escribir pruebas unitarias con javascript
+[33m14921bb[m Merge pull request #18 from spizzirri/correccion-servicio
+[33m54865d1[m Muevo el servicio ServicioLoginImpl al package dominio
+[33m7f90063[m Merge pull request #13 from spizzirri/jetty-port
+[33m79a74eb[m agrega propiedad para cambiar el puerto
+[33m84b127b[m Agrega evento push para CI
+[33m88a3e79[m Reacomoda archivo a la carpeta infra
+[33m031a310[m Merge pull request #10 from IgnacioAgustinCabral/test123
+[33m0dff8ea[m Merge pull request #11 from spizzirri/pom
+[33m6157302[m Corrige un error al querer empaquetar
+[33mf684d3b[m Cambia intervalo de escaneo de jetty
+[33m8db3c18[m test123 123 123
+[33mab80b69[m refactor CI
+[33m56ff098[m refactor y test del pull en el .yml por pull_request
+[33m7790f19[m Merge pull request #9 from spizzirri/renombre-variables
+[33m1b930d2[m Renombre variables para tener consistencia
+[33mf18f4fe[m Renombre variables para tener consistencia
+[33m6f73023[m Merge pull request #8 from spizzirri/readme
+[33ma0fe152[m Agrega enlace a la documentacion de Jetty
+[33mddb4d9a[m Agrega enlace a la documentacion de Jetty
+[33mc617495[m Corrige readme
+[33mcd18f02[m Merge pull request #6 from spizzirri/pruebas-e2e
+[33mcd112d2[m Agrega Playwright al readme
+[33m8d92f57[m Re organiza archivos de pruebas e2e
+[33maab78f1[m Merge pull request #5 from spizzirri/precargar-datos
+[33m89635ed[m Carga datos al iniciar la aplicacion y ajusta prueba punta a punta
+[33mc1f7737[m Merge pull request #4 from spizzirri/playwright
+[33m3978b10[m Agregar la dependencia playwright y algunas pruebas de ejemplo
+[33m331c051[m Merge pull request #2 from spizzirri/mensajes-error
+[33me3f6ac0[m Agrega mensajes de error
+[33m7b33f32[m Merge pull request #1 from spizzirri/pr_test
+[33m5afb8ec[m Ajusta el readme
+[33ma76cda8[m Corrige nombre en archivo yml
+[33m40d8ef8[m Agrega archivo para github actions
+[33m9520b95[m Ajusta el readme
+[33mc7f1a4b[m Actualiza el readme
+[33m5a47d56[m Cambia el nombre del artefacto
+[33m3e78c44[m Reemplaza mkyong por tallerwebi
+[33m08d7e84[m Configura pruebas unitarias y de integracion
+[33m673c1ef[m Agrega prueba unitarias
+[33meebee5d[m Elimina Controlador Hello y template Welcome
+[33m020e4ce[m Implementa login
+[33m3066a44[m demo
