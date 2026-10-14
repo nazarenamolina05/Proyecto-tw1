@@ -2,6 +2,7 @@ package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.RepositorioPaquete;
+import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,23 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
       .createQuery("from Paquete where id = :id and predeterminado = true", Paquete.class)
       .setParameter("id", id)
       .uniqueResult();
+  }
+
+  @Override
+  public List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery(
+        "FROM Paquete p " +
+        "WHERE (:tipo IS NULL OR p.tipo = :tipo) " +
+        "AND (:precioMaximo IS NULL OR p.precioEstimado <= :precioMaximo) " +
+        "AND (:invitados IS NULL OR p.salon.capacidad >= :invitados) " +
+        "ORDER BY p.id",
+        Paquete.class
+      )
+      .setParameter("tipo", tipo)
+      .setParameter("precioMaximo", precioMaximo)
+      .setParameter("invitados", invitados)
+      .getResultList();
   }
 }

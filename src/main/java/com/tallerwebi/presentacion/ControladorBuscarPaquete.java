@@ -21,11 +21,21 @@ public class ControladorBuscarPaquete {
   }
 
   @GetMapping(path = "/paquetes")
-  public ModelAndView buscarPorTipo(@RequestParam("tipo") TipoPaquete tipoPaquete) {
+  public ModelAndView buscarPorFiltros(
+    @RequestParam(value = "tipo", required = false) TipoPaquete tipo,
+    @RequestParam(value = "elegirPresupuesto", required = false) Double precioMaximo,
+    @RequestParam(value = "invitados", required = false) Integer invitados
+  ) {
     Map<String, Object> modelo = new ModelMap();
-    List<Paquete> paquetesBuscados = servicioBuscarPaquete.buscarPorTipo(tipoPaquete);
+
+    List<Paquete> paquetesBuscados = servicioBuscarPaquete.buscarPorFiltros(
+      tipo,
+      precioMaximo,
+      invitados
+    );
 
     modelo.put("paquetes", paquetesBuscados);
+
     return new ModelAndView("paquetes", modelo);
   }
 }

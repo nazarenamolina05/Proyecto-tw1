@@ -17,12 +17,11 @@ public class ServicioBuscarPaqueteImpl implements ServicioBuscarPaquete {
 
   @Override
   public List<Paquete> buscarPorTipo(TipoPaquete tipoPaquete) {
-    List<Paquete> resultado = new ArrayList<>();
-    for (Paquete p : repositorioPaquete.obtenerTodos()) {
-      if (p.getTipo() == tipoPaquete) {
-        resultado.add(p);
-      }
-    }
-    return resultado;
+    return buscarPorFiltros(tipoPaquete, null, null);
+  }
+
+  @Override
+  public List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados) {
+    return repositorioPaquete.buscarPorFiltros(tipo, precioMaximo, invitados);
   }
 }

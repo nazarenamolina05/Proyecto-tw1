@@ -34,11 +34,15 @@ public class ControladorBuscarPaqueteTest {
 
     List<Paquete> paquetesEsperados = List.of(cumpleanios, cumpleaniosPremium);
 
-    when(servicioBuscarPaqueteMock.buscarPorTipo(TipoPaquete.CUMPLEANIOS))
+    when(servicioBuscarPaqueteMock.buscarPorFiltros(TipoPaquete.CUMPLEANIOS, null, null))
       .thenReturn(paquetesEsperados);
 
-    // Ejecución
-    ModelAndView mav = controladorBuscarPaquete.buscarPorTipo(TipoPaquete.CUMPLEANIOS);
+    //Ejecución
+    ModelAndView mav = controladorBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      null,
+      null
+    );
 
     // Validación
     assertThat(mav.getViewName(), equalTo("paquetes"));
@@ -50,14 +54,52 @@ public class ControladorBuscarPaqueteTest {
     // Preparación
     List<Paquete> paquetesEsperados = List.of();
 
-    when(servicioBuscarPaqueteMock.buscarPorTipo(TipoPaquete.EMPRESARIAL))
+    when(servicioBuscarPaqueteMock.buscarPorFiltros(TipoPaquete.EMPRESARIAL, null, null))
       .thenReturn(paquetesEsperados);
 
     // Ejecución
-    ModelAndView mav = controladorBuscarPaquete.buscarPorTipo(TipoPaquete.EMPRESARIAL);
+    ModelAndView mav = controladorBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.EMPRESARIAL,
+      null,
+      null
+    );
 
     // Validación
     assertThat(mav.getViewName(), equalTo("paquetes"));
+    assertThat(mav.getModel().get("paquetes"), equalTo(paquetesEsperados));
+  }
+
+  @Test
+  public void deberiaMostrarLosPaquetesQueCumplenLosTresFiltros() {
+    // Preparación
+    Salon salon = new Salon("Salón grande", 90000.0);
+    salon.setCapacidad(120);
+
+    Paquete cumpleanios = new Paquete(
+      null,
+      "Cumpleaños familiar",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering básico",
+      List.of("DJ"),
+      200000.0
+    );
+
+    List<Paquete> paquetesEsperados = List.of(cumpleanios);
+
+    when(servicioBuscarPaqueteMock.buscarPorFiltros(TipoPaquete.CUMPLEANIOS, 250000.0, 80))
+      .thenReturn(paquetesEsperados);
+
+    // Ejecución
+    ModelAndView mav = controladorBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      250000.0,
+      80
+    );
+
+    // Validación
+    assertThat(mav.getViewName(), equalTo("paquetes"));
+
     assertThat(mav.getModel().get("paquetes"), equalTo(paquetesEsperados));
   }
 
