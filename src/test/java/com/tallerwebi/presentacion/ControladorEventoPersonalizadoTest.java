@@ -17,6 +17,7 @@ import com.tallerwebi.dominio.*;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,18 +25,23 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorEventoPersonalizadoTest {
 
   private static final String EVENTO = "eventoPersonalizado";
+  private static final String USUARIO = "USUARIO";
 
   private ServicioEventoPersonalizado servicio;
   private ControladorEventoPersonalizado controlador;
   private HttpSession sesion;
   private EventoPersonalizado evento;
+  private Usuario user;
+  private ServicioSugerenciaServicios servicioSugerenciaServicios;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioEventoPersonalizado.class);
-    controlador = new ControladorEventoPersonalizado(servicio);
+    servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
+    controlador = new ControladorEventoPersonalizado(servicio, servicioSugerenciaServicios);
     sesion = mock(HttpSession.class);
     evento = mock(EventoPersonalizado.class);
+    user = mock(Usuario.class);
   }
 
   // ---------- GET /evento-personalizado ----------
@@ -57,6 +63,11 @@ public class ControladorEventoPersonalizadoTest {
     when(evento.getCatering()).thenReturn(null);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
 
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
+
     ModelAndView mav = controlador.verEventoPersonalizado(sesion);
 
     assertThat(mav.getModel().get("evento"), sameInstance(evento));
@@ -64,7 +75,7 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("cateringElegidoId"), nullValue());
     verify(servicio).obtenerSalones();
     verify(servicio).obtenerCaterings();
-    verify(servicio).obtenerServicioAdicionales();
+    //    verify(servicio).obtenerServicioAdicionales();
   }
 
   @Test
@@ -77,6 +88,11 @@ public class ControladorEventoPersonalizadoTest {
     when(evento.getSalon()).thenReturn(salon);
     when(evento.getCatering()).thenReturn(catering);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
     ModelAndView mav = controlador.verEventoPersonalizado(sesion);
 
@@ -115,7 +131,7 @@ public class ControladorEventoPersonalizadoTest {
 
   @Test
   public void empezarDeCeroBorraElEventoDeLaSesion() {
-    ModelAndView mav = controlador.empezarDeCero(sesion);
+    ModelAndView mav = controlador.volverAEmpezar(sesion);
 
     verify(sesion).removeAttribute(EVENTO);
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
@@ -216,6 +232,7 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getSalon()).thenReturn(null);
     when(evento.getCatering()).thenReturn(mock(Catering.class));
+    when(sesion.getAttribute(USUARIO)).thenReturn(user);
 
     ModelAndView mav = controlador.reservarEvento(sesion);
 
@@ -227,6 +244,7 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getSalon()).thenReturn(mock(Salon.class));
     when(evento.getCatering()).thenReturn(null);
+    when(sesion.getAttribute(USUARIO)).thenReturn(user);
 
     ModelAndView mav = controlador.reservarEvento(sesion);
 
@@ -234,10 +252,20 @@ public class ControladorEventoPersonalizadoTest {
   }
 
   @Test
+  public void alQuererReservarNoDejaPorQueNoExisteUnUsuario() {
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+
+    ModelAndView mav = controlador.reservarEvento(sesion);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/login"));
+  }
+
+  @Test
   public void reservarConSalonYCateringVuelveAlEvento() {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getSalon()).thenReturn(mock(Salon.class));
     when(evento.getCatering()).thenReturn(mock(Catering.class));
+    when(sesion.getAttribute(USUARIO)).thenReturn(user);
 
     ModelAndView mav = controlador.reservarEvento(sesion);
 

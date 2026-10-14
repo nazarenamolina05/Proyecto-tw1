@@ -12,11 +12,12 @@ INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Basico
 
 
 -- SERVICIO ADICIONAL DATOS ---
-INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado) VALUES(null, 'DJ', 40000.0, false);
-INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado) VALUES(null, 'Fotografia', 30000.0, false);
-INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado) VALUES(null, 'Video', 45000.0, false);
-INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado) VALUES(null, 'Decoracion', 25000.0, false);
-INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado) VALUES(null, 'Cotillon', 500.0, true);
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'DJ', 40000.0, false, 'DJ');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Fotografia', 30000.0, false, 'FOTOGRAFIA');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Video', 45000.0, false, 'VIDEO');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Decoracion', 25000.0, false, 'DECORACION');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Cotillon', 500.0, true, 'COTILLON');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Animacion', 35000.0, false , 'ANIMACION');
 
 --PAQUETES PREDETERMINADOS--
 INSERT INTO Paquete(nombre, tipo, salon_id, catering, precioEstimado, predeterminado)
@@ -65,3 +66,4 @@ SELECT id, 'Video' FROM Paquete WHERE nombre = 'Premium';
 
 INSERT INTO Paquete_Servicios (paquete_id, servicio)
 SELECT id, 'Decoración' FROM Paquete WHERE nombre = 'Premium';
+

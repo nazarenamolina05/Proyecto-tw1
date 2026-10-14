@@ -103,13 +103,13 @@ public class ServicioBuscarPaqueteTest {
 
   private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
     return new Paquete(
-            null,
-            nombre,
-            tipo,
-            new Salon("Salón de prueba", 50000.0),
-            "Catering de prueba",
-            List.of("DJ"),
-            100000.0
+      null,
+      nombre,
+      tipo,
+      new Salon("Salón de prueba", 50000.0),
+      "Catering de prueba",
+      List.of("DJ"),
+      100000.0
     );
   }
 }
