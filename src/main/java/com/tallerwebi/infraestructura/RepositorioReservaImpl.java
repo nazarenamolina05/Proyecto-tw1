@@ -41,4 +41,14 @@ public class RepositorioReservaImpl implements RepositorioReserva {
       .setParameterList("estados", List.of(EstadoReserva.SENIADA, EstadoReserva.CONFIRMADA))
       .getResultList();
   }
+
+  @Override
+  public List<Reserva> buscarEntreFechas(LocalDate desde, LocalDate hasta) {
+    return sessionFactory
+            .getCurrentSession()
+            .createQuery("from Reserva where fecha between :desde and :hasta", Reserva.class)
+            .setParameter("desde", desde)
+            .setParameter("hasta", hasta)
+            .getResultList();
+  }
 }

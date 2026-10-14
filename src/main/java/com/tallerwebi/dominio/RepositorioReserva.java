@@ -7,4 +7,6 @@ public interface RepositorioReserva {
   List<Reserva> buscarPorUsuario(Usuario usuario);
 
   List<LocalDate> obtenerFechasOcupadasPorSalon(Long salonId);
+
+  List<Reserva> buscarEntreFechas(LocalDate desde, LocalDate hasta);
 }
