@@ -1,82 +1,187 @@
 <!doctype html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Paquetes</title>
+
+    <title>Resultados de la búsqueda</title>
+
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
 </head>
-<body>
-<!-- HEADER -->
 
+<body>
+
+<!-- HEADER -->
 <header class="encabezado py-3">
     <div class="container">
+
         <nav class="d-flex justify-content-between align-items-center">
-            <a href="#inicio" class="text-light text-decoration-none">
+
+            <a th:href="@{/home-eventos}"
+               class="text-light text-decoration-none">
                 <span>✦</span>
                 <span>Eventos</span>
             </a>
 
-            <ul class="d-flex list-unstyled gap-4 mb-0">
-                <li>
-                    <a href="#inicio" class="text-light text-decoration-none"
-                    >Inicio</a
-                    >
-                </li>
-                <li>
-                    <a href="#packs" class="text-light text-decoration-none"
-                    >Paquetes</a
-                    >
-                </li>
-                <li>
-                    <a href="#tipos-evento" class="text-light text-decoration-none"
-                    >Eventos</a
-                    >
-                </li>
-                <li>
-                    <a href="#como-funciona" class="text-light text-decoration-none"
-                    >Cómo funciona</a
-                    >
-                </li>
-            </ul>
+            <a th:href="@{/home-eventos}"
+               class="btn btn-outline-light rounded-pill px-4">
+                Volver al inicio
+            </a>
 
-            <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn text-light" aria-label="Buscar">
-                    🔍
-                </button>
-
-                <a href="/login" class="btn btn-outline-light rounded-pill px-4"
-                >Ingresar</a
-                >
-            </div>
         </nav>
+
     </div>
 </header>
-<main class="container py-5">
-    <h1 class="fw-bold mb-4">Resultados de la búsqueda</h1>
 
-    <p th:if="${#lists.isEmpty(paquetes)}" class="alert alert-info">
-        No se encontraron paquetes para el tipo de evento seleccionado.
-    </p>
+<!-- RESULTADOS -->
+<main id="packs" class="seccion-clara py-5">
+    <div class="container">
 
-    <div class="row g-4">
-        <div class="col-12 col-md-6 col-lg-4"
-             th:each="paquete : ${paquetes}">
+        <!-- TITULO -->
+        <div class="mb-4">
+            <h1 class="fw-bold mb-1">
+                Resultados de la búsqueda
+            </h1>
 
-            <article class="card h-100 border-0 shadow-sm rounded-4">
-                <div class="card-body">
-                    <h2 class="h5 fw-bold" th:text="${paquete.nombre}">
-                        Nombre del paquete
-                    </h2>
+            <div class="linea-titulo"></div>
 
-                    <p class="mb-0" th:text="${paquete.tipo}">
-                        Tipo de evento
-                    </p>
-                </div>
-            </article>
+            <p class="text-secondary mt-3">
+                Explorá los paquetes disponibles para tu evento.
+            </p>
+        </div>
+
+        <!-- SIN RESULTADOS -->
+        <div th:if="${#lists.isEmpty(paquetes)}"
+             class="alert alert-info rounded-4">
+
+            No encontramos paquetes que cumplan con los filtros seleccionados.
+
+            <a th:href="@{/home-eventos}"
+               class="alert-link">
+                Modificar búsqueda
+            </a>
 
         </div>
+
+        <!-- LISTADO DE PAQUETES -->
+        <div class="row g-4">
+
+            <div class="col-12 col-md-6 col-lg-4"
+                 th:each="paquete : ${paquetes}">
+
+                <article class="pack-card">
+
+                    <!-- IMAGEN -->
+                    <div class="pack-media">
+
+                        <img th:src="@{/img/salon.jpg}"
+                             class="pack-card-img"
+                             th:alt="${paquete.nombre}" />
+
+                        <!-- TIPO DE EVENTO -->
+                        <span class="pack-tag"
+                              th:switch="${paquete.tipo.name()}">
+
+                            <span th:case="'CUMPLEANIOS'">
+                                Cumpleaños
+                            </span>
+
+                            <span th:case="'FIESTA_DE_15'">
+                                Fiesta de 15
+                            </span>
+
+                            <span th:case="'CASAMIENTO'">
+                                Casamiento
+                            </span>
+
+                            <span th:case="'EMPRESARIAL'">
+                                Empresarial
+                            </span>
+
+                        </span>
+
+                    </div>
+
+                    <!-- CONTENIDO -->
+                    <div class="pack-body">
+
+                        <!-- NOMBRE -->
+                        <h2 class="pack-nombre"
+                            th:text="${paquete.nombre}">
+                            Nombre del paquete
+                        </h2>
+
+                        <!-- SALON -->
+                        <p class="pack-linea"
+                           th:text="${paquete.salon.nombre}">
+                            Nombre del salón
+                        </p>
+
+                        <!-- CATERING -->
+                        <p class="pack-linea pack-linea-suave"
+                           th:text="${paquete.catering}">
+                            Catering
+                        </p>
+
+                        <!-- CAPACIDAD -->
+                        <p class="pack-linea pack-linea-suave">
+                            Hasta
+                            <span th:text="${paquete.salon.capacidad}">
+                                50
+                            </span>
+                            invitados
+                        </p>
+
+                        <!-- SERVICIOS ADICIONALES -->
+                        <div class="pack-chips">
+
+                            <span class="pack-chip"
+                                  th:each="servicio : ${paquete.serviciosAdicionales}"
+                                  th:text="${servicio}">
+                                Servicio
+                            </span>
+
+                        </div>
+
+                        <!-- PRECIO -->
+                        <div class="pack-precio">
+
+                            <small>Precio estimado</small>
+
+                            <div class="pack-monto">
+                                $
+                                <span th:text="${#numbers.formatDecimal(
+                                    paquete.precioEstimado,
+                                    0, 'POINT', 0, 'COMMA'
+                                )}">
+                                    0
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <!-- DETALLE SOLO PARA PREDETERMINADOS -->
+                        <a th:if="${paquete.predeterminado}"
+                           th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
+                           class="btn btn-pack w-100 rounded-pill">
+                            Ver más
+                        </a>
+
+                        <p th:unless="${paquete.predeterminado}"
+                           class="small text-secondary text-center mb-0 py-2">
+                            Detalle no disponible por el momento
+                        </p>
+
+                    </div>
+
+                </article>
+
+            </div>
+
+        </div>
+
     </div>
 </main>
 

@@ -1,5 +1,7 @@
 package com.tallerwebi.infraestructura;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.tallerwebi.dominio.Paquete;
@@ -284,5 +286,291 @@ public class RepositorioPaqueteTest {
     assertEquals("Básico", paquetesObtenidos.get(0).getNombre());
     assertEquals("Estándar", paquetesObtenidos.get(1).getNombre());
     assertEquals("Premium", paquetesObtenidos.get(2).getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerLosPaquetesDentroDelPresupuestoMaximo() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete basico = new Paquete(
+      null,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering Básico",
+      List.of("DJ"),
+      80000.0
+    );
+
+    Paquete estandar = new Paquete(
+      null,
+      "Estándar",
+      TipoPaquete.FIESTA_DE_15,
+      salon,
+      "Catering Completo",
+      List.of("DJ"),
+      250000.0
+    );
+
+    Paquete premium = new Paquete(
+      null,
+      "Premium",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      "Catering Premium",
+      List.of("DJ", "Fotografía"),
+      300000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(basico);
+    sessionFactory.getCurrentSession().persist(estandar);
+    sessionFactory.getCurrentSession().persist(premium);
+
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, 250000.0, null);
+
+    // Validación
+    assertEquals(2, obtenidos.size());
+    assertEquals("Básico", obtenidos.get(0).getNombre());
+    assertEquals("Estándar", obtenidos.get(1).getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaFiltrarPorTipoYPresupuesto() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete cumpleaniosEconomico = new Paquete(
+      null,
+      "Cumpleaños económico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering básico",
+      List.of("DJ"),
+      150000.0
+    );
+
+    Paquete cumpleaniosCaro = new Paquete(
+      null,
+      "Cumpleaños premium",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering premium",
+      List.of("DJ"),
+      350000.0
+    );
+
+    Paquete casamiento = new Paquete(
+      null,
+      "Casamiento económico",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      "Catering básico",
+      List.of("DJ"),
+      200000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(cumpleaniosEconomico);
+    sessionFactory.getCurrentSession().persist(cumpleaniosCaro);
+    sessionFactory.getCurrentSession().persist(casamiento);
+
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      250000.0,
+      null
+    );
+
+    // Validación
+    assertEquals(1, obtenidos.size());
+    assertEquals("Cumpleaños económico", obtenidos.get(0).getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverListaVaciaSiSuperanElPresupuesto() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete paquete = new Paquete(
+      null,
+      "Paquete premium",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      "Catering completo",
+      List.of("DJ"),
+      400000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(paquete);
+
+    // Ejecución
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, 100000.0, null);
+
+    // Validación
+    assertTrue(obtenidos.isEmpty());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerPaquetesConCapacidadSuficiente() {
+    // Preparación
+
+    Salon salonChico = new Salon("Salón chico", 50000.0);
+    salonChico.setCapacidad(50);
+
+    Salon salonMediano = new Salon("Salón mediano", 90000.0);
+    salonMediano.setCapacidad(80);
+
+    Salon salonGrande = new Salon("Salón grande", 150000.0);
+    salonGrande.setCapacidad(120);
+
+    sessionFactory.getCurrentSession().persist(salonChico);
+    sessionFactory.getCurrentSession().persist(salonMediano);
+    sessionFactory.getCurrentSession().persist(salonGrande);
+
+    Paquete paqueteChico = new Paquete(
+      null,
+      "Cumpleaños chico",
+      TipoPaquete.CUMPLEANIOS,
+      salonChico,
+      "Catering básico",
+      List.of("DJ"),
+      80000.0
+    );
+
+    Paquete paqueteMediano = new Paquete(
+      null,
+      "Cumpleaños mediano",
+      TipoPaquete.CUMPLEANIOS,
+      salonMediano,
+      "Catering básico",
+      List.of("DJ"),
+      150000.0
+    );
+
+    Paquete paqueteGrande = new Paquete(
+      null,
+      "Cumpleaños grande",
+      TipoPaquete.CUMPLEANIOS,
+      salonGrande,
+      "Catering completo",
+      List.of("DJ"),
+      250000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(paqueteChico);
+    sessionFactory.getCurrentSession().persist(paqueteMediano);
+    sessionFactory.getCurrentSession().persist(paqueteGrande);
+
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, null, 80);
+
+    // Validación
+    assertThat(obtenidos.size(), equalTo(2));
+    assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños mediano"));
+    assertThat(obtenidos.get(1).getNombre(), equalTo("Cumpleaños grande"));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerPaquetesQueCumplanLosTresFiltros() {
+    // Preparación
+    Salon salonMediano = new Salon("Salón mediano", 90000.0);
+    salonMediano.setCapacidad(80);
+
+    Salon salonGrande = new Salon("Salón grande", 150000.0);
+    salonGrande.setCapacidad(120);
+
+    Salon salonChico = new Salon("Salón chico", 50000.0);
+    salonChico.setCapacidad(50);
+
+    sessionFactory.getCurrentSession().persist(salonMediano);
+    sessionFactory.getCurrentSession().persist(salonGrande);
+    sessionFactory.getCurrentSession().persist(salonChico);
+
+    // Cumple los tres filtros
+    Paquete cumpleaniosValido = new Paquete(
+      null,
+      "Cumpleaños válido",
+      TipoPaquete.CUMPLEANIOS,
+      salonMediano,
+      "Catering básico",
+      List.of("DJ"),
+      250000.0
+    );
+
+    // No cumple el tipo de evento
+    Paquete casamiento = new Paquete(
+      null,
+      "Casamiento",
+      TipoPaquete.CASAMIENTO,
+      salonGrande,
+      "Catering completo",
+      List.of("DJ"),
+      200000.0
+    );
+
+    // Supera el presupuesto
+    Paquete cumpleaniosCaro = new Paquete(
+      null,
+      "Cumpleaños caro",
+      TipoPaquete.CUMPLEANIOS,
+      salonGrande,
+      "Catering premium",
+      List.of("DJ"),
+      300000.0
+    );
+
+    // No tiene capacidad suficiente
+    Paquete cumpleaniosChico = new Paquete(
+      null,
+      "Cumpleaños chico",
+      TipoPaquete.CUMPLEANIOS,
+      salonChico,
+      "Catering básico",
+      List.of("DJ"),
+      150000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(cumpleaniosValido);
+    sessionFactory.getCurrentSession().persist(casamiento);
+    sessionFactory.getCurrentSession().persist(cumpleaniosCaro);
+    sessionFactory.getCurrentSession().persist(cumpleaniosChico);
+
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      250000.0,
+      80
+    );
+
+    // Validación
+    assertThat(obtenidos.size(), equalTo(1));
+    assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños válido"));
   }
 }

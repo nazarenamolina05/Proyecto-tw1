@@ -3,9 +3,11 @@ package com.tallerwebi.dominio;
 import java.util.List;
 
 public interface RepositorioPaquete {
-  public List<Paquete> obtenerTodos();
+  List<Paquete> obtenerTodos();
 
   List<Paquete> obtenerPredeterminados();
 
   Paquete obtenerPredeterminadoPorId(Long id);
+
+  List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados);
 }

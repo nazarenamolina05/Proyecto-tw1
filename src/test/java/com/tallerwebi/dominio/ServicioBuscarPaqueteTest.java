@@ -20,53 +20,96 @@ public class ServicioBuscarPaqueteTest {
     servicioBuscarPaquete = new ServicioBuscarPaqueteImpl(repositorioPaqueteMock);
   }
 
-  private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
-    return new Paquete(
-      null,
-      nombre,
-      tipo,
-      new Salon("Salón de prueba", 50000.0),
-      "Catering de prueba",
-      List.of("DJ"),
-      100000.0
-    );
-  }
-
   @Test
   public void deberiaDevolverSoloLosPacksDelTipoDeEventoBuscado() {
     // Preparación
-    Paquete casamiento = crearPaquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
-
     Paquete cumpleanios = crearPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-
-    Paquete fiestaDe15 = crearPaquete("Fiesta de quince", TipoPaquete.FIESTA_DE_15);
 
     Paquete cumpleaniosPremium = crearPaquete("Cumpleaños Premium", TipoPaquete.CUMPLEANIOS);
 
-    List<Paquete> disponibles = List.of(casamiento, cumpleanios, fiestaDe15, cumpleaniosPremium);
+    List<Paquete> paquetesEsperados = List.of(cumpleanios, cumpleaniosPremium);
 
-    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(disponibles);
+    when(repositorioPaqueteMock.buscarPorFiltros(TipoPaquete.CUMPLEANIOS, null, null))
+      .thenReturn(paquetesEsperados);
 
     // Ejecución
     List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.CUMPLEANIOS);
 
     // Validación
-    assertThat(obtenidos, equalTo(List.of(cumpleanios, cumpleaniosPremium)));
+    assertThat(obtenidos, equalTo(paquetesEsperados));
   }
 
   @Test
   public void deberiaDevolverUnaListaVaciaSiNoHayEventosDelTipoBuscado() {
     // Preparación
-    Paquete casamiento = crearPaquete("Casamiento clásico", TipoPaquete.CASAMIENTO);
-
-    Paquete cumpleanios = crearPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS);
-
-    when(repositorioPaqueteMock.obtenerTodos()).thenReturn(List.of(casamiento, cumpleanios));
+    when(repositorioPaqueteMock.buscarPorFiltros(TipoPaquete.EMPRESARIAL, null, null))
+      .thenReturn(List.of());
 
     // Ejecución
     List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorTipo(TipoPaquete.EMPRESARIAL);
 
     // Validación
     assertThat(obtenidos, equalTo(List.of()));
+  }
+
+  @Test
+  public void deberiaBuscarPaquetesPorTipoPresupuestoYCapacidad() {
+    // Preparación
+    Salon salon = new Salon("Salón grande", 90000.0);
+    salon.setCapacidad(120);
+
+    Paquete cumpleanios = new Paquete(
+      null,
+      "Cumpleaños familiar",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering básico",
+      List.of("DJ"),
+      200000.0
+    );
+
+    List<Paquete> paquetesEsperados = List.of(cumpleanios);
+
+    when(repositorioPaqueteMock.buscarPorFiltros(TipoPaquete.CUMPLEANIOS, 250000.0, 80))
+      .thenReturn(paquetesEsperados);
+
+    // Ejecución
+    List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      250000.0,
+      80
+    );
+
+    // Validación
+    assertThat(obtenidos, equalTo(paquetesEsperados));
+  }
+
+  @Test
+  public void deberiaDevolverListaVaciaSiNoHayPaquetesQueCumplanLosFiltros() {
+    // Preparación
+    when(repositorioPaqueteMock.buscarPorFiltros(TipoPaquete.CASAMIENTO, 100000.0, 100))
+      .thenReturn(List.of());
+
+    // Ejecución
+    List<Paquete> obtenidos = servicioBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.CASAMIENTO,
+      100000.0,
+      100
+    );
+
+    // Validación
+    assertThat(obtenidos, equalTo(List.of()));
+  }
+
+  private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
+    return new Paquete(
+            null,
+            nombre,
+            tipo,
+            new Salon("Salón de prueba", 50000.0),
+            "Catering de prueba",
+            List.of("DJ"),
+            100000.0
+    );
   }
 }
