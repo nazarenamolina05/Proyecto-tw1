@@ -19,8 +19,10 @@ public class Reserva {
   @ManyToOne
   private Usuario usuario;
 
-  @ManyToOne
-  private Paquete paquete;
+  private String nombrePaquete; // provisorio, hasta que Paquete/Evento sea una entidad persistente
+
+  @Enumerated(EnumType.STRING)
+  private TipoPaquete tipo;
 
   private LocalDate fecha;
   private Double presupuesto;
@@ -28,12 +30,8 @@ public class Reserva {
   @Enumerated(EnumType.STRING)
   private EstadoReserva estado;
 
-  @Enumerated(EnumType.STRING)
-  private TipoPago tipoPago;
-
-  private Double montoAbonado;
-  private String nombreContacto;
-  private String telefonoContacto;
+  @ManyToOne
+  private Salon salon;
 
   public Long getId() {
     return id;
@@ -51,12 +49,20 @@ public class Reserva {
     this.usuario = usuario;
   }
 
-  public Paquete getPaquete() {
-    return paquete;
+  public String getNombrePaquete() {
+    return nombrePaquete;
   }
 
-  public void setPaquete(Paquete paquete) {
-    this.paquete = paquete;
+  public void setNombrePaquete(String nombrePaquete) {
+    this.nombrePaquete = nombrePaquete;
+  }
+
+  public TipoPaquete getTipo() {
+    return tipo;
+  }
+
+  public void setTipo(TipoPaquete tipo) {
+    this.tipo = tipo;
   }
 
   public LocalDate getFecha() {
@@ -83,35 +89,11 @@ public class Reserva {
     this.estado = estado;
   }
 
-  public TipoPago getTipoPago() {
-    return tipoPago;
+  public Salon getSalon() {
+    return salon;
   }
 
-  public void setTipoPago(TipoPago tipoPago) {
-    this.tipoPago = tipoPago;
-  }
-
-  public Double getMontoAbonado() {
-    return montoAbonado;
-  }
-
-  public void setMontoAbonado(Double montoAbonado) {
-    this.montoAbonado = montoAbonado;
-  }
-
-  public String getNombreContacto() {
-    return nombreContacto;
-  }
-
-  public void setNombreContacto(String nombreContacto) {
-    this.nombreContacto = nombreContacto;
-  }
-
-  public String getTelefonoContacto() {
-    return telefonoContacto;
-  }
-
-  public void setTelefonoContacto(String telefonoContacto) {
-    this.telefonoContacto = telefonoContacto;
+  public void setSalon(Salon salon) {
+    this.salon = salon;
   }
 }
