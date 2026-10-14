@@ -32,4 +32,13 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
       .createQuery("FROM Paquete p WHERE p.predeterminado = true ORDER BY p.id", Paquete.class)
       .getResultList();
   }
+
+  @Override
+  public Paquete obtenerPredeterminadoPorId(Long id) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery("from Paquete where id = :id and predeterminado = true", Paquete.class)
+      .setParameter("id", id)
+      .uniqueResult();
+  }
 }

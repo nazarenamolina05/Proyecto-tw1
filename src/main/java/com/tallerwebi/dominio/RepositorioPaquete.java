@@ -6,4 +6,6 @@ public interface RepositorioPaquete {
   public List<Paquete> obtenerTodos();
 
   List<Paquete> obtenerPredeterminados();
+
+  Paquete obtenerPredeterminadoPorId(Long id);
 }

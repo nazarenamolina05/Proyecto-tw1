@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ServicioSalonReserva {
-    List<Salon> obtenerSalonesDisponibles(LocalDate desde, LocalDate hasta);
+  List<Salon> obtenerSalonesDisponibles(LocalDate desde, LocalDate hasta);
 
-    Map<LocalDate, Boolean> obtenerDisponibilidadDelMes(YearMonth mes);
+  Map<LocalDate, Boolean> obtenerDisponibilidadDelMes(YearMonth mes);
 }

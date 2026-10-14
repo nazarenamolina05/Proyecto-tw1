@@ -2,9 +2,11 @@ package com.tallerwebi.dominio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,14 +38,11 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
   }
 
   @Test
-  public void devuelveElPaqueteQueCoincideConElIdBuscado() {
+  public void devuelveElPaquetePredeterminadoQueCoincideConElId() {
     // Preparación
-    Paquete paqueteBasico = crearPaquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, 80000.0);
-
     Paquete paqueteEstandar = crearPaquete(2L, "Estándar", TipoPaquete.FIESTA_DE_15, 150000.0);
 
-    when(repositorioPaquete.obtenerPredeterminados())
-      .thenReturn(List.of(paqueteBasico, paqueteEstandar));
+    when(repositorioPaquete.obtenerPredeterminadoPorId(2L)).thenReturn(paqueteEstandar);
 
     // Ejecución
     Paquete paqueteEncontrado = servicio.consultarPorId(2L);
@@ -53,17 +52,12 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
   }
 
   @Test
-  public void devuelveNullSiNoExisteUnPaqueteConEseId() {
+  public void lanzaPaqueteNoEncontradoSiNoExisteElPaquete() {
     // Preparación
-    Paquete paqueteBasico = crearPaquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, 80000.0);
+    when(repositorioPaquete.obtenerPredeterminadoPorId(99L)).thenReturn(null);
 
-    when(repositorioPaquete.obtenerPredeterminados()).thenReturn(List.of(paqueteBasico));
-
-    // Ejecución
-    Paquete paqueteEncontrado = servicio.consultarPorId(99L);
-
-    // Validación
-    assertNull(paqueteEncontrado);
+    // Ejecución y validación
+    assertThrows(PaqueteNoEncontrado.class, () -> servicio.consultarPorId(99L));
   }
 
   // Método auxiliar que utiliza el constructor completo

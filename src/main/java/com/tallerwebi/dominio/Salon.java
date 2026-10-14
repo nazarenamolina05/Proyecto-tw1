@@ -16,6 +16,8 @@ public class Salon {
 
   private Double precio;
 
+  private Integer capacidad;
+
   public Salon() {}
 
   public Salon(String nombre, Double precio) {
@@ -45,5 +47,13 @@ public class Salon {
 
   public void setPrecio(Double precio) {
     this.precio = precio;
+  }
+
+  public Integer getCapacidad() {
+    return capacidad;
+  }
+
+  public void setCapacidad(Integer capacidad) {
+    this.capacidad = capacidad;
   }
 }

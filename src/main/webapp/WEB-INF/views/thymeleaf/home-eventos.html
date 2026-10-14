@@ -182,12 +182,6 @@
 
                         <div class="pack-media">
                             <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}" />
-                            <span class="pack-tag" th:switch="${paquete.tipo.name()}">
-                            <span th:case="'CUMPLEANIOS'">Cumpleaños</span>
-                            <span th:case="'FIESTA_DE_15'">Fiesta de 15</span>
-                            <span th:case="'CASAMIENTO'">Casamiento</span>
-                            <span th:case="'EMPRESARIAL'">Empresarial</span>
-                        </span>
                         </div>
 
                         <div class="pack-body">
@@ -195,6 +189,9 @@
 
                             <p class="pack-linea" th:text="${paquete.salon.nombre}">Salón</p>
                             <p class="pack-linea pack-linea-suave" th:text="${paquete.catering}">Catering</p>
+                            <p class="pack-linea pack-linea-suave">
+                                Hasta <span th:text="${paquete.salon.capacidad}">50</span> invitados
+                            </p>
 
                             <div class="pack-chips">
                                 <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</span>
