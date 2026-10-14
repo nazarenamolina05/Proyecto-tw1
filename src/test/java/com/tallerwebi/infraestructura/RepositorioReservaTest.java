@@ -1,13 +1,16 @@
 package com.tallerwebi.infraestructura;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.EstadoReserva;
+import com.tallerwebi.dominio.Paquete;
+import com.tallerwebi.dominio.RepositorioReserva;
+import com.tallerwebi.dominio.Reserva;
+import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.Usuario;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
@@ -41,9 +44,10 @@ public class RepositorioReservaTest {
   public void deberiaObtenerSoloLasReservasDelUsuarioIndicado() {
     Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
     Usuario otroUsuario = this.dadoQueExisteUnUsuario("otro@test.com");
-    this.dadoQueExisteUnaReserva(usuario, "Cumpleanios familiar");
-    this.dadoQueExisteUnaReserva(usuario, "Casamiento clásico");
-    this.dadoQueExisteUnaReserva(otroUsuario, "Fiesta de quince");
+    Paquete paquete = this.dadoQueExisteUnPaquete("Cumpleaños familiar");
+    this.dadoQueExisteUnaReserva(usuario, paquete);
+    this.dadoQueExisteUnaReserva(usuario, paquete);
+    this.dadoQueExisteUnaReserva(otroUsuario, paquete);
 
     List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
 
@@ -65,56 +69,14 @@ public class RepositorioReservaTest {
   @Test
   @Transactional
   @Rollback
-  public void deberiaObtenerSoloLasFechasOcupadasDelSalonIndicado() {
-    Salon salon = this.dadoQueExisteUnSalon("Salón A");
-    Salon otroSalon = this.dadoQueExisteUnSalon("Salón B");
-    LocalDate fechaDelSalon = LocalDate.now().plusDays(10);
-    this.dadoQueExisteUnaReservaEnSalon(salon, fechaDelSalon, EstadoReserva.CONFIRMADA);
-    this.dadoQueExisteUnaReservaEnSalon(
-        otroSalon,
-        LocalDate.now().plusDays(30),
-        EstadoReserva.CONFIRMADA
-      );
+  public void deberiaGuardarUnaReserva() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Paquete paquete = this.dadoQueExisteUnPaquete("Cumpleaños familiar");
+    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, paquete);
 
-    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
+    this.cuandoGuardoLaReserva(reserva);
 
-    assertThat(fechas, contains(fechaDelSalon));
-  }
-
-  @Test
-  @Transactional
-  @Rollback
-  public void deberiaConsiderarOcupadasLasReservasSenadasYConfirmadas() {
-    Salon salon = this.dadoQueExisteUnSalon("Salón A");
-    LocalDate fechaSenada = LocalDate.now().plusDays(10);
-    LocalDate fechaConfirmada = LocalDate.now().plusDays(20);
-    this.dadoQueExisteUnaReservaEnSalon(salon, fechaSenada, EstadoReserva.SENIADA);
-    this.dadoQueExisteUnaReservaEnSalon(salon, fechaConfirmada, EstadoReserva.CONFIRMADA);
-
-    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
-
-    assertThat(fechas, containsInAnyOrder(fechaSenada, fechaConfirmada));
-  }
-
-  @Test
-  @Transactional
-  @Rollback
-  public void noDeberiaConsiderarOcupadasLasReservasCanceladasNiFinalizadas() {
-    Salon salon = this.dadoQueExisteUnSalon("Salón A");
-    this.dadoQueExisteUnaReservaEnSalon(
-        salon,
-        LocalDate.now().plusDays(10),
-        EstadoReserva.CANCELADA
-      );
-    this.dadoQueExisteUnaReservaEnSalon(
-        salon,
-        LocalDate.now().minusDays(10),
-        EstadoReserva.FINALIZADA
-      );
-
-    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
-
-    assertThat(fechas, is(empty()));
+    this.entoncesLaReservaQuedoGuardada(usuario, reserva);
   }
 
   private Usuario dadoQueExisteUnUsuario(String email) {
@@ -126,19 +88,40 @@ public class RepositorioReservaTest {
     return usuario;
   }
 
-  private void dadoQueExisteUnaReserva(Usuario usuario, String nombrePaquete) {
+  private Paquete dadoQueExisteUnPaquete(String nombre) {
+    Paquete paquete = new Paquete(
+            null,
+            nombre,
+            TipoPaquete.CUMPLEANIOS,
+            null,
+            "Catering básico",
+            List.of("DJ"),
+            100000.0
+    );
+    this.sessionFactory.getCurrentSession().persist(paquete);
+    return paquete;
+  }
+
+  private Reserva dadoQueTengoUnaReserva(Usuario usuario, Paquete paquete) {
     Reserva reserva = new Reserva();
     reserva.setUsuario(usuario);
-    reserva.setNombrePaquete(nombrePaquete);
-    reserva.setTipo(TipoPaquete.CUMPLEANIOS);
+    reserva.setPaquete(paquete);
     reserva.setFecha(LocalDate.now().plusDays(30));
-    reserva.setPresupuesto(100000.0);
+    reserva.setPresupuesto(paquete.getPrecioEstimado());
     reserva.setEstado(EstadoReserva.CONFIRMADA);
-    this.sessionFactory.getCurrentSession().persist(reserva);
+    return reserva;
+  }
+
+  private void dadoQueExisteUnaReserva(Usuario usuario, Paquete paquete) {
+    this.sessionFactory.getCurrentSession().persist(this.dadoQueTengoUnaReserva(usuario, paquete));
   }
 
   private List<Reserva> cuandoBuscoLasReservasDe(Usuario usuario) {
     return repositorioReserva.buscarPorUsuario(usuario);
+  }
+
+  private void cuandoGuardoLaReserva(Reserva reserva) {
+    repositorioReserva.guardar(reserva);
   }
 
   private void entoncesObtengoLaCantidadDeReservas(List<Reserva> reservas, int esperada) {
@@ -151,23 +134,12 @@ public class RepositorioReservaTest {
     }
   }
 
-  private Salon dadoQueExisteUnSalon(String nombre) {
-    Salon salon = new Salon(nombre, 50000.0);
-    this.sessionFactory.getCurrentSession().persist(salon);
-    return salon;
-  }
-
-  private void dadoQueExisteUnaReservaEnSalon(Salon salon, LocalDate fecha, EstadoReserva estado) {
-    Reserva reserva = new Reserva();
-    reserva.setSalon(salon);
-    reserva.setFecha(fecha);
-    reserva.setEstado(estado);
-    this.sessionFactory.getCurrentSession().persist(reserva);
-  }
-
-  private List<LocalDate> cuandoBuscoLasFechasOcupadasDe(Salon salon) {
-    this.sessionFactory.getCurrentSession().flush();
-    this.sessionFactory.getCurrentSession().clear();
-    return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
+  private void entoncesLaReservaQuedoGuardada(Usuario usuario, Reserva esperada) {
+    Reserva obtenida = this.sessionFactory.getCurrentSession()
+            .createQuery("from Reserva where usuario.id = :idUsuario", Reserva.class)
+            .setParameter("idUsuario", usuario.getId())
+            .getSingleResult();
+    assertThat(obtenida.getPaquete().getNombre(), is(equalTo(esperada.getPaquete().getNombre())));
+    assertThat(obtenida.getEstado(), is(equalTo(esperada.getEstado())));
   }
 }
