@@ -491,4 +491,86 @@ public class RepositorioPaqueteTest {
     assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños mediano"));
     assertThat(obtenidos.get(1).getNombre(), equalTo("Cumpleaños grande"));
   }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerPaquetesQueCumplanLosTresFiltros() {
+    // Preparación
+    Salon salonMediano = new Salon("Salón mediano", 90000.0);
+    salonMediano.setCapacidad(80);
+
+    Salon salonGrande = new Salon("Salón grande", 150000.0);
+    salonGrande.setCapacidad(120);
+
+    Salon salonChico = new Salon("Salón chico", 50000.0);
+    salonChico.setCapacidad(50);
+
+    sessionFactory.getCurrentSession().persist(salonMediano);
+    sessionFactory.getCurrentSession().persist(salonGrande);
+    sessionFactory.getCurrentSession().persist(salonChico);
+
+    // Cumple los tres filtros
+    Paquete cumpleaniosValido = new Paquete(
+      null,
+      "Cumpleaños válido",
+      TipoPaquete.CUMPLEANIOS,
+      salonMediano,
+      "Catering básico",
+      List.of("DJ"),
+      250000.0
+    );
+
+    // No cumple el tipo de evento
+    Paquete casamiento = new Paquete(
+      null,
+      "Casamiento",
+      TipoPaquete.CASAMIENTO,
+      salonGrande,
+      "Catering completo",
+      List.of("DJ"),
+      200000.0
+    );
+
+    // Supera el presupuesto
+    Paquete cumpleaniosCaro = new Paquete(
+      null,
+      "Cumpleaños caro",
+      TipoPaquete.CUMPLEANIOS,
+      salonGrande,
+      "Catering premium",
+      List.of("DJ"),
+      300000.0
+    );
+
+    // No tiene capacidad suficiente
+    Paquete cumpleaniosChico = new Paquete(
+      null,
+      "Cumpleaños chico",
+      TipoPaquete.CUMPLEANIOS,
+      salonChico,
+      "Catering básico",
+      List.of("DJ"),
+      150000.0
+    );
+
+    sessionFactory.getCurrentSession().persist(cumpleaniosValido);
+    sessionFactory.getCurrentSession().persist(casamiento);
+    sessionFactory.getCurrentSession().persist(cumpleaniosCaro);
+    sessionFactory.getCurrentSession().persist(cumpleaniosChico);
+
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      250000.0,
+      80
+    );
+
+    // Validación
+    assertThat(obtenidos.size(), equalTo(1));
+    assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños válido"));
+  }
 }
