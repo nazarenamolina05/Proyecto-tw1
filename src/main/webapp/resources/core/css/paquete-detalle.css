@@ -179,6 +179,12 @@
     box-shadow: 0 14px 26px -8px rgba(109, 63, 214, 0.75);
 }
 
+.flatpickr-day.dia-ocupado {
+    background: #fde2e4;
+    color: #b3261e;
+    text-decoration: line-through;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 991.98px) {

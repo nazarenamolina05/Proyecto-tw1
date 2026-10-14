@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +23,11 @@ public class ServicioConsultarPaquetesPredeterminadosImpl
 
   @Override
   public Paquete consultarPorId(Long id) {
-    List<Paquete> paquetes = repositorioPaquete.obtenerPredeterminados();
+    Paquete paquete = repositorioPaquete.obtenerPredeterminadoPorId(id);
 
-    for (Paquete paquete : paquetes) {
-      if (paquete.getId().equals(id)) {
-        return paquete;
-      }
+    if (paquete == null) {
+      throw new PaqueteNoEncontrado();
     }
-    return null;
+    return paquete;
   }
 }

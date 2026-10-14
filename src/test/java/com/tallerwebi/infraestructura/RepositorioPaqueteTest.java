@@ -150,9 +150,7 @@ public class RepositorioPaqueteTest {
       List.of("DJ"),
       100000.0
     );
-
     paquete.setPredeterminado(false);
-
     sessionFactory.getCurrentSession().persist(paquete);
 
     // Ejecución
@@ -160,5 +158,131 @@ public class RepositorioPaqueteTest {
 
     // Validación
     assertTrue(paquetesObtenidos.isEmpty());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerUnPaquetePredeterminadoPorSuId() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete basico = new Paquete(
+      null,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering Básico",
+      List.of("DJ"),
+      80000.0
+    );
+    basico.setPredeterminado(true);
+    sessionFactory.getCurrentSession().persist(basico);
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(basico.getId());
+
+    // Validación
+    assertEquals("Básico", obtenido.getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverNullSiElPaqueteExistePeroNoEsPredeterminado() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete premium = new Paquete(
+      null,
+      "Premium",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      "Catering Completo",
+      List.of("DJ"),
+      300000.0
+    );
+    premium.setPredeterminado(false);
+    sessionFactory.getCurrentSession().persist(premium);
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(premium.getId());
+
+    // Validación
+    assertNull(obtenido);
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverNullSiElIdNoExiste() {
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(9999L);
+
+    // Validación
+    assertNull(obtenido);
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerLosPaquetesPredeterminadosOrdenadosPorId() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete primero = new Paquete(
+      null,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering Básico",
+      List.of("DJ"),
+      80000.0
+    );
+    primero.setPredeterminado(true);
+
+    Paquete segundo = new Paquete(
+      null,
+      "Estándar",
+      TipoPaquete.FIESTA_DE_15,
+      salon,
+      "Catering Estándar",
+      List.of("DJ"),
+      150000.0
+    );
+    segundo.setPredeterminado(true);
+
+    Paquete tercero = new Paquete(
+      null,
+      "Premium",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      "Catering Completo",
+      List.of("DJ", "Fotografía"),
+      300000.0
+    );
+    tercero.setPredeterminado(true);
+
+    sessionFactory.getCurrentSession().persist(primero);
+    sessionFactory.getCurrentSession().persist(segundo);
+    sessionFactory.getCurrentSession().persist(tercero);
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    List<Paquete> paquetesObtenidos = repositorioPaquete.obtenerPredeterminados();
+
+    // Validación
+    assertEquals(3, paquetesObtenidos.size());
+    assertEquals("Básico", paquetesObtenidos.get(0).getNombre());
+    assertEquals("Estándar", paquetesObtenidos.get(1).getNombre());
+    assertEquals("Premium", paquetesObtenidos.get(2).getNombre());
   }
 }

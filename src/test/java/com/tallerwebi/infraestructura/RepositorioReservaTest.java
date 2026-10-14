@@ -1,6 +1,8 @@
 package com.tallerwebi.infraestructura;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -60,6 +62,61 @@ public class RepositorioReservaTest {
     assertThat(obtenidas, is(empty()));
   }
 
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerSoloLasFechasOcupadasDelSalonIndicado() {
+    Salon salon = this.dadoQueExisteUnSalon("Salón A");
+    Salon otroSalon = this.dadoQueExisteUnSalon("Salón B");
+    LocalDate fechaDelSalon = LocalDate.now().plusDays(10);
+    this.dadoQueExisteUnaReservaEnSalon(salon, fechaDelSalon, EstadoReserva.CONFIRMADA);
+    this.dadoQueExisteUnaReservaEnSalon(
+        otroSalon,
+        LocalDate.now().plusDays(30),
+        EstadoReserva.CONFIRMADA
+      );
+
+    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
+
+    assertThat(fechas, contains(fechaDelSalon));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaConsiderarOcupadasLasReservasSenadasYConfirmadas() {
+    Salon salon = this.dadoQueExisteUnSalon("Salón A");
+    LocalDate fechaSenada = LocalDate.now().plusDays(10);
+    LocalDate fechaConfirmada = LocalDate.now().plusDays(20);
+    this.dadoQueExisteUnaReservaEnSalon(salon, fechaSenada, EstadoReserva.SENIADA);
+    this.dadoQueExisteUnaReservaEnSalon(salon, fechaConfirmada, EstadoReserva.CONFIRMADA);
+
+    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
+
+    assertThat(fechas, containsInAnyOrder(fechaSenada, fechaConfirmada));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void noDeberiaConsiderarOcupadasLasReservasCanceladasNiFinalizadas() {
+    Salon salon = this.dadoQueExisteUnSalon("Salón A");
+    this.dadoQueExisteUnaReservaEnSalon(
+        salon,
+        LocalDate.now().plusDays(10),
+        EstadoReserva.CANCELADA
+      );
+    this.dadoQueExisteUnaReservaEnSalon(
+        salon,
+        LocalDate.now().minusDays(10),
+        EstadoReserva.FINALIZADA
+      );
+
+    List<LocalDate> fechas = this.cuandoBuscoLasFechasOcupadasDe(salon);
+
+    assertThat(fechas, is(empty()));
+  }
+
   private Usuario dadoQueExisteUnUsuario(String email) {
     Usuario usuario = new Usuario();
     usuario.setEmail(email);
@@ -92,5 +149,25 @@ public class RepositorioReservaTest {
     for (Reserva reserva : reservas) {
       assertThat(reserva.getUsuario().getEmail(), is(equalTo(usuario.getEmail())));
     }
+  }
+
+  private Salon dadoQueExisteUnSalon(String nombre) {
+    Salon salon = new Salon(nombre, 50000.0);
+    this.sessionFactory.getCurrentSession().persist(salon);
+    return salon;
+  }
+
+  private void dadoQueExisteUnaReservaEnSalon(Salon salon, LocalDate fecha, EstadoReserva estado) {
+    Reserva reserva = new Reserva();
+    reserva.setSalon(salon);
+    reserva.setFecha(fecha);
+    reserva.setEstado(estado);
+    this.sessionFactory.getCurrentSession().persist(reserva);
+  }
+
+  private List<LocalDate> cuandoBuscoLasFechasOcupadasDe(Salon salon) {
+    this.sessionFactory.getCurrentSession().flush();
+    this.sessionFactory.getCurrentSession().clear();
+    return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
   }
 }

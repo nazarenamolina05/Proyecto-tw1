@@ -30,6 +30,9 @@ public class Reserva {
   @Enumerated(EnumType.STRING)
   private EstadoReserva estado;
 
+  @ManyToOne
+  private Salon salon;
+
   public Long getId() {
     return id;
   }
@@ -84,5 +87,13 @@ public class Reserva {
 
   public void setEstado(EstadoReserva estado) {
     this.estado = estado;
+  }
+
+  public Salon getSalon() {
+    return salon;
+  }
+
+  public void setSalon(Salon salon) {
+    this.salon = salon;
   }
 }
