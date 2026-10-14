@@ -1,15 +1,12 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.EventoPersonalizado;
-import com.tallerwebi.dominio.ServicioAdicional;
-import com.tallerwebi.dominio.ServicioEventoPersonalizado;
-import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.*;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,55 +17,63 @@ public class ControladorEventoPersonalizado {
 
   private static final String EVENTO = "eventoPersonalizado";
 
+  private static final String USUARIO = "USUARIO";
+
   private ServicioEventoPersonalizado servicioEventoPersonalizado;
+  private ServicioSugerenciaServicios servicioSugerenciaServicios;
 
   @Autowired
-  public ControladorEventoPersonalizado(ServicioEventoPersonalizado servicioEventoPersonalizado) {
+  public ControladorEventoPersonalizado(
+    ServicioEventoPersonalizado servicioEventoPersonalizado,
+    ServicioSugerenciaServicios servicioSugerenciaServicios
+  ) {
     this.servicioEventoPersonalizado = servicioEventoPersonalizado;
+    this.servicioSugerenciaServicios = servicioSugerenciaServicios;
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
   public ModelAndView verEventoPersonalizado(HttpSession session) {
-    ModelAndView modelo = new ModelAndView("evento-personalizado");
+    Map<String, Object> modelo = new ModelMap();
     EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
-      modelo.addObject("evento", evento);
-      modelo.addObject("salones", servicioEventoPersonalizado.obtenerSalones());
-      modelo.addObject("caterings", servicioEventoPersonalizado.obtenerCaterings());
-      modelo.addObject("servicios", servicioEventoPersonalizado.obtenerServicioAdicionales());
-      modelo.addObject("presupuesto", evento.calcularPresupuesto());
-      modelo.addObject(
-        "salonElegidoId",
-        evento.getSalon() == null ? null : evento.getSalon().getId()
-      );
-      modelo.addObject(
+      modelo.put("evento", evento);
+      modelo.put("salones", servicioEventoPersonalizado.obtenerSalones());
+      modelo.put("caterings", servicioEventoPersonalizado.obtenerCaterings());
+      //      modelo.put("servicio", servicioEventoPersonalizado.obtenerServicioAdicionales());
+      ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
+      modelo.put("serviciosSugeridos", clasificados.getSugeridos());
+      modelo.put("serviciosRestantes", clasificados.getRestantes());
+      modelo.put("presupuesto", evento.calcularPresupuesto());
+      modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
+      modelo.put(
         "cateringElegidoId",
         evento.getCatering() == null ? null : evento.getCatering().getId()
       );
-      modelo.addObject(
+      modelo.put(
         "serviciosElegidosIds",
         evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
       );
     }
-    return modelo;
+
+    return new ModelAndView("evento-personalizado", modelo);
   }
 
   @RequestMapping(value = "/evento-personalizado/nuevo", method = RequestMethod.GET)
-  public ModelAndView empezarDeCero(HttpSession sesion) {
-    sesion.removeAttribute(EVENTO);
+  public ModelAndView volverAEmpezar(HttpSession session) {
+    session.removeAttribute(EVENTO);
     return volverAlEvento();
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.POST)
   public ModelAndView guardarDatosDelEvento(
     @RequestParam("tipo") TipoPaquete tipo,
-    @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+    @RequestParam("fecha") LocalDate fecha,
     @RequestParam("cantidadInvitados") Integer cantidadInvitados,
-    HttpSession sesion
+    HttpSession session
   ) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+    EventoPersonalizado evento = obtenerEvento(session);
     if (evento == null) {
-      sesion.setAttribute(
+      session.setAttribute(
         EVENTO,
         servicioEventoPersonalizado.crearEvento(tipo, fecha, cantidadInvitados)
       );
@@ -81,8 +86,8 @@ public class ControladorEventoPersonalizado {
   }
 
   @RequestMapping(value = "/evento-personalizado/salon", method = RequestMethod.POST)
-  public ModelAndView elegirSalon(@RequestParam("id") Long id, HttpSession sesion) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+  public ModelAndView elegirSalon(@RequestParam("id") Long id, HttpSession session) {
+    EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
       servicioEventoPersonalizado.elegirSalon(evento, id);
     }
@@ -90,42 +95,49 @@ public class ControladorEventoPersonalizado {
   }
 
   @RequestMapping(value = "/evento-personalizado/catering", method = RequestMethod.POST)
-  public ModelAndView elegirCatering(@RequestParam("id") Long id, HttpSession sesion) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+  public ModelAndView elegirCatering(@RequestParam("id") Long id, HttpSession session) {
+    EventoPersonalizado evento = obtenerEvento(session);
+
     if (evento != null) {
       servicioEventoPersonalizado.elegirCatering(evento, id);
     }
+
     return volverAlEvento("catering", id);
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/agregar", method = RequestMethod.POST)
-  public ModelAndView agregarServicio(@RequestParam("id") Long id, HttpSession sesion) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+  public ModelAndView agregarServicio(@RequestParam("id") Long id, HttpSession session) {
+    EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
       servicioEventoPersonalizado.agregarServicio(evento, id);
     }
-    return volverAlEvento("servicioAgregado", id);
+    return volverAlEvento("agregarServicio", id);
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/quitar", method = RequestMethod.POST)
-  public ModelAndView quitarServicio(@RequestParam("id") Long id, HttpSession sesion) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+  public ModelAndView quitarServicio(@RequestParam("id") Long id, HttpSession session) {
+    EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
       servicioEventoPersonalizado.quitarServicio(evento, id);
     }
-    return volverAlEvento("servicioQuitado", id);
+    return volverAlEvento("quitarServicio", id);
   }
 
   @RequestMapping(value = "/evento-personalizado/reservar", method = RequestMethod.POST)
-  public ModelAndView reservarEvento(HttpSession sesion) {
-    EventoPersonalizado evento = obtenerEvento(sesion);
+  public ModelAndView reservarEvento(HttpSession session) {
+    EventoPersonalizado evento = obtenerEvento(session);
+    Usuario user = obtenerUsuario(session);
     if (evento == null) {
       return volverAlEvento();
     }
+
+    if (user == null) {
+      return new ModelAndView("redirect:/login");
+    }
+
     if (evento.getSalon() == null || evento.getCatering() == null) {
       return new ModelAndView("redirect:/evento-personalizado?error=incompleto");
     }
-    // Acá va la creación de la Reserva (paso 3, abajo)
     return volverAlEvento();
   }
 
@@ -133,13 +145,17 @@ public class ControladorEventoPersonalizado {
     return (EventoPersonalizado) sesion.getAttribute(EVENTO);
   }
 
+  private Usuario obtenerUsuario(HttpSession session) {
+    return (Usuario) session.getAttribute(USUARIO);
+  }
+
   private ModelAndView volverAlEvento() {
     return new ModelAndView("redirect:/evento-personalizado");
   }
 
   private ModelAndView volverAlEvento(String clave, Long id) {
-    ModelAndView modelo = new ModelAndView("redirect:/evento-personalizado");
-    modelo.addObject(clave, id); // se agrega a la URL como ?clave=id
-    return modelo;
+    Map<String, Object> modelo = new ModelMap();
+    modelo.put(clave, id);
+    return new ModelAndView("redirect:/evento-personalizado", modelo);
   }
 }

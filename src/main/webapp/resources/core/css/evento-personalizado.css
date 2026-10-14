@@ -18,6 +18,13 @@ body {
     border: 2px solid #6d3fd6;
 }
 
+.subtitulo-servicios {
+    color: #6d3fd6;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
 
 /* El sticky va en el contenedor que tiene resumen + botón */
 .sidebar-sticky {
