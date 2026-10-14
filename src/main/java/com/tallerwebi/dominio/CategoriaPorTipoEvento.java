@@ -14,7 +14,13 @@ public class CategoriaPorTipoEvento {
         listaSugerida.add(CategoriaServicio.COTILLON);
         listaSugerida.add(CategoriaServicio.DJ);
         break;
-      case TipoPaquete.FIESTA_DE_15, TipoPaquete.CASAMIENTO:
+      case TipoPaquete.FIESTA_DE_15:
+        listaSugerida.add(CategoriaServicio.DECORACION);
+        listaSugerida.add(CategoriaServicio.FOTOGRAFIA);
+        listaSugerida.add(CategoriaServicio.VIDEO);
+        listaSugerida.add(CategoriaServicio.DJ);
+        break;
+      case TipoPaquete.CASAMIENTO:
         listaSugerida.add(CategoriaServicio.DECORACION);
         listaSugerida.add(CategoriaServicio.FOTOGRAFIA);
         listaSugerida.add(CategoriaServicio.VIDEO);
