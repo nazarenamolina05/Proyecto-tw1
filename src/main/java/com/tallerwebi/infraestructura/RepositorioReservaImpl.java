@@ -41,4 +41,9 @@ public class RepositorioReservaImpl implements RepositorioReserva {
       .setParameterList("estados", List.of(EstadoReserva.SENIADA, EstadoReserva.CONFIRMADA))
       .getResultList();
   }
+
+  @Override
+  public void guardar(Reserva reserva) {
+    sessionFactory.getCurrentSession().persist(reserva);
+  }
 }
