@@ -99,4 +99,9 @@ public class ServicioEventoPersonalizadoTest {
 
     assertThat(evento.getServiciosAdicionales(), contains(dj));
   }
+
+  @Test
+  void dadoQueSeleccionoUnEventoTipoCumpleaniosMostrarListadoDeServiciosSugeridos() {
+    servicioEventoPersonalizado.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 30);
+  }
 }

@@ -1,9 +1,6 @@
 package com.tallerwebi.dominio;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 @Entity
 public class ServicioAdicional {
@@ -16,12 +13,29 @@ public class ServicioAdicional {
   private Double precio;
   private Boolean precioPorInvitado;
 
+  @Enumerated(EnumType.STRING)
+  private CategoriaServicio categoriaServicio;
+
   public ServicioAdicional() {}
 
+  // constructor para que funciones los test existentes
   public ServicioAdicional(String nombre, Double precio, Boolean precioPorInvitado) {
     this.nombre = nombre;
     this.precio = precio;
     this.precioPorInvitado = precioPorInvitado;
+  }
+
+  // constructor para HU-03 filtrar los servicios por tipo de envento para los test
+  public ServicioAdicional(
+    String nombre,
+    Double precio,
+    Boolean precioPorInvitado,
+    CategoriaServicio categoriaServicio
+  ) {
+    this.nombre = nombre;
+    this.precio = precio;
+    this.precioPorInvitado = precioPorInvitado;
+    this.categoriaServicio = categoriaServicio;
   }
 
   public Long getId() {
@@ -54,6 +68,14 @@ public class ServicioAdicional {
 
   public void setPrecioPorInvitado(Boolean precioPorInvitado) {
     this.precioPorInvitado = precioPorInvitado;
+  }
+
+  public CategoriaServicio getCategoriaServicio() {
+    return categoriaServicio;
+  }
+
+  public void setCategoriaServicio(CategoriaServicio categoriaServicio) {
+    this.categoriaServicio = categoriaServicio;
   }
 
   public Double calcularCosto(Integer cantidadInvitados) {
