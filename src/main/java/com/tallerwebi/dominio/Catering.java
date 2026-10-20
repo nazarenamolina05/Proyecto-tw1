@@ -4,6 +4,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 @Entity
 public class Catering {
@@ -15,11 +20,19 @@ public class Catering {
   private String nombre;
   private Double precioPorPersona;
 
+  @ManyToMany
+  @JoinTable(
+    name = "Catering_Comida",
+    joinColumns = @JoinColumn(name = "catering_id"),
+    inverseJoinColumns = @JoinColumn(name = "comida_id")
+  )
+  private Set<Comida> comidas = new LinkedHashSet<>();
+
   public Catering() {}
 
   public Catering(String nombre, Double precioPorPersona) {
-    this.precioPorPersona = precioPorPersona;
     this.nombre = nombre;
+    this.precioPorPersona = precioPorPersona;
   }
 
   public Long getId() {
@@ -44,5 +57,20 @@ public class Catering {
 
   public void setPrecioPorPersona(Double precioPorPersona) {
     this.precioPorPersona = precioPorPersona;
+  }
+
+  public Set<Comida> getComidas() {
+    return comidas;
+  }
+
+  public void agregarComida(Comida comida) {
+    if (comida == null) {
+      throw new IllegalArgumentException("La comida no puede ser nula");
+    }
+    comidas.add(comida);
+  }
+
+  public void quitarComida(Comida comida) {
+    comidas.remove(comida);
   }
 }

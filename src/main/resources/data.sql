@@ -21,29 +21,16 @@ INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaSe
 
 --PAQUETES PREDETERMINADOS--
 INSERT INTO Paquete(nombre, tipo, salon_id, catering, precioEstimado, predeterminado)
-VALUES ('Básico', 'CUMPLEANIOS',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
-        'Catering Don José', 80000.0, true),( 'Estándar', 'FIESTA_DE_15',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
-        'Catering Fiesta Plena', 150000.0, true),('Premium', 'CASAMIENTO',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),
-        'Catering Alta Cocina', 300000.0, true);
+VALUES  ('Básico', 'CUMPLEANIOS',(SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),'Catering Don José', 80000.0, true),
+        ('Estándar', 'FIESTA_DE_15',(SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),'Catering Fiesta Plena', 150000.0, true),
+        ('Premium', 'CASAMIENTO',(SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),'Catering Alta Cocina', 300000.0, true);
 
 -- PAQUETES ADICIONALES --
-INSERT INTO Paquete
-(nombre, tipo, salon_id, catering, precioEstimado, predeterminado)
-VALUES('Casamiento clásico', 'CASAMIENTO',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),
-        'Catering Completo', 350000.0, false),
-        ('Cumpleaños familiar', 'CUMPLEANIOS',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
-        'Catering Basico', 100000.0, false),
-        ('Fiesta de quince', 'FIESTA_DE_15',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
-        'Catering Medio', 220000.0, false),
-        ('Cumpleaños Premium', 'CUMPLEANIOS',
-        (SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),
-        'Catering Completo', 400000.0, false);
+INSERT INTO Paquete(nombre, tipo, salon_id, catering, precioEstimado, predeterminado)
+VALUES  ('Casamiento clásico', 'CASAMIENTO',(SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),'Catering Completo', 350000.0, false),
+        ('Cumpleaños familiar', 'CUMPLEANIOS',(SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),'Catering Basico', 100000.0, false),
+        ('Fiesta de quince', 'FIESTA_DE_15',(SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),'Catering Medio', 220000.0, false),
+        ('Cumpleaños Premium', 'CUMPLEANIOS',(SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),'Catering Completo', 400000.0, false);
 
 -- SERVICIOS DE LOS PAQUETES PREDETERMINADOS --
 INSERT INTO Paquete_Servicios (paquete_id, servicio)
@@ -67,3 +54,24 @@ SELECT id, 'Video' FROM Paquete WHERE nombre = 'Premium';
 INSERT INTO Paquete_Servicios (paquete_id, servicio)
 SELECT id, 'Decoración' FROM Paquete WHERE nombre = 'Premium';
 
+-- COMIDA --
+INSERT INTO Comida(nombre, tipo) VALUES
+                                     ('Milanesa', 'PRINCIPAL'),
+                                     ('Ensalada', 'ENTRADA'),
+                                     ('Helado', 'POSTRE'),
+                                     ('Agua', 'BEBIDA');
+
+INSERT INTO Catering_Comida(catering_id, comida_id)
+SELECT c.id, co.id FROM Catering c CROSS JOIN Comida co
+WHERE c.nombre = 'Catering Completo'
+  AND co.nombre IN ('Milanesa', 'Ensalada', 'Helado', 'Agua');
+
+INSERT INTO Catering_Comida(catering_id, comida_id)
+SELECT c.id, co.id FROM Catering c CROSS JOIN Comida co
+WHERE c.nombre = 'Catering Medio'
+  AND co.nombre IN ('Milanesa', 'Agua');
+
+INSERT INTO Catering_Comida(catering_id, comida_id)
+SELECT c.id, co.id FROM Catering c CROSS JOIN Comida co
+WHERE c.nombre = 'Catering Basico'
+  AND co.nombre IN ('Ensalada', 'Agua');
