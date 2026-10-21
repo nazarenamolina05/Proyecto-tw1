@@ -50,7 +50,8 @@ public class RepositorioReservaImpl implements RepositorioReserva {
       .setParameter("desde", desde)
       .setParameter("hasta", hasta)
       .getResultList();
-    
+  }
+  
   public void guardar(Reserva reserva) {
     sessionFactory.getCurrentSession().persist(reserva);
   }
