@@ -134,6 +134,36 @@ public class RepositorioReservaTest {
     assertThat(fechas, is(empty()));
   }
 
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerLasReservasEntreDosFechasInclusive() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Paquete paquete = this.dadoQueExisteUnPaquete("Cumpleaños familiar");
+    LocalDate desde = LocalDate.now().plusDays(10);
+    LocalDate hasta = LocalDate.now().plusDays(20);
+    this.dadoQueExisteUnaReservaEnLaFecha(usuario, paquete, desde.minusDays(1));
+    this.dadoQueExisteUnaReservaEnLaFecha(usuario, paquete, desde);
+    this.dadoQueExisteUnaReservaEnLaFecha(usuario, paquete, hasta);
+    this.dadoQueExisteUnaReservaEnLaFecha(usuario, paquete, hasta.plusDays(1));
+
+    List<Reserva> obtenidas = repositorioReserva.buscarEntreFechas(desde, hasta);
+
+    this.entoncesObtengoLaCantidadDeReservas(obtenidas, 2);
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverUnaListaVaciaSiNoHayReservasEnElRango() {
+    List<Reserva> obtenidas = repositorioReserva.buscarEntreFechas(
+      LocalDate.now().plusDays(10),
+      LocalDate.now().plusDays(20)
+    );
+
+    assertThat(obtenidas, is(empty()));
+  }
+
   private Usuario dadoQueExisteUnUsuario(String email) {
     Usuario usuario = new Usuario();
     usuario.setEmail(email);
@@ -242,5 +272,11 @@ public class RepositorioReservaTest {
     this.sessionFactory.getCurrentSession().flush();
     this.sessionFactory.getCurrentSession().clear();
     return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
+  }
+
+  private void dadoQueExisteUnaReservaEnLaFecha(Usuario usuario, Paquete paquete, LocalDate fecha) {
+    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, paquete);
+    reserva.setFecha(fecha);
+    this.sessionFactory.getCurrentSession().persist(reserva);
   }
 }

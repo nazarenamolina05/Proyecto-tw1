@@ -33,7 +33,7 @@ public class ServicioSalonReservaImpl implements ServicioSalonReserva {
         idsOcupados.add(ocupacion.getSalon().getId());
       }
     }
-
+    //todosLosSalones.removeAll()
     List<Salon> disponibles = new ArrayList<>();
     for (Salon salon : todosLosSalones) {
       if (!idsOcupados.contains(salon.getId())) {
