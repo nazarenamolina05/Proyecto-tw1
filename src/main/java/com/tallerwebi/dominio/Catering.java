@@ -1,9 +1,8 @@
 package com.tallerwebi.dominio;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Catering {
@@ -14,6 +13,14 @@ public class Catering {
 
   private String nombre;
   private Double precioPorPersona;
+
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+    name = "catering_comida",
+    joinColumns = @JoinColumn(name = "catering_id"),
+    inverseJoinColumns = @JoinColumn(name = "comida_id")
+  )
+  private Set<Comida> comidas = new HashSet<>();
 
   public Catering() {}
 
@@ -44,5 +51,13 @@ public class Catering {
 
   public void setPrecioPorPersona(Double precioPorPersona) {
     this.precioPorPersona = precioPorPersona;
+  }
+
+  public Set<Comida> getComidas() {
+    return comidas;
+  }
+
+  public void agregarComida(Comida comida) {
+    comidas.add(comida);
   }
 }

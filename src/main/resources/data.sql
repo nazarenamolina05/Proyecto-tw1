@@ -10,6 +10,33 @@ INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Comple
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Medio', 3000.0);
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Basico', 1500.0);
 
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Empanadas', 'ENTRADA');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Tabla de fiambres', 'ENTRADA');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Milanesa con papas', 'PRINCIPAL');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Asado con ensalada', 'PRINCIPAL');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Helado', 'POSTRE');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Torta', 'POSTRE');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Gaseosas', 'BEBIDA');
+INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Agua mineral', 'BEBIDA');
+
+
+-- CATERING_COMIDA (que incluye cada menu) --
+-- Basico: un principal y una bebida
+INSERT INTO catering_comida(catering_id, comida_id)
+SELECT c.id, m.id FROM Catering c, Comida m
+WHERE c.nombre = 'Catering Basico' AND m.nombre IN ('Milanesa con papas', 'Gaseosas');
+
+-- Medio: entrada, principal y bebida (sin postre)
+INSERT INTO catering_comida(catering_id, comida_id)
+SELECT c.id, m.id FROM Catering c, Comida m
+WHERE c.nombre = 'Catering Medio' AND m.nombre IN ('Empanadas', 'Asado con ensalada', 'Gaseosas');
+
+-- Completo: todas las comidas
+INSERT INTO catering_comida(catering_id, comida_id)
+SELECT c.id, m.id FROM Catering c, Comida m
+WHERE c.nombre = 'Catering Completo';
+
+
 
 -- SERVICIO ADICIONAL DATOS ---
 INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'DJ', 40000.0, false, 'DJ');
