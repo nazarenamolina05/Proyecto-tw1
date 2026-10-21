@@ -34,7 +34,7 @@ public class RepositorioReservaImpl implements RepositorioReserva {
     return sessionFactory
       .getCurrentSession()
       .createQuery(
-        "select r.fecha from Reserva r where r.salon.id = :salonId and r.estado in (:estados)",
+        "select r.fecha from Reserva r where r.paquete.salon.id = :salonId and r.estado in (:estados)",
         LocalDate.class
       )
       .setParameter("salonId", salonId)
@@ -50,5 +50,8 @@ public class RepositorioReservaImpl implements RepositorioReserva {
       .setParameter("desde", desde)
       .setParameter("hasta", hasta)
       .getResultList();
+    
+  public void guardar(Reserva reserva) {
+    sessionFactory.getCurrentSession().persist(reserva);
   }
 }

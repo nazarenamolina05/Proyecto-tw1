@@ -41,9 +41,10 @@ public class RepositorioReservaTest {
   public void deberiaObtenerSoloLasReservasDelUsuarioIndicado() {
     Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
     Usuario otroUsuario = this.dadoQueExisteUnUsuario("otro@test.com");
-    this.dadoQueExisteUnaReserva(usuario, "Cumpleanios familiar");
-    this.dadoQueExisteUnaReserva(usuario, "Casamiento clásico");
-    this.dadoQueExisteUnaReserva(otroUsuario, "Fiesta de quince");
+    Paquete paquete = this.dadoQueExisteUnPaquete("Cumpleaños familiar");
+    this.dadoQueExisteUnaReserva(usuario, paquete);
+    this.dadoQueExisteUnaReserva(usuario, paquete);
+    this.dadoQueExisteUnaReserva(otroUsuario, paquete);
 
     List<Reserva> obtenidas = this.cuandoBuscoLasReservasDe(usuario);
 
@@ -61,6 +62,22 @@ public class RepositorioReservaTest {
 
     assertThat(obtenidas, is(empty()));
   }
+
+  //nuevo
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaGuardarUnaReserva() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Paquete paquete = this.dadoQueExisteUnPaquete("Cumpleaños familiar");
+    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, paquete);
+
+    this.cuandoGuardoLaReserva(reserva);
+
+    this.entoncesLaReservaQuedoGuardada(usuario, reserva);
+  }
+
+  //-------------
 
   @Test
   @Transactional
@@ -156,19 +173,53 @@ public class RepositorioReservaTest {
     return usuario;
   }
 
-  private void dadoQueExisteUnaReserva(Usuario usuario, String nombrePaquete) {
+  //nuevo
+  private Paquete dadoQueExisteUnPaquete(String nombre) {
+    Paquete paquete = new Paquete(
+      null,
+      nombre,
+      TipoPaquete.CUMPLEANIOS,
+      null,
+      "Catering básico",
+      List.of("DJ"),
+      100000.0
+    );
+    this.sessionFactory.getCurrentSession().persist(paquete);
+    return paquete;
+  }
+
+  //nuevo
+  private Reserva dadoQueTengoUnaReserva(Usuario usuario, Paquete paquete) {
     Reserva reserva = new Reserva();
     reserva.setUsuario(usuario);
-    reserva.setNombrePaquete(nombrePaquete);
-    reserva.setTipo(TipoPaquete.CUMPLEANIOS);
+    reserva.setPaquete(paquete);
     reserva.setFecha(LocalDate.now().plusDays(30));
-    reserva.setPresupuesto(100000.0);
+    reserva.setPresupuesto(paquete.getPrecioEstimado());
     reserva.setEstado(EstadoReserva.CONFIRMADA);
-    this.sessionFactory.getCurrentSession().persist(reserva);
+    return reserva;
   }
+
+  private void dadoQueExisteUnaReserva(Usuario usuario, Paquete paquete) {
+    this.sessionFactory.getCurrentSession().persist(this.dadoQueTengoUnaReserva(usuario, paquete));
+  }
+
+  //  private void dadoQueExisteUnaReserva(Usuario usuario, String nombrePaquete) {
+  //    Reserva reserva = new Reserva();
+  //    reserva.setUsuario(usuario);
+  //    reserva.setNombrePaquete(nombrePaquete);
+  //    reserva.setTipo(TipoPaquete.CUMPLEANIOS);
+  //    reserva.setFecha(LocalDate.now().plusDays(30));
+  //    reserva.setPresupuesto(100000.0);
+  //    reserva.setEstado(EstadoReserva.CONFIRMADA);
+  //    this.sessionFactory.getCurrentSession().persist(reserva);
+  //  }
 
   private List<Reserva> cuandoBuscoLasReservasDe(Usuario usuario) {
     return repositorioReserva.buscarPorUsuario(usuario);
+  }
+
+  private void cuandoGuardoLaReserva(Reserva reserva) {
+    repositorioReserva.guardar(reserva);
   }
 
   private void entoncesObtengoLaCantidadDeReservas(List<Reserva> reservas, int esperada) {
@@ -181,6 +232,17 @@ public class RepositorioReservaTest {
     }
   }
 
+  //nuevo
+  private void entoncesLaReservaQuedoGuardada(Usuario usuario, Reserva esperada) {
+    Reserva obtenida =
+      this.sessionFactory.getCurrentSession()
+        .createQuery("from Reserva where usuario.id = :idUsuario", Reserva.class)
+        .setParameter("idUsuario", usuario.getId())
+        .getSingleResult();
+    assertThat(obtenida.getPaquete().getNombre(), is(equalTo(esperada.getPaquete().getNombre())));
+    assertThat(obtenida.getEstado(), is(equalTo(esperada.getEstado())));
+  }
+
   private Salon dadoQueExisteUnSalon(String nombre) {
     Salon salon = new Salon(nombre, 50000.0);
     this.sessionFactory.getCurrentSession().persist(salon);
@@ -188,8 +250,19 @@ public class RepositorioReservaTest {
   }
 
   private void dadoQueExisteUnaReservaEnSalon(Salon salon, LocalDate fecha, EstadoReserva estado) {
+    Paquete paquete = new Paquete(
+      null,
+      "Paquete de prueba",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      "Catering básico",
+      List.of("DJ"),
+      100000.0
+    );
+    this.sessionFactory.getCurrentSession().persist(paquete);
+
     Reserva reserva = new Reserva();
-    reserva.setSalon(salon);
+    reserva.setPaquete(paquete);
     reserva.setFecha(fecha);
     reserva.setEstado(estado);
     this.sessionFactory.getCurrentSession().persist(reserva);
