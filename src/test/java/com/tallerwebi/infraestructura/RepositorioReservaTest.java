@@ -140,13 +140,12 @@ public class RepositorioReservaTest {
   @Rollback
   public void deberiaDevolverUnaListaVaciaSiNoHayReservasEnElRango() {
     List<Reserva> obtenidas = repositorioReserva.buscarEntreFechas(
-            LocalDate.now().plusDays(10),
-            LocalDate.now().plusDays(20)
+      LocalDate.now().plusDays(10),
+      LocalDate.now().plusDays(20)
     );
 
     assertThat(obtenidas, is(empty()));
   }
-
 
   private Usuario dadoQueExisteUnUsuario(String email) {
     Usuario usuario = new Usuario();
@@ -207,6 +206,4 @@ public class RepositorioReservaTest {
     reserva.setFecha(fecha);
     this.sessionFactory.getCurrentSession().persist(reserva);
   }
-
-
 }
