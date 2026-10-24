@@ -2,9 +2,11 @@ package com.tallerwebi.dominio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,6 +101,28 @@ public class ServicioBuscarPaqueteTest {
 
     // Validación
     assertThat(obtenidos, equalTo(List.of()));
+  }
+
+  @Test
+  public void deberiaDevolverElPaqueteBuscadoPorIdAunqueNoSeaPredeterminado() {
+    // Preparación
+    Paquete publicado = crearPaquete("Cumpleaños de Ana", TipoPaquete.CUMPLEANIOS);
+    when(repositorioPaqueteMock.obtenerPorId(7L)).thenReturn(publicado);
+
+    // Ejecución
+    Paquete obtenido = servicioBuscarPaquete.consultarPorId(7L);
+
+    // Validación
+    assertThat(obtenido, equalTo(publicado));
+  }
+
+  @Test
+  public void deberiaLanzarPaqueteNoEncontradoSiElIdNoExiste() {
+    // Preparación
+    when(repositorioPaqueteMock.obtenerPorId(99L)).thenReturn(null);
+
+    // Ejecución y validación
+    assertThrows(PaqueteNoEncontrado.class, () -> servicioBuscarPaquete.consultarPorId(99L));
   }
 
   private Paquete crearPaquete(String nombre, TipoPaquete tipo) {

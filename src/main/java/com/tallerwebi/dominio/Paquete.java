@@ -2,7 +2,10 @@ package com.tallerwebi.dominio;
 
 import jakarta.persistence.*;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Paquete {
@@ -106,6 +109,26 @@ public class Paquete {
 
   public void setPredeterminado(boolean predeterminado) {
     this.predeterminado = predeterminado;
+  }
+
+  // Agrupa las comidas del catering por tipo, en el orden del enum (ENTRADA, PRINCIPAL, ...).
+  // Los tipos sin comidas no aparecen.
+  public Map<TipoComida, List<Comida>> getMenu() {
+    Map<TipoComida, List<Comida>> menu = new LinkedHashMap<>();
+    if (catering == null) {
+      return menu;
+    }
+    for (TipoComida tipoComida : TipoComida.values()) {
+      List<Comida> comidas = catering
+        .obtenerComidasPorTipo(tipoComida)
+        .stream()
+        .sorted(Comparator.comparing(Comida::getNombre))
+        .toList();
+      if (!comidas.isEmpty()) {
+        menu.put(tipoComida, comidas);
+      }
+    }
+    return menu;
   }
 
   public Usuario getPublicador() {
