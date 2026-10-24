@@ -67,8 +67,11 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
       nombre,
       tipo,
       new Salon("Salón de prueba", 50000.0),
-      "Catering de prueba",
-      List.of("DJ", "Fotografía"),
+      new Catering("Catering de prueba", 1500.0),
+      List.of(
+        new ServicioAdicional("DJ", 40000.0, false),
+        new ServicioAdicional("Fotografia", 30000.0, false)
+      ),
       precioEstimado
     );
 
