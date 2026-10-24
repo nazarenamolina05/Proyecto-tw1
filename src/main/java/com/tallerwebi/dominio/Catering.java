@@ -3,6 +3,7 @@ package com.tallerwebi.dominio;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 public class Catering {
@@ -59,5 +60,25 @@ public class Catering {
 
   public void agregarComida(Comida comida) {
     comidas.add(comida);
+  }
+
+  public void quitarComida(Comida comida) {
+    comidas.remove(comida);
+  }
+
+  public Set<Comida> obtenerComidasPorTipo(TipoComida tipo) {
+    return comidas.stream().filter(c -> c.getTipoComida() == tipo).collect(Collectors.toSet());
+  }
+
+  public Set<Comida> obtenerComidasVegetarianas() {
+    return comidas.stream().filter(Comida::getVegetariana).collect(Collectors.toSet());
+  }
+
+  public Set<Comida> obtenerComidasAptaCeliacos() {
+    return comidas.stream().filter(Comida::getAptaCeliacos).collect(Collectors.toSet());
+  }
+
+  public Set<Comida> obtenerComidasInfantiles() {
+    return comidas.stream().filter(Comida::getInfantil).collect(Collectors.toSet());
   }
 }

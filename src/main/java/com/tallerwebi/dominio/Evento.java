@@ -1,7 +1,17 @@
 package com.tallerwebi.dominio;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -24,25 +34,47 @@ public class Evento {
   @ManyToOne
   private Catering catering;
 
-  @OneToMany
-  private List<ServicioAdicional> servicioAdicionalesList;
+  @ManyToMany
+  @JoinTable(
+    name = "evento_servicio",
+    joinColumns = @JoinColumn(name = "evento_id"),
+    inverseJoinColumns = @JoinColumn(name = "servicio_id")
+  )
+  private List<ServicioAdicional> servicioAdicionalesList = new ArrayList<>();
 
   public Evento() {}
 
-  public Evento(
-    LocalDate fecha,
-    TipoPaquete tipoPaquete,
-    Integer cantidadInvitados,
-    Salon salon,
-    Catering catering,
-    List<ServicioAdicional> servicioAdicionalesList
-  ) {
-    this.fecha = fecha;
+  public Evento(TipoPaquete tipoPaquete, LocalDate fecha, Integer cantidadInvitados) {
     this.tipoPaquete = tipoPaquete;
+    this.fecha = fecha;
     this.cantidadInvitados = cantidadInvitados;
-    this.salon = salon;
-    this.catering = catering;
-    this.servicioAdicionalesList = servicioAdicionalesList;
+  }
+
+  // Logica
+  public void agregarServicio(ServicioAdicional servicio) {
+    if (!servicioAdicionalesList.contains(servicio)) {
+      servicioAdicionalesList.add(servicio);
+    }
+  }
+
+  public void quitarServicio(ServicioAdicional servicio) {
+    servicioAdicionalesList.remove(servicio);
+  }
+
+  public Double calcularPresupuesto() {
+    Double total = 0.0;
+
+    if (salon != null) {
+      total += salon.getPrecio();
+    }
+    if (catering != null) {
+      total += catering.getPrecioPorPersona() * cantidadInvitados;
+    }
+
+    for (ServicioAdicional servicio : servicioAdicionalesList) {
+      total += servicio.calcularCosto(cantidadInvitados);
+    }
+    return total;
   }
 
   public Long getId() {
@@ -99,30 +131,5 @@ public class Evento {
 
   public void setServicioAdicionalsList(List<ServicioAdicional> servicioAdicionalesList) {
     this.servicioAdicionalesList = servicioAdicionalesList;
-  }
-
-  // Logica
-  public void agregarServicio(ServicioAdicional servicio) {
-    servicioAdicionalesList.add(servicio);
-  }
-
-  public void quitarServicio(ServicioAdicional servicio) {
-    servicioAdicionalesList.remove(servicio);
-  }
-
-  public Double calcularPresupuesto() {
-    Double total = 0.0;
-
-    if (salon != null) {
-      total += salon.getPrecio();
-    }
-    if (catering != null) {
-      total += catering.getPrecioPorPersona() * cantidadInvitados;
-    }
-
-    for (ServicioAdicional servicio : servicioAdicionalesList) {
-      total += servicio.calcularCosto(cantidadInvitados);
-    }
-    return total;
   }
 }

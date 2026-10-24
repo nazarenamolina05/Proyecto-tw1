@@ -10,14 +10,14 @@ INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Comple
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Medio', 3000.0);
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Basico', 1500.0);
 
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Empanadas', 'ENTRADA');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Tabla de fiambres', 'ENTRADA');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Milanesa con papas', 'PRINCIPAL');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Asado con ensalada', 'PRINCIPAL');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Helado', 'POSTRE');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Torta', 'POSTRE');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Gaseosas', 'BEBIDA');
-INSERT INTO Comida(id, nombre, tipoComida) VALUES(null, 'Agua mineral', 'BEBIDA');
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Empanadas', 'ENTRADA', false, false ,true);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Tabla de fiambres', 'ENTRADA', false ,true, false);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Milanesa con papas', 'PRINCIPAL', false, false, true);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Asado con ensalada', 'PRINCIPAL', false, true, false);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Helado', 'POSTRE', false, true, true);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Torta', 'POSTRE', false, false, true);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Gaseosas', 'BEBIDA', true, true, true);
+INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Agua mineral', 'BEBIDA', true, true, true );
 
 
 -- CATERING_COMIDA (que incluye cada menu) --

@@ -14,6 +14,10 @@ public class Comida {
   @Enumerated(EnumType.STRING)
   private TipoComida tipoComida;
 
+  private Boolean vegetariana;
+  private Boolean aptaCeliacos;
+  private Boolean infantil;
+
   public Comida() {}
 
   public Comida(String nombre, TipoComida tipoComida) {
@@ -43,5 +47,29 @@ public class Comida {
 
   public void setTipoComida(TipoComida tipoComida) {
     this.tipoComida = tipoComida;
+  }
+
+  public Boolean getVegetariana() {
+    return vegetariana;
+  }
+
+  public void setVegetariana(Boolean vegetariana) {
+    this.vegetariana = vegetariana;
+  }
+
+  public Boolean getAptaCeliacos() {
+    return aptaCeliacos;
+  }
+
+  public void setAptaCeliacos(Boolean aptaCeliacos) {
+    this.aptaCeliacos = aptaCeliacos;
+  }
+
+  public Boolean getInfantil() {
+    return infantil;
+  }
+
+  public void setInfantil(Boolean infantil) {
+    this.infantil = infantil;
   }
 }
