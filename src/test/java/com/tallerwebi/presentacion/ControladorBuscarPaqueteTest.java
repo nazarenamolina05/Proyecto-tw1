@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import com.tallerwebi.dominio.Salon;
 import com.tallerwebi.dominio.ServicioAdicional;
 import com.tallerwebi.dominio.ServicioBuscarPaquete;
 import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -103,6 +105,33 @@ public class ControladorBuscarPaqueteTest {
     assertThat(mav.getViewName(), equalTo("paquetes"));
 
     assertThat(mav.getModel().get("paquetes"), equalTo(paquetesEsperados));
+  }
+
+  @Test
+  public void deberiaMostrarElDetalleDeUnPaquetePublicado() {
+    // Preparación
+    Paquete publicado = crearPaquete("Cumpleaños de Ana", TipoPaquete.CUMPLEANIOS);
+    when(servicioBuscarPaqueteMock.consultarPorId(7L)).thenReturn(publicado);
+
+    // Ejecución
+    ModelAndView mav = controladorBuscarPaquete.mostrarDetalle(7L);
+
+    // Validación
+    assertThat(mav.getViewName(), equalTo("paquete-detalle"));
+    assertThat(mav.getModel().get("paquete"), equalTo(publicado));
+  }
+
+  @Test
+  public void deberiaMostrarElDetalleSinPaqueteSiNoExiste() {
+    // Preparación
+    when(servicioBuscarPaqueteMock.consultarPorId(99L)).thenThrow(new PaqueteNoEncontrado());
+
+    // Ejecución
+    ModelAndView mav = controladorBuscarPaquete.mostrarDetalle(99L);
+
+    // Validación
+    assertThat(mav.getViewName(), equalTo("paquete-detalle"));
+    assertThat(mav.getModel().get("paquete"), nullValue());
   }
 
   // Método auxiliar para crear paquetes en los tests

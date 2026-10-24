@@ -606,6 +606,47 @@ public class RepositorioPaqueteTest {
     assertEquals(List.of("DJ", "Fotografia"), nombresDeServicios(obtenido));
   }
 
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerUnPaquetePublicadoPorSuId() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete publicado = new Paquete(
+      null,
+      "Cumpleaños de Ana",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      dadoQueExisteUnCatering("Catering Basico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
+      120000.0
+    );
+    publicado.setPredeterminado(false);
+    sessionFactory.getCurrentSession().persist(publicado);
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerPorId(publicado.getId());
+
+    // Validación
+    assertEquals("Cumpleaños de Ana", obtenido.getNombre());
+    assertFalse(obtenido.isPredeterminado());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverNullSiNoExisteElPaqueteBuscadoPorId() {
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerPorId(9999L);
+
+    // Validación
+    assertNull(obtenido);
+  }
+
   // Métodos auxiliares: Paquete referencia a Catering y ServicioAdicional,
   // así que tienen que estar guardados en la base antes que el paquete.
   private Catering dadoQueExisteUnCatering(String nombre) {

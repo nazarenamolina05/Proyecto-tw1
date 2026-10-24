@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,15 @@ public class ServicioBuscarPaqueteImpl implements ServicioBuscarPaquete {
   @Override
   public List<Paquete> buscarPorTipo(TipoPaquete tipoPaquete) {
     return buscarPorFiltros(tipoPaquete, null, null);
+  }
+
+  @Override
+  public Paquete consultarPorId(Long id) {
+    Paquete paquete = repositorioPaquete.obtenerPorId(id);
+    if (paquete == null) {
+      throw new PaqueteNoEncontrado();
+    }
+    return paquete;
   }
 
   @Override
