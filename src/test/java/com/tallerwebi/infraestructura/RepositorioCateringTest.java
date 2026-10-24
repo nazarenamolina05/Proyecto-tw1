@@ -4,7 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import com.tallerwebi.dominio.Catering;
+import com.tallerwebi.dominio.Comida;
 import com.tallerwebi.dominio.RepositorioCatering;
+import com.tallerwebi.dominio.TipoComida;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -80,6 +82,20 @@ public class RepositorioCateringTest {
     assertThat(obtenido, is(nullValue()));
   }
 
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerLasComidasDeUnCatering() {
+    Comida empanadas = this.dadoQueExisteUnaComida("Empanadas", TipoComida.ENTRADA);
+    Comida milanesa = this.dadoQueExisteUnaComida("Milanesas con papas", TipoComida.PRINCIPAL);
+    Catering catering =
+      this.dadoQueExisteUnCateringConComidas("Catering Medio", 3000.0, empanadas, milanesa);
+
+    Catering obtenido = this.cuandoBuscoElCateringRecargadoDesdeLaBase(catering.getId());
+
+    assertThat(obtenido.getComidas(), hasSize(2));
+  }
+
   private Catering dadoQueExisteUnCatering(String nombre, Double precioPorPersona) {
     Catering catering = new Catering(nombre, precioPorPersona);
     this.sessionFactory.getCurrentSession().persist(catering);
@@ -99,5 +115,30 @@ public class RepositorioCateringTest {
     assertThat(obtenidos.get(0).getNombre(), is(equalTo("Catering Completo")));
     assertThat(obtenidos.get(1).getNombre(), is(equalTo("Catering Medio")));
     assertThat(obtenidos.get(2).getNombre(), is(equalTo("Catering Basico")));
+  }
+
+  private Comida dadoQueExisteUnaComida(String nombre, TipoComida tipoComida) {
+    Comida comida = new Comida(nombre, tipoComida);
+    this.sessionFactory.getCurrentSession().persist(comida);
+    return comida;
+  }
+
+  private Catering dadoQueExisteUnCateringConComidas(
+    String nombre,
+    Double precio,
+    Comida... comidas
+  ) {
+    Catering catering = new Catering(nombre, precio);
+    for (Comida comida : comidas) {
+      catering.agregarComida(comida);
+    }
+    this.sessionFactory.getCurrentSession().persist(catering);
+    return catering;
+  }
+
+  private Catering cuandoBuscoElCateringRecargadoDesdeLaBase(Long id) {
+    this.sessionFactory.getCurrentSession().flush();
+    this.sessionFactory.getCurrentSession().clear();
+    return repositorioCatering.buscarPorId(id);
   }
 }

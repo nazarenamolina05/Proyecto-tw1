@@ -4,9 +4,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.tallerwebi.dominio.Catering;
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.RepositorioPaquete;
 import com.tallerwebi.dominio.Salon;
+import com.tallerwebi.dominio.ServicioAdicional;
 import com.tallerwebi.dominio.TipoPaquete;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
@@ -47,8 +49,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños familiar",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       100000.0
     );
 
@@ -57,8 +59,8 @@ public class RepositorioPaqueteTest {
       "Casamiento clásico",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ"), dadoQueExisteUnServicio("Fotografia")),
       300000.0
     );
 
@@ -76,7 +78,8 @@ public class RepositorioPaqueteTest {
     assertEquals("Casamiento clásico", paquetesObtenidos.get(1).getNombre());
     assertEquals(TipoPaquete.CUMPLEANIOS, paquetesObtenidos.get(0).getTipo());
     assertEquals("Salón Los Álamos", paquetesObtenidos.get(0).getSalon().getNombre());
-    assertEquals(List.of("DJ"), paquetesObtenidos.get(0).getServiciosAdicionales());
+    assertEquals("Catering Básico", paquetesObtenidos.get(0).getCatering().getNombre());
+    assertEquals(List.of("DJ"), nombresDeServicios(paquetesObtenidos.get(0)));
     assertEquals(100000.0, paquetesObtenidos.get(0).getPrecioEstimado());
   }
 
@@ -93,8 +96,8 @@ public class RepositorioPaqueteTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       80000.0
     );
     basico.setPredeterminado(true);
@@ -104,8 +107,8 @@ public class RepositorioPaqueteTest {
       "Premium",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ"), dadoQueExisteUnServicio("Fotografia")),
       300000.0
     );
     premium.setPredeterminado(false);
@@ -148,8 +151,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños familiar",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       100000.0
     );
     paquete.setPredeterminado(false);
@@ -175,8 +178,8 @@ public class RepositorioPaqueteTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       80000.0
     );
     basico.setPredeterminado(true);
@@ -204,8 +207,8 @@ public class RepositorioPaqueteTest {
       "Premium",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering Completo",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       300000.0
     );
     premium.setPredeterminado(false);
@@ -244,8 +247,8 @@ public class RepositorioPaqueteTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       80000.0
     );
     primero.setPredeterminado(true);
@@ -255,8 +258,8 @@ public class RepositorioPaqueteTest {
       "Estándar",
       TipoPaquete.FIESTA_DE_15,
       salon,
-      "Catering Estándar",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Estándar"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       150000.0
     );
     segundo.setPredeterminado(true);
@@ -266,8 +269,8 @@ public class RepositorioPaqueteTest {
       "Premium",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ"), dadoQueExisteUnServicio("Fotografia")),
       300000.0
     );
     tercero.setPredeterminado(true);
@@ -301,8 +304,8 @@ public class RepositorioPaqueteTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering Básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       80000.0
     );
 
@@ -311,8 +314,8 @@ public class RepositorioPaqueteTest {
       "Estándar",
       TipoPaquete.FIESTA_DE_15,
       salon,
-      "Catering Completo",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       250000.0
     );
 
@@ -321,8 +324,8 @@ public class RepositorioPaqueteTest {
       "Premium",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering Premium",
-      List.of("DJ", "Fotografía"),
+      dadoQueExisteUnCatering("Catering Premium"),
+      List.of(dadoQueExisteUnServicio("DJ"), dadoQueExisteUnServicio("Fotografia")),
       300000.0
     );
 
@@ -355,8 +358,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños económico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       150000.0
     );
 
@@ -365,8 +368,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños premium",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering premium",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering premium"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       350000.0
     );
 
@@ -375,8 +378,8 @@ public class RepositorioPaqueteTest {
       "Casamiento económico",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       200000.0
     );
 
@@ -412,8 +415,8 @@ public class RepositorioPaqueteTest {
       "Paquete premium",
       TipoPaquete.CASAMIENTO,
       salon,
-      "Catering completo",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering completo"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       400000.0
     );
 
@@ -450,8 +453,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños chico",
       TipoPaquete.CUMPLEANIOS,
       salonChico,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       80000.0
     );
 
@@ -460,8 +463,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños mediano",
       TipoPaquete.CUMPLEANIOS,
       salonMediano,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       150000.0
     );
 
@@ -470,8 +473,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños grande",
       TipoPaquete.CUMPLEANIOS,
       salonGrande,
-      "Catering completo",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering completo"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       250000.0
     );
 
@@ -516,8 +519,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños válido",
       TipoPaquete.CUMPLEANIOS,
       salonMediano,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       250000.0
     );
 
@@ -527,8 +530,8 @@ public class RepositorioPaqueteTest {
       "Casamiento",
       TipoPaquete.CASAMIENTO,
       salonGrande,
-      "Catering completo",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering completo"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       200000.0
     );
 
@@ -538,8 +541,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños caro",
       TipoPaquete.CUMPLEANIOS,
       salonGrande,
-      "Catering premium",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering premium"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       300000.0
     );
 
@@ -549,8 +552,8 @@ public class RepositorioPaqueteTest {
       "Cumpleaños chico",
       TipoPaquete.CUMPLEANIOS,
       salonChico,
-      "Catering básico",
-      List.of("DJ"),
+      dadoQueExisteUnCatering("Catering básico"),
+      List.of(dadoQueExisteUnServicio("DJ")),
       150000.0
     );
 
@@ -572,5 +575,52 @@ public class RepositorioPaqueteTest {
     // Validación
     assertThat(obtenidos.size(), equalTo(1));
     assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños válido"));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaGuardarYRecuperarElCateringYLosServiciosDelPaquete() {
+    // Preparación
+    Salon salon = new Salon("Salón de prueba", 50000.0);
+    sessionFactory.getCurrentSession().persist(salon);
+
+    Paquete premium = new Paquete(
+      null,
+      "Premium",
+      TipoPaquete.CASAMIENTO,
+      salon,
+      dadoQueExisteUnCatering("Catering Completo"),
+      List.of(dadoQueExisteUnServicio("DJ"), dadoQueExisteUnServicio("Fotografia")),
+      300000.0
+    );
+    sessionFactory.getCurrentSession().persist(premium);
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // Ejecución
+    Paquete obtenido = repositorioPaquete.obtenerTodos().get(0);
+
+    // Validación
+    assertEquals("Catering Completo", obtenido.getCatering().getNombre());
+    assertEquals(List.of("DJ", "Fotografia"), nombresDeServicios(obtenido));
+  }
+
+  // Métodos auxiliares: Paquete referencia a Catering y ServicioAdicional,
+  // así que tienen que estar guardados en la base antes que el paquete.
+  private Catering dadoQueExisteUnCatering(String nombre) {
+    Catering catering = new Catering(nombre, 1500.0);
+    sessionFactory.getCurrentSession().persist(catering);
+    return catering;
+  }
+
+  private ServicioAdicional dadoQueExisteUnServicio(String nombre) {
+    ServicioAdicional servicio = new ServicioAdicional(nombre, 40000.0, false);
+    sessionFactory.getCurrentSession().persist(servicio);
+    return servicio;
+  }
+
+  private List<String> nombresDeServicios(Paquete paquete) {
+    return paquete.getServiciosAdicionales().stream().map(ServicioAdicional::getNombre).toList();
   }
 }

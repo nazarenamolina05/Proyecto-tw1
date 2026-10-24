@@ -180,8 +180,8 @@ public class RepositorioReservaTest {
       nombre,
       TipoPaquete.CUMPLEANIOS,
       null,
-      "Catering básico",
-      List.of("DJ"),
+      null,
+      List.of(),
       100000.0
     );
     this.sessionFactory.getCurrentSession().persist(paquete);
@@ -255,8 +255,8 @@ public class RepositorioReservaTest {
       "Paquete de prueba",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering básico",
-      List.of("DJ"),
+      null,
+      List.of(),
       100000.0
     );
     this.sessionFactory.getCurrentSession().persist(paquete);

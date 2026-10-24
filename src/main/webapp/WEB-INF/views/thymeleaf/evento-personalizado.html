@@ -133,6 +133,12 @@
                                                 th:text="${#numbers.formatDecimal(catering.precioPorPersona, 0, 'POINT', 0, 'COMMA')}">0</span>
                                             por persona
                                         </p>
+                                        <ul class="list-unstyled small mb-3" th:if="${!catering.comidas.isEmpty()}">
+                                            <li th:each="comida : ${catering.comidas}">
+                                                <span class="text-uppercase" th:text="${comida.tipoComida}">TIPO</span>:
+                                                <span th:text="${comida.nombre}">Comida</span>
+                                            </li>
+                                        </ul>
                                         <div class="pack-precio">
                                             <small>Para <span th:text="${evento.cantidadInvitados}">0</span>
                                                 invitados</small>
