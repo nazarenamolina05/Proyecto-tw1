@@ -63,7 +63,7 @@ public class RepositorioPaqueteTest {
     assertEquals("Catering Basico", paquetesObtenidos.get(0).getCatering().getNombre());
     assertEquals(1, paquetesObtenidos.get(0).getServiciosAdicionales().size());
     assertEquals("DJ", paquetesObtenidos.get(0).getServiciosAdicionales().get(0).getNombre());
-    assertEquals(100000.0, paquetesObtenidos.get(0).getPrecioEstimado());
+    assertEquals(100000.0, paquetesObtenidos.get(0).getPrecio());
   }
 
   @Test

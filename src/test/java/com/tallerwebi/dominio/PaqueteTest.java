@@ -40,6 +40,6 @@ public class PaqueteTest {
     assertEquals(salonEsperado, paquete.getSalon());
     assertEquals(cateringEsperado, paquete.getCatering());
     assertEquals(serviciosEsperados, paquete.getServiciosAdicionales());
-    assertEquals(precioEsperado, paquete.getPrecioEstimado());
+    assertEquals(precioEsperado, paquete.getPrecio());
   }
 }

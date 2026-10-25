@@ -154,7 +154,7 @@ public class RepositorioReservaTest {
     reserva.setUsuario(usuario);
     reserva.setPaquete(paquete);
     reserva.setFecha(LocalDate.now().plusDays(30));
-    reserva.setPresupuesto(paquete.getPrecioEstimado());
+    reserva.setPresupuesto(paquete.getPrecio());
     reserva.setEstado(EstadoReserva.CONFIRMADA);
     return reserva;
   }
