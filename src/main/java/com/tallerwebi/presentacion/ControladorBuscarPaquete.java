@@ -3,13 +3,11 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.ServicioBuscarPaquete;
 import com.tallerwebi.dominio.TipoPaquete;
-import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -39,17 +37,5 @@ public class ControladorBuscarPaquete {
     modelo.put("paquetes", paquetesBuscados);
 
     return new ModelAndView("paquetes", modelo);
-  }
-
-  // Detalle de cualquier paquete del catálogo (predeterminado o publicado por un usuario)
-  @GetMapping(path = "/paquetes/{id}")
-  public ModelAndView mostrarDetalle(@PathVariable("id") Long id) {
-    Map<String, Object> modelo = new ModelMap();
-    try {
-      modelo.put("paquete", servicioBuscarPaquete.consultarPorId(id));
-    } catch (PaqueteNoEncontrado e) {
-      modelo.put("paquete", null);
-    }
-    return new ModelAndView("paquete-detalle", modelo);
   }
 }

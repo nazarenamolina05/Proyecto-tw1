@@ -162,13 +162,17 @@
 
                         </div>
 
-                        <!-- Predeterminados: detalle con reserva (HU-01). Publicados: detalle de catálogo -->
-                        <a th:href="${paquete.predeterminado}
-                                    ? @{/paquetes-predeterminados/{id}(id=${paquete.id})}
-                                    : @{/paquetes/{id}(id=${paquete.id})}"
+                        <!-- DETALLE SOLO PARA PREDETERMINADOS -->
+                        <a th:if="${paquete.predeterminado}"
+                           th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
                            class="btn btn-pack w-100 rounded-pill">
                             Ver más
                         </a>
+
+                        <p th:unless="${paquete.predeterminado}"
+                           class="small text-secondary text-center mb-0 py-2">
+                            Detalle no disponible por el momento
+                        </p>
 
                     </div>
 

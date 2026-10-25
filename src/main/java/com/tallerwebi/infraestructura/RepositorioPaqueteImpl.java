@@ -44,11 +44,6 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
   }
 
   @Override
-  public Paquete obtenerPorId(Long id) {
-    return sessionFactory.getCurrentSession().get(Paquete.class, id);
-  }
-
-  @Override
   public List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados) {
     return sessionFactory
       .getCurrentSession()
