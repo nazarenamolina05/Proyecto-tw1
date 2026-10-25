@@ -5,10 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tallerwebi.dominio.Paquete;
-import com.tallerwebi.dominio.Salon;
-import com.tallerwebi.dominio.ServicioBuscarPaquete;
-import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.*;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,8 +77,8 @@ public class ControladorBuscarPaqueteTest {
       "Cumpleaños familiar",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering básico",
-      List.of("DJ"),
+      new Catering("Catering básico", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       200000.0
     );
 
@@ -110,8 +107,8 @@ public class ControladorBuscarPaqueteTest {
       nombre,
       tipo,
       new Salon("Salón de prueba", 50000.0),
-      "Catering de prueba",
-      List.of("DJ"),
+      new Catering("Catering de prueba", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       100000.0
     );
   }

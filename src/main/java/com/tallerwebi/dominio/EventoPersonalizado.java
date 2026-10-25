@@ -12,6 +12,7 @@ public class EventoPersonalizado {
   private Salon salon;
   private Catering catering;
   private List<ServicioAdicional> serviciosAdicionales = new ArrayList<>();
+  private Paquete paqueteOrigen;
 
   public EventoPersonalizado(TipoPaquete tipo, LocalDate fecha, Integer cantidadInvitados) {
     this.tipo = tipo;
@@ -20,16 +21,50 @@ public class EventoPersonalizado {
   }
 
   public Double calcularPresupuesto() {
+    return sumar(salon, catering, serviciosAdicionales);
+  }
+
+  public Double calcularPrecioBase() {
+    if (paqueteOrigen == null) {
+      return 0.0;
+    }
+    return sumar(
+      paqueteOrigen.getSalon(),
+      paqueteOrigen.getCatering(),
+      paqueteOrigen.getServiciosAdicionales()
+    );
+  }
+
+  public Double calcularAdicional() {
+    if (paqueteOrigen == null) {
+      return 0.0;
+    }
+    return Math.max(0.0, calcularPresupuesto() - calcularPrecioBase());
+  }
+
+  public boolean esServicioIncluido(ServicioAdicional servicio) {
+    if (paqueteOrigen == null) {
+      return false;
+    }
+    return paqueteOrigen
+      .getServiciosAdicionales()
+      .stream()
+      .anyMatch(incluido ->
+        incluido.equals(servicio) ||
+        (incluido.getId() != null && incluido.getId().equals(servicio.getId()))
+      );
+  }
+
+  private Double sumar(Salon unSalon, Catering unCatering, List<ServicioAdicional> servicios) {
     Double total = 0.0;
 
-    if (salon != null) {
-      total += salon.getPrecio();
+    if (unSalon != null) {
+      total += unSalon.getPrecio();
     }
-    if (catering != null) {
-      total += catering.getPrecioPorPersona() * cantidadInvitados;
+    if (unCatering != null) {
+      total += unCatering.getPrecioPorPersona() * cantidadInvitados;
     }
-
-    for (ServicioAdicional servicio : serviciosAdicionales) {
+    for (ServicioAdicional servicio : servicios) {
       total += servicio.calcularCosto(cantidadInvitados);
     }
     return total;
@@ -65,6 +100,14 @@ public class EventoPersonalizado {
 
   public void setSalon(Salon salon) {
     this.salon = salon;
+  }
+
+  public Paquete getPaqueteOrigen() {
+    return paqueteOrigen;
+  }
+
+  public void setPaqueteOrigen(Paquete paqueteOrigen) {
+    this.paqueteOrigen = paqueteOrigen;
   }
 
   public Catering getCatering() {

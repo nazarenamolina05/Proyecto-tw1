@@ -8,11 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tallerwebi.dominio.Paquete;
-import com.tallerwebi.dominio.Salon;
-import com.tallerwebi.dominio.ServicioConsultarPaquetesPredeterminados;
-import com.tallerwebi.dominio.ServicioValidarSeleccionPaquete;
-import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
 import java.time.LocalDate;
@@ -39,15 +35,7 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
 
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
 
@@ -78,15 +66,7 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
 
-    Paquete paqueteBasico = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fechaOcupada = LocalDate.now().plusDays(10);
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
@@ -109,18 +89,10 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fecha = LocalDate.now().plusDays(10);
 
-    when(servicio.consultarPorId(1L)).thenReturn(paquete);
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
     doThrow(new SeleccionInvalida("Esa fecha está ocupada, seleccioná otra."))
       .when(servicioValidacion)
       .validar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
@@ -131,7 +103,7 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     // Validación
     assertEquals("paquete-detalle", modelAndView.getViewName());
     assertEquals("Esa fecha está ocupada, seleccioná otra.", modelAndView.getModel().get("error"));
-    assertEquals(paquete, modelAndView.getModel().get("paquete"));
+    assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
     assertEquals(TipoPaquete.CUMPLEANIOS, modelAndView.getModel().get("tipoSeleccionado"));
     assertEquals(fecha.toString(), modelAndView.getModel().get("fechaSeleccionada"));
     assertEquals(20, modelAndView.getModel().get("invitadosSeleccionados"));
@@ -142,18 +114,10 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Don José",
-      List.of("DJ"),
-      80000.0
-    );
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fecha = LocalDate.now().plusDays(10);
 
-    when(servicio.consultarPorId(1L)).thenReturn(paquete);
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
 
     // Ejecución
     ModelAndView modelAndView = controlador.reservar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
@@ -162,5 +126,17 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertEquals("paquete-detalle", modelAndView.getViewName());
     assertNull(modelAndView.getModel().get("error"));
     assertNotNull(modelAndView.getModel().get("mensajeExito"));
+  }
+
+  private Paquete crearPaqueteBasico(Salon salon) {
+    return new Paquete(
+      1L,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      new Catering("Catering Basico", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      80000.0
+    );
   }
 }

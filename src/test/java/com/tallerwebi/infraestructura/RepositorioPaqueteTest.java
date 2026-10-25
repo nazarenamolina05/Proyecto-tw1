@@ -4,13 +4,16 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.tallerwebi.dominio.Catering;
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.RepositorioPaquete;
 import com.tallerwebi.dominio.Salon;
+import com.tallerwebi.dominio.ServicioAdicional;
 import com.tallerwebi.dominio.TipoPaquete;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,32 +43,13 @@ public class RepositorioPaqueteTest {
   public void deberiaObtenerTodosLosPaquetesGuardados() {
     // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete cumpleanios = new Paquete(
-      null,
-      "Cumpleaños familiar",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      100000.0
-    );
+    guardarPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS, salon, 100000.0, false);
+    guardarPaquete("Casamiento clásico", TipoPaquete.CASAMIENTO, salon, 300000.0, false);
 
-    Paquete casamiento = new Paquete(
-      null,
-      "Casamiento clásico",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
-      300000.0
-    );
-
-    sessionFactory.getCurrentSession().persist(cumpleanios);
-    sessionFactory.getCurrentSession().persist(casamiento);
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> paquetesObtenidos = repositorioPaquete.obtenerTodos();
@@ -76,7 +60,9 @@ public class RepositorioPaqueteTest {
     assertEquals("Casamiento clásico", paquetesObtenidos.get(1).getNombre());
     assertEquals(TipoPaquete.CUMPLEANIOS, paquetesObtenidos.get(0).getTipo());
     assertEquals("Salón Los Álamos", paquetesObtenidos.get(0).getSalon().getNombre());
-    assertEquals(List.of("DJ"), paquetesObtenidos.get(0).getServiciosAdicionales());
+    assertEquals("Catering Basico", paquetesObtenidos.get(0).getCatering().getNombre());
+    assertEquals(1, paquetesObtenidos.get(0).getServiciosAdicionales().size());
+    assertEquals("DJ", paquetesObtenidos.get(0).getServiciosAdicionales().get(0).getNombre());
     assertEquals(100000.0, paquetesObtenidos.get(0).getPrecioEstimado());
   }
 
@@ -86,34 +72,13 @@ public class RepositorioPaqueteTest {
   public void deberiaObtenerSoloLosPaquetesPredeterminados() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete basico = new Paquete(
-      null,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      80000.0
-    );
-    basico.setPredeterminado(true);
+    guardarPaquete("Básico", TipoPaquete.CUMPLEANIOS, salon, 80000.0, true);
+    guardarPaquete("Premium", TipoPaquete.CASAMIENTO, salon, 300000.0, false);
 
-    Paquete premium = new Paquete(
-      null,
-      "Premium",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
-      300000.0
-    );
-    premium.setPredeterminado(false);
-
-    sessionFactory.getCurrentSession().persist(basico);
-    sessionFactory.getCurrentSession().persist(premium);
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> paquetesObtenidos = repositorioPaquete.obtenerPredeterminados();
@@ -141,19 +106,9 @@ public class RepositorioPaqueteTest {
   public void deberiaDevolverListaVaciaSiNoHayPaquetesPredeterminados() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete paquete = new Paquete(
-      null,
-      "Cumpleaños familiar",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      100000.0
-    );
-    paquete.setPredeterminado(false);
-    sessionFactory.getCurrentSession().persist(paquete);
+    guardarPaquete("Cumpleaños familiar", TipoPaquete.CUMPLEANIOS, salon, 100000.0, false);
 
     // Ejecución
     List<Paquete> paquetesObtenidos = repositorioPaquete.obtenerPredeterminados();
@@ -168,21 +123,11 @@ public class RepositorioPaqueteTest {
   public void deberiaObtenerUnPaquetePredeterminadoPorSuId() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete basico = new Paquete(
-      null,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      80000.0
-    );
-    basico.setPredeterminado(true);
-    sessionFactory.getCurrentSession().persist(basico);
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    Paquete basico = guardarPaquete("Básico", TipoPaquete.CUMPLEANIOS, salon, 80000.0, true);
+    session().flush();
+    session().clear();
 
     // Ejecución
     Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(basico.getId());
@@ -197,21 +142,11 @@ public class RepositorioPaqueteTest {
   public void deberiaDevolverNullSiElPaqueteExistePeroNoEsPredeterminado() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete premium = new Paquete(
-      null,
-      "Premium",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering Completo",
-      List.of("DJ"),
-      300000.0
-    );
-    premium.setPredeterminado(false);
-    sessionFactory.getCurrentSession().persist(premium);
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    Paquete premium = guardarPaquete("Premium", TipoPaquete.CASAMIENTO, salon, 300000.0, false);
+    session().flush();
+    session().clear();
 
     // Ejecución
     Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(premium.getId());
@@ -237,46 +172,14 @@ public class RepositorioPaqueteTest {
   public void deberiaObtenerLosPaquetesPredeterminadosOrdenadosPorId() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete primero = new Paquete(
-      null,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      80000.0
-    );
-    primero.setPredeterminado(true);
+    guardarPaquete("Básico", TipoPaquete.CUMPLEANIOS, salon, 80000.0, true);
+    guardarPaquete("Estándar", TipoPaquete.FIESTA_DE_15, salon, 150000.0, true);
+    guardarPaquete("Premium", TipoPaquete.CASAMIENTO, salon, 300000.0, true);
 
-    Paquete segundo = new Paquete(
-      null,
-      "Estándar",
-      TipoPaquete.FIESTA_DE_15,
-      salon,
-      "Catering Estándar",
-      List.of("DJ"),
-      150000.0
-    );
-    segundo.setPredeterminado(true);
-
-    Paquete tercero = new Paquete(
-      null,
-      "Premium",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering Completo",
-      List.of("DJ", "Fotografía"),
-      300000.0
-    );
-    tercero.setPredeterminado(true);
-
-    sessionFactory.getCurrentSession().persist(primero);
-    sessionFactory.getCurrentSession().persist(segundo);
-    sessionFactory.getCurrentSession().persist(tercero);
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> paquetesObtenidos = repositorioPaquete.obtenerPredeterminados();
@@ -294,44 +197,14 @@ public class RepositorioPaqueteTest {
   public void deberiaObtenerLosPaquetesDentroDelPresupuestoMaximo() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete basico = new Paquete(
-      null,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering Básico",
-      List.of("DJ"),
-      80000.0
-    );
+    guardarPaquete("Básico", TipoPaquete.CUMPLEANIOS, salon, 80000.0, false);
+    guardarPaquete("Estándar", TipoPaquete.FIESTA_DE_15, salon, 250000.0, false);
+    guardarPaquete("Premium", TipoPaquete.CASAMIENTO, salon, 300000.0, false);
 
-    Paquete estandar = new Paquete(
-      null,
-      "Estándar",
-      TipoPaquete.FIESTA_DE_15,
-      salon,
-      "Catering Completo",
-      List.of("DJ"),
-      250000.0
-    );
-
-    Paquete premium = new Paquete(
-      null,
-      "Premium",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering Premium",
-      List.of("DJ", "Fotografía"),
-      300000.0
-    );
-
-    sessionFactory.getCurrentSession().persist(basico);
-    sessionFactory.getCurrentSession().persist(estandar);
-    sessionFactory.getCurrentSession().persist(premium);
-
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, 250000.0, null);
@@ -348,44 +221,14 @@ public class RepositorioPaqueteTest {
   public void deberiaFiltrarPorTipoYPresupuesto() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete cumpleaniosEconomico = new Paquete(
-      null,
-      "Cumpleaños económico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering básico",
-      List.of("DJ"),
-      150000.0
-    );
+    guardarPaquete("Cumpleaños económico", TipoPaquete.CUMPLEANIOS, salon, 150000.0, false);
+    guardarPaquete("Cumpleaños premium", TipoPaquete.CUMPLEANIOS, salon, 350000.0, false);
+    guardarPaquete("Casamiento económico", TipoPaquete.CASAMIENTO, salon, 200000.0, false);
 
-    Paquete cumpleaniosCaro = new Paquete(
-      null,
-      "Cumpleaños premium",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering premium",
-      List.of("DJ"),
-      350000.0
-    );
-
-    Paquete casamiento = new Paquete(
-      null,
-      "Casamiento económico",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering básico",
-      List.of("DJ"),
-      200000.0
-    );
-
-    sessionFactory.getCurrentSession().persist(cumpleaniosEconomico);
-    sessionFactory.getCurrentSession().persist(cumpleaniosCaro);
-    sessionFactory.getCurrentSession().persist(casamiento);
-
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(
@@ -405,19 +248,9 @@ public class RepositorioPaqueteTest {
   public void deberiaDevolverListaVaciaSiSuperanElPresupuesto() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
-    sessionFactory.getCurrentSession().persist(salon);
+    session().persist(salon);
 
-    Paquete paquete = new Paquete(
-      null,
-      "Paquete premium",
-      TipoPaquete.CASAMIENTO,
-      salon,
-      "Catering completo",
-      List.of("DJ"),
-      400000.0
-    );
-
-    sessionFactory.getCurrentSession().persist(paquete);
+    guardarPaquete("Paquete premium", TipoPaquete.CASAMIENTO, salon, 400000.0, false);
 
     // Ejecución
     List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, 100000.0, null);
@@ -431,59 +264,18 @@ public class RepositorioPaqueteTest {
   @Rollback
   public void deberiaObtenerPaquetesConCapacidadSuficiente() {
     // Preparación
+    Salon salonChico = guardarSalon("Salón chico", 50000.0, 50);
+    Salon salonMediano = guardarSalon("Salón mediano", 90000.0, 80);
+    Salon salonGrande = guardarSalon("Salón grande", 150000.0, 120);
 
-    Salon salonChico = new Salon("Salón chico", 50000.0);
-    salonChico.setCapacidad(50);
+    guardarPaquete("Cumpleaños chico", TipoPaquete.CUMPLEANIOS, salonChico, 80000.0, false);
+    guardarPaquete("Cumpleaños mediano", TipoPaquete.CUMPLEANIOS, salonMediano, 150000.0, false);
+    guardarPaquete("Cumpleaños grande", TipoPaquete.CUMPLEANIOS, salonGrande, 250000.0, false);
 
-    Salon salonMediano = new Salon("Salón mediano", 90000.0);
-    salonMediano.setCapacidad(80);
-
-    Salon salonGrande = new Salon("Salón grande", 150000.0);
-    salonGrande.setCapacidad(120);
-
-    sessionFactory.getCurrentSession().persist(salonChico);
-    sessionFactory.getCurrentSession().persist(salonMediano);
-    sessionFactory.getCurrentSession().persist(salonGrande);
-
-    Paquete paqueteChico = new Paquete(
-      null,
-      "Cumpleaños chico",
-      TipoPaquete.CUMPLEANIOS,
-      salonChico,
-      "Catering básico",
-      List.of("DJ"),
-      80000.0
-    );
-
-    Paquete paqueteMediano = new Paquete(
-      null,
-      "Cumpleaños mediano",
-      TipoPaquete.CUMPLEANIOS,
-      salonMediano,
-      "Catering básico",
-      List.of("DJ"),
-      150000.0
-    );
-
-    Paquete paqueteGrande = new Paquete(
-      null,
-      "Cumpleaños grande",
-      TipoPaquete.CUMPLEANIOS,
-      salonGrande,
-      "Catering completo",
-      List.of("DJ"),
-      250000.0
-    );
-
-    sessionFactory.getCurrentSession().persist(paqueteChico);
-    sessionFactory.getCurrentSession().persist(paqueteMediano);
-    sessionFactory.getCurrentSession().persist(paqueteGrande);
-
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
-
     List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(null, null, 80);
 
     // Validación
@@ -497,70 +289,21 @@ public class RepositorioPaqueteTest {
   @Rollback
   public void deberiaObtenerPaquetesQueCumplanLosTresFiltros() {
     // Preparación
-    Salon salonMediano = new Salon("Salón mediano", 90000.0);
-    salonMediano.setCapacidad(80);
-
-    Salon salonGrande = new Salon("Salón grande", 150000.0);
-    salonGrande.setCapacidad(120);
-
-    Salon salonChico = new Salon("Salón chico", 50000.0);
-    salonChico.setCapacidad(50);
-
-    sessionFactory.getCurrentSession().persist(salonMediano);
-    sessionFactory.getCurrentSession().persist(salonGrande);
-    sessionFactory.getCurrentSession().persist(salonChico);
+    Salon salonMediano = guardarSalon("Salón mediano", 90000.0, 80);
+    Salon salonGrande = guardarSalon("Salón grande", 150000.0, 120);
+    Salon salonChico = guardarSalon("Salón chico", 50000.0, 50);
 
     // Cumple los tres filtros
-    Paquete cumpleaniosValido = new Paquete(
-      null,
-      "Cumpleaños válido",
-      TipoPaquete.CUMPLEANIOS,
-      salonMediano,
-      "Catering básico",
-      List.of("DJ"),
-      250000.0
-    );
-
+    guardarPaquete("Cumpleaños válido", TipoPaquete.CUMPLEANIOS, salonMediano, 250000.0, false);
     // No cumple el tipo de evento
-    Paquete casamiento = new Paquete(
-      null,
-      "Casamiento",
-      TipoPaquete.CASAMIENTO,
-      salonGrande,
-      "Catering completo",
-      List.of("DJ"),
-      200000.0
-    );
-
+    guardarPaquete("Casamiento", TipoPaquete.CASAMIENTO, salonGrande, 200000.0, false);
     // Supera el presupuesto
-    Paquete cumpleaniosCaro = new Paquete(
-      null,
-      "Cumpleaños caro",
-      TipoPaquete.CUMPLEANIOS,
-      salonGrande,
-      "Catering premium",
-      List.of("DJ"),
-      300000.0
-    );
-
+    guardarPaquete("Cumpleaños caro", TipoPaquete.CUMPLEANIOS, salonGrande, 300000.0, false);
     // No tiene capacidad suficiente
-    Paquete cumpleaniosChico = new Paquete(
-      null,
-      "Cumpleaños chico",
-      TipoPaquete.CUMPLEANIOS,
-      salonChico,
-      "Catering básico",
-      List.of("DJ"),
-      150000.0
-    );
+    guardarPaquete("Cumpleaños chico", TipoPaquete.CUMPLEANIOS, salonChico, 150000.0, false);
 
-    sessionFactory.getCurrentSession().persist(cumpleaniosValido);
-    sessionFactory.getCurrentSession().persist(casamiento);
-    sessionFactory.getCurrentSession().persist(cumpleaniosCaro);
-    sessionFactory.getCurrentSession().persist(cumpleaniosChico);
-
-    sessionFactory.getCurrentSession().flush();
-    sessionFactory.getCurrentSession().clear();
+    session().flush();
+    session().clear();
 
     // Ejecución
     List<Paquete> obtenidos = repositorioPaquete.buscarPorFiltros(
@@ -572,5 +315,37 @@ public class RepositorioPaqueteTest {
     // Validación
     assertThat(obtenidos.size(), equalTo(1));
     assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños válido"));
+  }
+
+  // ---------- Métodos auxiliares ----------
+
+  private Session session() {
+    return sessionFactory.getCurrentSession();
+  }
+
+  private Salon guardarSalon(String nombre, Double precio, Integer capacidad) {
+    Salon salon = new Salon(nombre, precio);
+    salon.setCapacidad(capacidad);
+    session().persist(salon);
+    return salon;
+  }
+
+  // Guarda primero el catering y el servicio (que el paquete referencia) y después el paquete
+  private Paquete guardarPaquete(
+    String nombre,
+    TipoPaquete tipo,
+    Salon salon,
+    Double precio,
+    boolean predeterminado
+  ) {
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
+    session().persist(catering);
+    session().persist(dj);
+
+    Paquete paquete = new Paquete(null, nombre, tipo, salon, catering, List.of(dj), precio);
+    paquete.setPredeterminado(predeterminado);
+    session().persist(paquete);
+    return paquete;
   }
 }

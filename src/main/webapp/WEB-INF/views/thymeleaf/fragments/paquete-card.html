@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<article class="pack-card" xmlns:th="http://www.thymeleaf.org"
+         th:fragment="paqueteCard(paquete, modo, mostrarTipo)"
+         th:id="'paquete-' + ${paquete.id}">
+
+    <div class="pack-media">
+        <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}"/>
+
+        <span class="pack-tag" th:if="${mostrarTipo}" th:switch="${paquete.tipo.name()}">
+        <span th:case="'CUMPLEANIOS'">Cumpleaños</span>
+        <span th:case="'FIESTA_DE_15'">Fiesta de 15</span>
+        <span th:case="'CASAMIENTO'">Casamiento</span>
+        <span th:case="'EMPRESARIAL'">Empresarial</span>
+    </span>
+    </div>
+
+    <div class="pack-body">
+        <h3 class="pack-nombre" th:text="${paquete.nombre}">Nombre</h3>
+        <p class="pack-linea" th:text="${paquete.salon.nombre}">Salón</p>
+        <p class="pack-linea pack-linea-suave" th:text="${paquete.catering.nombre}">Catering</p>
+        <p class="pack-linea pack-linea-suave">
+            Hasta <span th:text="${paquete.salon.capacidad}">50</span> invitados
+        </p>
+
+        <div class="pack-chips">
+            <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}"
+                  th:text="${servicio.nombre}">Servicio</span>
+        </div>
+
+        <div class="pack-precio">
+            <small>Precio estimado (hasta <span th:text="${paquete.salon.capacidad}">50</span> invitados)</small>
+            <div class="pack-monto">$ <span
+                    th:text="${#numbers.formatDecimal(paquete.precioEstimado, 0, 'POINT', 0, 'COMMA')}">0</span></div>
+        </div>
+
+        <th:block th:switch="${modo}">
+            <a th:case="'ver-mas'"
+               th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
+               class="btn btn-pack w-100 rounded-pill">Ver más</a>
+
+            <div th:case="'acciones'" class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-secondary flex-fill rounded-pill"
+                        disabled title="Próximamente">Reservar</button>
+                <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
+                   class="btn btn-pack flex-fill rounded-pill">Modificar</a>
+            </div>
+
+            <p th:case="'sin-detalle'" class="small text-secondary text-center mb-0 py-2">
+                Detalle no disponible por el momento
+            </p>
+        </th:block>
+    </div>
+</article>
+
+</body>
+</html>
