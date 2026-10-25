@@ -10,33 +10,6 @@ INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Comple
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Medio', 3000.0);
 INSERT INTO Catering(id, nombre, precioPorPersona) VALUES(null, 'Catering Basico', 1500.0);
 
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Empanadas', 'ENTRADA', false, false ,true);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Tabla de fiambres', 'ENTRADA', false ,true, false);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Milanesa con papas', 'PRINCIPAL', false, false, true);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Asado con ensalada', 'PRINCIPAL', false, true, false);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Helado', 'POSTRE', false, true, true);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Torta', 'POSTRE', false, false, true);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Gaseosas', 'BEBIDA', true, true, true);
-INSERT INTO Comida(id, nombre, tipoComida, vegetariana, aptaCeliacos, infantil) VALUES(null, 'Agua mineral', 'BEBIDA', true, true, true );
-
-
--- CATERING_COMIDA (que incluye cada menu) --
--- Basico: un principal y una bebida
-INSERT INTO catering_comida(catering_id, comida_id)
-SELECT c.id, m.id FROM Catering c, Comida m
-WHERE c.nombre = 'Catering Basico' AND m.nombre IN ('Milanesa con papas', 'Gaseosas');
-
--- Medio: entrada, principal y bebida (sin postre)
-INSERT INTO catering_comida(catering_id, comida_id)
-SELECT c.id, m.id FROM Catering c, Comida m
-WHERE c.nombre = 'Catering Medio' AND m.nombre IN ('Empanadas', 'Asado con ensalada', 'Gaseosas');
-
--- Completo: todas las comidas
-INSERT INTO catering_comida(catering_id, comida_id)
-SELECT c.id, m.id FROM Catering c, Comida m
-WHERE c.nombre = 'Catering Completo';
-
-
 
 -- SERVICIO ADICIONAL DATOS ---
 INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'DJ', 40000.0, false, 'DJ');

@@ -43,6 +43,15 @@ public class RepositorioReservaImpl implements RepositorioReserva {
   }
 
   @Override
+  public List<Reserva> buscarEntreFechas(LocalDate desde, LocalDate hasta) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery("from Reserva where fecha between :desde and :hasta", Reserva.class)
+      .setParameter("desde", desde)
+      .setParameter("hasta", hasta)
+      .getResultList();
+  }
+  
   public void guardar(Reserva reserva) {
     sessionFactory.getCurrentSession().persist(reserva);
   }
