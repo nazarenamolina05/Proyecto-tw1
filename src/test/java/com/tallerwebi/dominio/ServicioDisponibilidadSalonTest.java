@@ -1,9 +1,16 @@
 package com.tallerwebi.dominio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import java.time.LocalDate;
@@ -13,43 +20,43 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ServicioSalonReservaTest {
-
-  private Salon unSalon(Long id, String nombre) {
-    Salon salon = new Salon(nombre, 1000.0);
-    salon.setId(id);
-    return salon;
-  }
-
-  private void conSalones(Salon... salones) {
-    when(repositorioSalon.obtenerTodos()).thenReturn(List.of(salones));
-  }
-
-  private void conOcupaciones(YearMonth mes, SalonReserva... ocupaciones) {
-    when(repositorioSalonReserva.obtenerEntreFechas(mes.atDay(1), mes.atEndOfMonth()))
-      .thenReturn(List.of(ocupaciones));
-  }
+public class ServicioDisponibilidadSalonTest {
 
   private static final LocalDate FECHA = LocalDate.now().plusDays(10);
 
+  // Paquete de prueba que solo sabe cuál es su salón. Se usa una subclase en lugar del
+  // constructor de Paquete para que el test no dependa de cómo evolucione el catálogo.
+  private static class PaqueteConSalon extends Paquete {
+
+    private final Salon salon;
+
+    PaqueteConSalon(Salon salon) {
+      this.salon = salon;
+    }
+
+    @Override
+    public Salon getSalon() {
+      return salon;
+    }
+  }
+
   private RepositorioSalon repositorioSalon;
-  private RepositorioSalonReserva repositorioSalonReserva;
+  private RepositorioReserva repositorioReserva;
   private ServicioSalonReserva servicioSalonReserva;
 
   @BeforeEach
   public void init() {
     repositorioSalon = mock(RepositorioSalon.class);
-    repositorioSalonReserva = mock(RepositorioSalonReserva.class);
-    servicioSalonReserva = new ServicioSalonReservaImpl(repositorioSalon, repositorioSalonReserva);
+    repositorioReserva = mock(RepositorioReserva.class);
+    servicioSalonReserva = new ServicioDisponibilidadSalon(repositorioSalon, repositorioReserva);
   }
 
   @Test
   void deberiaExcluirElSalonOcupadoYDevolverSoloElDisponible() {
     Salon salonOcupado = unSalon(1L, "Norte");
     Salon salonLibre = unSalon(2L, "Sur");
-    when(repositorioSalon.obtenerTodos()).thenReturn(List.of(salonOcupado, salonLibre));
-    when(repositorioSalonReserva.obtenerEntreFechas(FECHA, FECHA))
-      .thenReturn(List.of(new SalonReserva(salonOcupado, FECHA, EstadoReserva.CONFIRMADA)));
+    conSalones(salonOcupado, salonLibre);
+    conReservas(FECHA, FECHA, unaReserva(salonOcupado, FECHA, EstadoReserva.CONFIRMADA));
 
     List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
 
@@ -61,36 +68,57 @@ public class ServicioSalonReservaTest {
     LocalDate ayer = LocalDate.now().minusDays(1);
 
     assertThrows(
-      FechaInvalida.class,
-      () -> servicioSalonReserva.obtenerSalonesDisponibles(ayer, FECHA)
+            FechaInvalida.class,
+            () -> servicioSalonReserva.obtenerSalonesDisponibles(ayer, FECHA)
     );
   }
 
   @Test
   void dadoQueSeIngresoLaFechaActualDeberiaDarError() {
-    LocalDate ayer = LocalDate.now();
+    LocalDate hoy = LocalDate.now();
 
     assertThrows(
-      FechaInvalida.class,
-      () -> servicioSalonReserva.obtenerSalonesDisponibles(ayer, FECHA)
+            FechaInvalida.class,
+            () -> servicioSalonReserva.obtenerSalonesDisponibles(hoy, FECHA)
     );
   }
 
   @Test
-  void deberiaDevolverTodosLosSalonesYaQueSalonOcupadoTieneLaReservaCancelada() {
-    Salon salonOcupado = unSalon(1L, "Norte");
-    Salon salonLibre = unSalon(2L, "Sur");
-    when(repositorioSalon.obtenerTodos()).thenReturn(List.of(salonOcupado, salonLibre));
-    when(repositorioSalonReserva.obtenerEntreFechas(FECHA, FECHA))
-      .thenReturn(List.of(new SalonReserva(salonOcupado, FECHA, EstadoReserva.CANCELADA)));
-
-    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
-
-    assertThat(disponibles, containsInAnyOrder(salonLibre, salonOcupado));
+  void dadoQueLaFechaEsNulaDeberiaDarError() {
+    assertThrows(
+            FechaInvalida.class,
+            () -> servicioSalonReserva.obtenerSalonesDisponibles(null, FECHA)
+    );
   }
 
   @Test
-  void dadoUnMesFuturoSinOcupacionesTodosLosDiasEstanDisponibles() {
+  void deberiaDevolverTodosLosSalonesYaQueElSalonTieneLaReservaCancelada() {
+    Salon salonConReservaCancelada = unSalon(1L, "Norte");
+    Salon salonLibre = unSalon(2L, "Sur");
+    conSalones(salonConReservaCancelada, salonLibre);
+    conReservas(FECHA, FECHA, unaReserva(salonConReservaCancelada, FECHA, EstadoReserva.CANCELADA));
+
+    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
+
+    assertThat(disponibles, containsInAnyOrder(salonLibre, salonConReservaCancelada));
+  }
+
+  @Test
+  void dadoUnaReservaSinPaqueteNoSeRompeNiBloqueaSalones() {
+    Salon salon = unSalon(1L, "Norte");
+    conSalones(salon);
+    Reserva sinPaquete = new Reserva();
+    sinPaquete.setFecha(FECHA);
+    sinPaquete.setEstado(EstadoReserva.CONFIRMADA);
+    conReservas(FECHA, FECHA, sinPaquete);
+
+    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
+
+    assertThat(disponibles, contains(salon));
+  }
+
+  @Test
+  void dadoUnMesFuturoSinReservasTodosLosDiasEstanDisponibles() {
     YearMonth mes = YearMonth.now().plusMonths(1);
     conSalones(unSalon(1L, "Norte"), unSalon(2L, "Sur"));
 
@@ -106,7 +134,7 @@ public class ServicioSalonReservaTest {
     LocalDate diaOcupado = mes.atDay(10);
     Salon salon = unSalon(1L, "Norte");
     conSalones(salon);
-    conOcupaciones(mes, new SalonReserva(salon, diaOcupado, EstadoReserva.CONFIRMADA));
+    conReservasDelMes(mes, unaReserva(salon, diaOcupado, EstadoReserva.CONFIRMADA));
 
     Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
 
@@ -121,7 +149,7 @@ public class ServicioSalonReservaTest {
     Salon norte = unSalon(1L, "Norte");
     Salon sur = unSalon(2L, "Sur");
     conSalones(norte, sur);
-    conOcupaciones(mes, new SalonReserva(norte, dia, EstadoReserva.CONFIRMADA));
+    conReservasDelMes(mes, unaReserva(norte, dia, EstadoReserva.CONFIRMADA));
 
     Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
 
@@ -135,10 +163,10 @@ public class ServicioSalonReservaTest {
     Salon norte = unSalon(1L, "Norte");
     Salon sur = unSalon(2L, "Sur");
     conSalones(norte, sur);
-    conOcupaciones(
-      mes,
-      new SalonReserva(norte, dia, EstadoReserva.CONFIRMADA),
-      new SalonReserva(sur, dia, EstadoReserva.SENIADA)
+    conReservasDelMes(
+            mes,
+            unaReserva(norte, dia, EstadoReserva.CONFIRMADA),
+            unaReserva(sur, dia, EstadoReserva.SENIADA)
     );
 
     Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
@@ -147,16 +175,16 @@ public class ServicioSalonReservaTest {
   }
 
   @Test
-  void dadoQueUnMismoSalonTieneDosOcupacionesElDiaSigueDisponibleSiHayOtroLibre() {
+  void dadoQueUnMismoSalonTieneDosReservasElDiaSigueDisponibleSiHayOtroLibre() {
     YearMonth mes = YearMonth.now().plusMonths(1);
     LocalDate dia = mes.atDay(10);
     Salon norte = unSalon(1L, "Norte");
     Salon sur = unSalon(2L, "Sur");
     conSalones(norte, sur);
-    conOcupaciones(
-      mes,
-      new SalonReserva(norte, dia, EstadoReserva.SENIADA),
-      new SalonReserva(norte, dia, EstadoReserva.CONFIRMADA)
+    conReservasDelMes(
+            mes,
+            unaReserva(norte, dia, EstadoReserva.SENIADA),
+            unaReserva(norte, dia, EstadoReserva.CONFIRMADA)
     );
 
     Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
@@ -165,12 +193,12 @@ public class ServicioSalonReservaTest {
   }
 
   @Test
-  void dadoUnaOcupacionCanceladaElDiaSigueDisponible() {
+  void dadoUnaReservaCanceladaElDiaSigueDisponible() {
     YearMonth mes = YearMonth.now().plusMonths(1);
     LocalDate dia = mes.atDay(10);
     Salon salon = unSalon(1L, "Norte");
     conSalones(salon);
-    conOcupaciones(mes, new SalonReserva(salon, dia, EstadoReserva.CANCELADA));
+    conReservasDelMes(mes, unaReserva(salon, dia, EstadoReserva.CANCELADA));
 
     Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
 
@@ -211,13 +239,39 @@ public class ServicioSalonReservaTest {
   }
 
   @Test
-  void elCalendarioConsultaLasOcupacionesDelMesEnUnaSolaLlamada() {
+  void elCalendarioConsultaLasReservasDelMesEnUnaSolaLlamada() {
     YearMonth mes = YearMonth.now().plusMonths(1);
     conSalones(unSalon(1L, "Norte"));
 
     servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
 
-    verify(repositorioSalonReserva).obtenerEntreFechas(mes.atDay(1), mes.atEndOfMonth());
-    verifyNoMoreInteractions(repositorioSalonReserva);
+    verify(repositorioReserva).buscarEntreFechas(mes.atDay(1), mes.atEndOfMonth());
+    verifyNoMoreInteractions(repositorioReserva);
+  }
+
+  private Salon unSalon(Long id, String nombre) {
+    Salon salon = new Salon(nombre, 1000.0);
+    salon.setId(id);
+    return salon;
+  }
+
+  private Reserva unaReserva(Salon salon, LocalDate fecha, EstadoReserva estado) {
+    Reserva reserva = new Reserva();
+    reserva.setPaquete(new PaqueteConSalon(salon));
+    reserva.setFecha(fecha);
+    reserva.setEstado(estado);
+    return reserva;
+  }
+
+  private void conSalones(Salon... salones) {
+    when(repositorioSalon.obtenerTodos()).thenReturn(List.of(salones));
+  }
+
+  private void conReservas(LocalDate desde, LocalDate hasta, Reserva... reservas) {
+    when(repositorioReserva.buscarEntreFechas(desde, hasta)).thenReturn(List.of(reservas));
+  }
+
+  private void conReservasDelMes(YearMonth mes, Reserva... reservas) {
+    conReservas(mes.atDay(1), mes.atEndOfMonth(), reservas);
   }
 }
