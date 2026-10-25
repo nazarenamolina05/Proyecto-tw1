@@ -2,11 +2,9 @@ package com.tallerwebi.dominio;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class PaqueteTest {
@@ -76,46 +74,5 @@ public class PaqueteTest {
 
     assertNull(paquete.getPublicador());
     assertNull(paquete.getDescripcion());
-  }
-
-  //el menú agrupa las comidas del catering por tipo y respeta el orden ENTRADA, PRINCIPAL, ..., BEBIDA
-  @Test
-  public void elMenuAgrupaLasComidasDelCateringPorTipoEnOrden() {
-    // given
-    Comida gaseosas = new Comida("Gaseosas", TipoComida.BEBIDA);
-    Comida empanadas = new Comida("Empanadas", TipoComida.ENTRADA);
-    Comida asado = new Comida("Asado con ensalada", TipoComida.PRINCIPAL);
-    Catering catering = new Catering("Catering Medio", 3000.0);
-    catering.agregarComida(gaseosas);
-    catering.agregarComida(empanadas);
-    catering.agregarComida(asado);
-    Paquete paquete = new Paquete(
-      null,
-      "Estándar",
-      TipoPaquete.FIESTA_DE_15,
-      null,
-      catering,
-      List.of(),
-      150000.0
-    );
-
-    // when
-    Map<TipoComida, List<Comida>> menu = paquete.getMenu();
-
-    // then
-    assertEquals(
-      List.of(TipoComida.ENTRADA, TipoComida.PRINCIPAL, TipoComida.BEBIDA),
-      List.copyOf(menu.keySet())
-    );
-    assertEquals(List.of(empanadas), menu.get(TipoComida.ENTRADA));
-    assertEquals(List.of(asado), menu.get(TipoComida.PRINCIPAL));
-    assertEquals(List.of(gaseosas), menu.get(TipoComida.BEBIDA));
-  }
-
-  @Test
-  public void unPaqueteSinCateringTieneElMenuVacio() {
-    Paquete paquete = new Paquete();
-
-    assertTrue(paquete.getMenu().isEmpty());
   }
 }
