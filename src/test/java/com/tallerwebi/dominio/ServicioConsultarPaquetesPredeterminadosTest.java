@@ -60,15 +60,14 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
     assertThrows(PaqueteNoEncontrado.class, () -> servicio.consultarPorId(99L));
   }
 
-  // Método auxiliar que utiliza el constructor completo
   private Paquete crearPaquete(Long id, String nombre, TipoPaquete tipo, Double precioEstimado) {
     Paquete paquete = new Paquete(
       id,
       nombre,
       tipo,
-      new Salon("Salón de prueba", 50000.0),
-      "Catering de prueba",
-      List.of("DJ", "Fotografía"),
+      new Salon("Salon Los Alamos", 50000.0),
+      new Catering("Catering Basico", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       precioEstimado
     );
 

@@ -20,28 +20,31 @@ public class Paquete {
   @JoinColumn(name = "salon_id")
   private Salon salon;
 
-  private String catering;
+  @ManyToOne
+  @JoinColumn(name = "catering_id")
+  private Catering catering;
 
-  @ElementCollection(fetch = FetchType.EAGER)
-  @CollectionTable(name = "Paquete_Servicios", joinColumns = @JoinColumn(name = "paquete_id"))
-  @Column(name = "servicio")
-  private List<String> serviciosAdicionales = new ArrayList<>();
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+    name = "Paquete_Servicios",
+    joinColumns = @JoinColumn(name = "paquete_id"),
+    inverseJoinColumns = @JoinColumn(name = "servicio_id")
+  )
+  private List<ServicioAdicional> serviciosAdicionales = new ArrayList<>();
 
   private Double precioEstimado;
 
   private boolean predeterminado;
 
-  // Constructor requerido por Hibernate
   public Paquete() {}
 
-  // Único constructor público para crear paquetes con datos
   public Paquete(
     Long id,
     String nombre,
     TipoPaquete tipo,
     Salon salon,
-    String catering,
-    List<String> serviciosAdicionales,
+    Catering catering,
+    List<ServicioAdicional> serviciosAdicionales,
     Double precioEstimado
   ) {
     this.id = id;
@@ -69,11 +72,11 @@ public class Paquete {
     return salon;
   }
 
-  public String getCatering() {
+  public Catering getCatering() {
     return catering;
   }
 
-  public List<String> getServiciosAdicionales() {
+  public List<ServicioAdicional> getServiciosAdicionales() {
     return serviciosAdicionales;
   }
 

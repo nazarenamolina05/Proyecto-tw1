@@ -24,8 +24,7 @@ public class ServicioValidarSeleccionPaqueteImpl implements ServicioValidarSelec
 
   @Override
   public List<LocalDate> obtenerFechasOcupadas(Long paqueteId) {
-    Paquete paquete = buscarPaquete(paqueteId);
-    return repositorioReserva.obtenerFechasOcupadasPorSalon(paquete.getSalon().getId());
+    return fechasOcupadasDe(buscarPaquete(paqueteId));
   }
 
   @Override
@@ -38,25 +37,29 @@ public class ServicioValidarSeleccionPaqueteImpl implements ServicioValidarSelec
     Paquete paquete = buscarPaquete(paqueteId);
 
     validarTipoEvento(tipoEvento);
-    validarFecha(paqueteId, fecha);
+    validarFecha(paquete, fecha);
     validarInvitados(paquete, cantidadInvitados);
   }
 
-  private void validarTipoEvento(TipoPaquete tipoEvento) {
-    if (tipoEvento == null) {
-      throw new SeleccionInvalida("Seleccioná el tipo de evento.");
-    }
+  private List<LocalDate> fechasOcupadasDe(Paquete paquete) {
+    return repositorioReserva.obtenerFechasOcupadasPorSalon(paquete.getSalon().getId());
   }
 
-  private void validarFecha(Long paqueteId, LocalDate fecha) {
+  private void validarFecha(Paquete paquete, LocalDate fecha) {
     if (fecha == null) {
       throw new SeleccionInvalida("Seleccioná una fecha para el evento.");
     }
     if (!fecha.isAfter(LocalDate.now())) {
       throw new SeleccionInvalida("La fecha debe ser posterior a hoy.");
     }
-    if (obtenerFechasOcupadas(paqueteId).contains(fecha)) {
+    if (fechasOcupadasDe(paquete).contains(fecha)) {
       throw new SeleccionInvalida("Esa fecha está ocupada, seleccioná otra.");
+    }
+  }
+
+  private void validarTipoEvento(TipoPaquete tipoEvento) {
+    if (tipoEvento == null) {
+      throw new SeleccionInvalida("Seleccioná el tipo de evento.");
     }
   }
 
