@@ -121,7 +121,7 @@
 
                         <!-- CATERING -->
                         <p class="pack-linea pack-linea-suave"
-                           th:text="${paquete.catering?.nombre}">
+                           th:text="${paquete.catering}">
                             Catering
                         </p>
 
@@ -139,7 +139,7 @@
 
                             <span class="pack-chip"
                                   th:each="servicio : ${paquete.serviciosAdicionales}"
-                                  th:text="${servicio.nombre}">
+                                  th:text="${servicio}">
                                 Servicio
                             </span>
 

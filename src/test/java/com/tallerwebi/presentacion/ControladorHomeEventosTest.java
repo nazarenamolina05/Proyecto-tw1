@@ -4,10 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.tallerwebi.dominio.Catering;
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.Salon;
-import com.tallerwebi.dominio.ServicioAdicional;
 import com.tallerwebi.dominio.ServicioConsultarPaquetesPredeterminados;
 import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
@@ -36,8 +34,8 @@ public class ControladorHomeEventosTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      new Catering("Catering Don José", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      "Catering Don José",
+      List.of("DJ"),
       80000.0
     );
 

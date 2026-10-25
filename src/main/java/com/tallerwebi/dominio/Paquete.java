@@ -13,8 +13,6 @@ public class Paquete {
 
   private String nombre;
 
-  private String descripcion;
-
   @Enumerated(EnumType.STRING)
   private TipoPaquete tipo;
 
@@ -22,25 +20,16 @@ public class Paquete {
   @JoinColumn(name = "salon_id")
   private Salon salon;
 
-  @ManyToOne
-  @JoinColumn(name = "catering_id")
-  private Catering catering;
+  private String catering;
 
-  @ManyToMany(fetch = FetchType.EAGER)
-  @JoinTable(
-    name = "paquete_servicio",
-    joinColumns = @JoinColumn(name = "paquete_id"),
-    inverseJoinColumns = @JoinColumn(name = "servicio_id")
-  )
-  private List<ServicioAdicional> serviciosAdicionales = new ArrayList<>();
+  @ElementCollection(fetch = FetchType.EAGER)
+  @CollectionTable(name = "Paquete_Servicios", joinColumns = @JoinColumn(name = "paquete_id"))
+  @Column(name = "servicio")
+  private List<String> serviciosAdicionales = new ArrayList<>();
 
   private Double precioEstimado;
 
   private boolean predeterminado;
-
-  @ManyToOne
-  @JoinColumn(name = "publicador_id")
-  private Usuario publicador;
 
   // Constructor requerido por Hibernate
   public Paquete() {}
@@ -51,8 +40,8 @@ public class Paquete {
     String nombre,
     TipoPaquete tipo,
     Salon salon,
-    Catering catering,
-    List<ServicioAdicional> serviciosAdicionales,
+    String catering,
+    List<String> serviciosAdicionales,
     Double precioEstimado
   ) {
     this.id = id;
@@ -72,14 +61,6 @@ public class Paquete {
     return nombre;
   }
 
-  public String getDescripcion() {
-    return descripcion;
-  }
-
-  public void setDescripcion(String descripcion) {
-    this.descripcion = descripcion;
-  }
-
   public TipoPaquete getTipo() {
     return tipo;
   }
@@ -88,11 +69,11 @@ public class Paquete {
     return salon;
   }
 
-  public Catering getCatering() {
+  public String getCatering() {
     return catering;
   }
 
-  public List<ServicioAdicional> getServiciosAdicionales() {
+  public List<String> getServiciosAdicionales() {
     return serviciosAdicionales;
   }
 
@@ -106,13 +87,5 @@ public class Paquete {
 
   public void setPredeterminado(boolean predeterminado) {
     this.predeterminado = predeterminado;
-  }
-
-  public Usuario getPublicador() {
-    return publicador;
-  }
-
-  public void setPublicador(Usuario publicador) {
-    this.publicador = publicador;
   }
 }
