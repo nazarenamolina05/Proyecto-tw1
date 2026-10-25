@@ -63,8 +63,8 @@ public class ServicioBuscarPaqueteTest {
       "Cumpleaños familiar",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      new Catering("Catering básico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      "Catering básico",
+      List.of("DJ"),
       200000.0
     );
 
@@ -107,8 +107,8 @@ public class ServicioBuscarPaqueteTest {
       nombre,
       tipo,
       new Salon("Salón de prueba", 50000.0),
-      new Catering("Catering de prueba", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      "Catering de prueba",
+      List.of("DJ"),
       100000.0
     );
   }

@@ -36,8 +36,8 @@ public class ServicioValidarSeleccionPaqueteTest {
       "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      new Catering("Catering de prueba", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      "Catering de prueba",
+      List.of("DJ"),
       80000.0
     );
     paquete.setPredeterminado(true);
