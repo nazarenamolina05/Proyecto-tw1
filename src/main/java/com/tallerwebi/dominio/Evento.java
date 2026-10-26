@@ -28,6 +28,10 @@ public class Evento {
 
   private Integer cantidadInvitados;
 
+  // Paquete (molde) del que se creó este evento. Es null si se armó desde cero.
+  @ManyToOne
+  private Paquete paqueteOrigen;
+
   @ManyToOne
   private Salon salon;
 
@@ -107,6 +111,14 @@ public class Evento {
 
   public void setCantidadInvitados(Integer cantidadInvitados) {
     this.cantidadInvitados = cantidadInvitados;
+  }
+
+  public Paquete getPaqueteOrigen() {
+    return paqueteOrigen;
+  }
+
+  public void setPaqueteOrigen(Paquete paqueteOrigen) {
+    this.paqueteOrigen = paqueteOrigen;
   }
 
   public Salon getSalon() {

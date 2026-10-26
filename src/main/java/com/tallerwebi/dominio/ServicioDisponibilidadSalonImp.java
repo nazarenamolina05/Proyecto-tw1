@@ -62,7 +62,7 @@ public class ServicioDisponibilidadSalonImp implements ServicioDisponibilidadSal
     for (Reserva reserva : reservas) {
       if (bloqueaLaFecha(reserva)) {
         salonesOcupadosPorDia
-          .computeIfAbsent(reserva.getFecha(), fecha -> new HashSet<>())
+          .computeIfAbsent(reserva.getEvento().getFecha(), fecha -> new HashSet<>())
           .add(salonDe(reserva).getId());
       }
     }
@@ -76,10 +76,9 @@ public class ServicioDisponibilidadSalonImp implements ServicioDisponibilidadSal
     return calendario;
   }
 
-  // Único lugar que sabe cómo llegar al salón de una reserva (hoy, a través del paquete).
-  // Si Reserva pasa a apuntar a un Evento, solo cambia este método.
+  // Único lugar que sabe cómo llegar al salón de una reserva: a través de su evento.
   private Salon salonDe(Reserva reserva) {
-    return reserva.getPaquete() == null ? null : reserva.getPaquete().getSalon();
+    return reserva.getEvento() == null ? null : reserva.getEvento().getSalon();
   }
 
   // Una reserva bloquea su salón si está señada o confirmada. Las reservas sin salón

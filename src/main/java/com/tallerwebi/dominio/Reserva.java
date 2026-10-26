@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -7,7 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Reserva {
@@ -19,10 +20,9 @@ public class Reserva {
   @ManyToOne
   private Usuario usuario;
 
-  @ManyToOne
-  private Paquete paquete;
+  @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+  private Evento evento;
 
-  private LocalDate fecha;
   private Double presupuesto;
 
   @Enumerated(EnumType.STRING)
@@ -51,20 +51,12 @@ public class Reserva {
     this.usuario = usuario;
   }
 
-  public Paquete getPaquete() {
-    return paquete;
+  public Evento getEvento() {
+    return evento;
   }
 
-  public void setPaquete(Paquete paquete) {
-    this.paquete = paquete;
-  }
-
-  public LocalDate getFecha() {
-    return fecha;
-  }
-
-  public void setFecha(LocalDate fecha) {
-    this.fecha = fecha;
+  public void setEvento(Evento evento) {
+    this.evento = evento;
   }
 
   public Double getPresupuesto() {
