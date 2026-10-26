@@ -32,13 +32,20 @@ public class Paquete {
   )
   private List<ServicioAdicional> serviciosAdicionales = new ArrayList<>();
 
-  private Double precio;
+  private Double precioEstimado;
 
   private boolean predeterminado;
 
   public Paquete() {}
 
-  public Paquete(Long id, String nombre, TipoPaquete tipo, Salon salon, Catering catering, List<ServicioAdicional> serviciosAdicionales, Double precioEstimado
+  public Paquete(
+    Long id,
+    String nombre,
+    TipoPaquete tipo,
+    Salon salon,
+    Catering catering,
+    List<ServicioAdicional> serviciosAdicionales,
+    Double precioEstimado
   ) {
     this.id = id;
     this.nombre = nombre;
@@ -46,7 +53,7 @@ public class Paquete {
     this.salon = salon;
     this.catering = catering;
     this.serviciosAdicionales = new ArrayList<>(serviciosAdicionales);
-    this.precio = precioEstimado;
+    this.precioEstimado = precioEstimado;
   }
 
   public Long getId() {
@@ -73,8 +80,8 @@ public class Paquete {
     return serviciosAdicionales;
   }
 
-  public Double getPrecio() {
-    return precio;
+  public Double getPrecioEstimado() {
+    return precioEstimado;
   }
 
   public boolean isPredeterminado() {

@@ -38,26 +38,24 @@ public class ControladorEventoPersonalizadoTest {
   private Usuario user;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
-  private ServicioDisponibilidadSalonImp servicioDisponibilidadSalonImp;
+  private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioEventoPersonalizado.class);
     servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
     servicioPaquetes = mock(ServicioConsultarPaquetesPredeterminados.class);
-    servicioDisponibilidadSalonImp = mock(ServicioDisponibilidadSalonImp.class);
+    servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
     controlador =
       new ControladorEventoPersonalizado(
         servicio,
         servicioSugerenciaServicios,
-        servicioDisponibilidadSalonImp
+        servicioPaquetes,
+        servicioDisponibilidadSalon
       );
     sesion = mock(HttpSession.class);
     evento = mock(EventoPersonalizado.class);
     user = mock(Usuario.class);
-
-    controlador =
-      new ControladorEventoPersonalizado(servicio, servicioSugerenciaServicios, servicioPaquetes);
   }
 
   // ---------- GET /evento-personalizado ----------
@@ -91,7 +89,7 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("evento"), sameInstance(evento));
     assertThat(mav.getModel().get("salonElegidoId"), nullValue());
     assertThat(mav.getModel().get("cateringElegidoId"), nullValue());
-    verify(servicioDisponibilidadSalonImp).obtenerSalonesDisponibles(fecha, fecha);
+    verify(servicioDisponibilidadSalon).obtenerSalonesDisponibles(fecha, fecha);
     verify(servicio).obtenerCaterings();
     //    verify(servicio).obtenerServicioAdicionales();
   }
@@ -104,14 +102,14 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(fecha);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(fecha, fecha))
+    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(fecha, fecha))
       .thenReturn(List.of(salonDisponible));
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat(mav.getModel().get("salones"), equalTo(List.of(salonDisponible)));
     verify(servicio, never()).obtenerSalones();
@@ -125,14 +123,14 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(ayer);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(ayer, ayer))
+    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, ayer))
       .thenThrow(new FechaInvalida());
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat((List<?>) mav.getModel().get("salones"), is(empty()));
     assertThat(mav.getModel().get("errorFecha"), notNullValue());
