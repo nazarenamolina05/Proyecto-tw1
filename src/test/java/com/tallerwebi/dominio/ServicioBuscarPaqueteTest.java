@@ -59,13 +59,13 @@ public class ServicioBuscarPaqueteTest {
     salon.setCapacidad(120);
 
     Paquete cumpleanios = new Paquete(
-      null,
-      "Cumpleaños familiar",
+      1L,
+      "Básico",
       TipoPaquete.CUMPLEANIOS,
       salon,
-      "Catering básico",
-      List.of("DJ"),
-      200000.0
+      new Catering("Catering Basico", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      80000.0
     );
 
     List<Paquete> paquetesEsperados = List.of(cumpleanios);
@@ -107,9 +107,9 @@ public class ServicioBuscarPaqueteTest {
       nombre,
       tipo,
       new Salon("Salón de prueba", 50000.0),
-      "Catering de prueba",
-      List.of("DJ"),
-      100000.0
+      new Catering("Catering Basico", 1500.0),
+      List.of(new ServicioAdicional("DJ", 40000.0, false)),
+      80000.0
     );
   }
 }

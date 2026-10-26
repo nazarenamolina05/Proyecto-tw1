@@ -37,18 +37,21 @@ public class ControladorEventoPersonalizadoTest {
   private EventoPersonalizado evento;
   private Usuario user;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
-  private ServicioDisponibilidadSalonImp servicioDisponibilidadSalonImp;
+  private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
+  private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioEventoPersonalizado.class);
     servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
-    servicioDisponibilidadSalonImp = mock(ServicioDisponibilidadSalonImp.class);
+    servicioPaquetes = mock(ServicioConsultarPaquetesPredeterminados.class);
+    servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
     controlador =
       new ControladorEventoPersonalizado(
         servicio,
         servicioSugerenciaServicios,
-        servicioDisponibilidadSalonImp
+        servicioPaquetes,
+        servicioDisponibilidadSalon
       );
     sesion = mock(HttpSession.class);
     evento = mock(EventoPersonalizado.class);
@@ -61,7 +64,7 @@ public class ControladorEventoPersonalizadoTest {
   public void sinEventoEnSesionMuestraLaVistaSinDatos() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat(mav.getViewName(), equalTo("evento-personalizado"));
     assertThat(mav.getModel().get("evento"), nullValue());
@@ -81,12 +84,12 @@ public class ControladorEventoPersonalizadoTest {
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat(mav.getModel().get("evento"), sameInstance(evento));
     assertThat(mav.getModel().get("salonElegidoId"), nullValue());
     assertThat(mav.getModel().get("cateringElegidoId"), nullValue());
-    verify(servicioDisponibilidadSalonImp).obtenerSalonesDisponibles(fecha, fecha);
+    verify(servicioDisponibilidadSalon).obtenerSalonesDisponibles(fecha, fecha);
     verify(servicio).obtenerCaterings();
     //    verify(servicio).obtenerServicioAdicionales();
   }
@@ -99,14 +102,14 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(fecha);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(fecha, fecha))
+    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(fecha, fecha))
       .thenReturn(List.of(salonDisponible));
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat(mav.getModel().get("salones"), equalTo(List.of(salonDisponible)));
     verify(servicio, never()).obtenerSalones();
@@ -120,14 +123,14 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(ayer);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(ayer, ayer))
+    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, ayer))
       .thenThrow(new FechaInvalida());
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat((List<?>) mav.getModel().get("salones"), is(empty()));
     assertThat(mav.getModel().get("errorFecha"), notNullValue());
@@ -149,7 +152,7 @@ public class ControladorEventoPersonalizadoTest {
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
     when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
-    ModelAndView mav = controlador.verEventoPersonalizado(sesion);
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
 
     assertThat(mav.getModel().get("salonElegidoId"), equalTo(1L));
     assertThat(mav.getModel().get("cateringElegidoId"), equalTo(2L));
@@ -186,7 +189,7 @@ public class ControladorEventoPersonalizadoTest {
 
   @Test
   public void empezarDeCeroBorraElEventoDeLaSesion() {
-    ModelAndView mav = controlador.volverAEmpezar(sesion);
+    ModelAndView mav = controlador.volverAEmpezar("desde-cero", sesion);
 
     verify(sesion).removeAttribute(EVENTO);
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));

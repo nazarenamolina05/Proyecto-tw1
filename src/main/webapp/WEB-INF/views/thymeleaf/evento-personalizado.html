@@ -78,6 +78,21 @@
             </div>
         </section>
 
+        <!-- PAQUETES PREDETERMINADOS -->
+        <section class="seccion-clara pt-5">
+            <div class="container">
+                <details th:open="${modo == 'predefinidos' and evento == null}">
+                    <summary class="fw-bold fs-4 mb-3">Paquetes predeterminados</summary>
+
+                    <div class="row g-4 mt-1">
+                        <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
+                            <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'acciones', false)}"></th:block>
+                        </div>
+                    </div>
+                </details>
+            </div>
+        </section>
+
         <!-- SIN EVENTO TODAVÍA -->
         <section class="seccion-clara py-5" th:if="${evento == null}">
             <div class="container text-center">

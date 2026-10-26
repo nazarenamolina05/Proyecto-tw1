@@ -151,12 +151,12 @@
 
             <div class="d-flex flex-column flex-md-row align-items-center gap-4 mt-4">
 
-                <a th:href="@{/evento-personalizado/nuevo}"
+                <a th:href="@{/evento-personalizado(modo='predefinidos')}"
                    class="btn btn-crear-evento rounded-pill px-4">
-                    + Crear evento personalizado
+                    Eventos pre-definidos
                 </a>
 
-                <a href="#"
+                <a th:href="@{/evento-personalizado/nuevo(modo='desde-cero')}"
                    class="text-light text-decoration-none">
                     Armá tu evento desde cero →
                 </a>
@@ -178,39 +178,7 @@
             <div class="row g-4">
 
                 <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
-                    <article class="pack-card">
-
-                        <div class="pack-media">
-                            <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}" />
-                        </div>
-
-                        <div class="pack-body">
-                            <h3 class="pack-nombre" th:text="${paquete.nombre}">Nombre</h3>
-
-                            <p class="pack-linea" th:text="${paquete.salon.nombre}">Salón</p>
-                            <p class="pack-linea pack-linea-suave" th:text="${paquete.catering}">Catering</p>
-                            <p class="pack-linea pack-linea-suave">
-                                Hasta <span th:text="${paquete.salon.capacidad}">50</span> invitados
-                            </p>
-
-                            <div class="pack-chips">
-                                <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio}">Servicio</span>
-                            </div>
-
-                            <div class="pack-precio">
-                                <small>Precio estimado</small>
-                                <div class="pack-monto">
-                                    $ <span th:text="${#numbers.formatDecimal(paquete.precioEstimado, 0, 'POINT', 0, 'COMMA')}">0</span>
-                                </div>
-                            </div>
-
-                            <a th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
-                               class="btn btn-pack w-100 rounded-pill">
-                                Ver más
-                            </a>
-                        </div>
-
-                    </article>
+                    <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'ver-mas', false)}"></th:block>
                 </div>
 
             </div>

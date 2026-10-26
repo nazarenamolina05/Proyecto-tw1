@@ -175,17 +175,7 @@ public class RepositorioReservaTest {
 
   //nuevo
   private Paquete dadoQueExisteUnPaquete(String nombre) {
-    Paquete paquete = new Paquete(
-      null,
-      nombre,
-      TipoPaquete.CUMPLEANIOS,
-      null,
-      "Catering básico",
-      List.of("DJ"),
-      100000.0
-    );
-    this.sessionFactory.getCurrentSession().persist(paquete);
-    return paquete;
+    return this.guardarPaquete(nombre, null);
   }
 
   //nuevo
@@ -250,16 +240,7 @@ public class RepositorioReservaTest {
   }
 
   private void dadoQueExisteUnaReservaEnSalon(Salon salon, LocalDate fecha, EstadoReserva estado) {
-    Paquete paquete = new Paquete(
-      null,
-      "Paquete de prueba",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      "Catering básico",
-      List.of("DJ"),
-      100000.0
-    );
-    this.sessionFactory.getCurrentSession().persist(paquete);
+    Paquete paquete = this.guardarPaquete("Paquete de prueba", salon);
 
     Reserva reserva = new Reserva();
     reserva.setPaquete(paquete);
@@ -272,6 +253,26 @@ public class RepositorioReservaTest {
     this.sessionFactory.getCurrentSession().flush();
     this.sessionFactory.getCurrentSession().clear();
     return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
+  }
+
+  private Paquete guardarPaquete(String nombre, Salon salon) {
+    Catering catering = new Catering("Catering basico", 1500.0);
+    ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
+    this.sessionFactory.getCurrentSession().persist(catering);
+    this.sessionFactory.getCurrentSession().persist(dj);
+
+    Paquete paquete = new Paquete(
+      null,
+      nombre,
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      List.of(dj),
+      100000.0
+    );
+
+    this.sessionFactory.getCurrentSession().persist(paquete);
+    return paquete;
   }
 
   private void dadoQueExisteUnaReservaEnLaFecha(Usuario usuario, Paquete paquete, LocalDate fecha) {

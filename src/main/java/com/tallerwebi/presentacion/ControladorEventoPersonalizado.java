@@ -18,27 +18,34 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorEventoPersonalizado {
 
   private static final String EVENTO = "eventoPersonalizado";
-
   private static final String USUARIO = "USUARIO";
-
+  private static final String MODO = "modo";
   private ServicioEventoPersonalizado servicioEventoPersonalizado;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
+  private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @Autowired
   public ControladorEventoPersonalizado(
     ServicioEventoPersonalizado servicioEventoPersonalizado,
     ServicioSugerenciaServicios servicioSugerenciaServicios,
+    ServicioConsultarPaquetesPredeterminados servicioPaquetes,
     ServicioDisponibilidadSalon servicioDisponibilidadSalon
   ) {
     this.servicioEventoPersonalizado = servicioEventoPersonalizado;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
+    this.servicioPaquetes = servicioPaquetes;
     this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
-  public ModelAndView verEventoPersonalizado(HttpSession session) {
+  public ModelAndView verEventoPersonalizado(
+    @RequestParam(value = MODO, defaultValue = "predefinidos") String modo,
+    HttpSession session
+  ) {
     Map<String, Object> modelo = new ModelMap();
+    modelo.put(MODO, modo);
+    modelo.put("paquetes", servicioPaquetes.consultarTodos());
     EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
       modelo.put("evento", evento);
@@ -64,9 +71,12 @@ public class ControladorEventoPersonalizado {
   }
 
   @RequestMapping(value = "/evento-personalizado/nuevo", method = RequestMethod.GET)
-  public ModelAndView volverAEmpezar(HttpSession session) {
+  public ModelAndView volverAEmpezar(
+    @RequestParam(value = MODO, defaultValue = "desde-cero") String modo,
+    HttpSession session
+  ) {
     session.removeAttribute(EVENTO);
-    return volverAlEvento();
+    return volverAlEvento(MODO, modo);
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.POST)
@@ -174,9 +184,9 @@ public class ControladorEventoPersonalizado {
     return new ModelAndView("redirect:/evento-personalizado");
   }
 
-  private ModelAndView volverAlEvento(String clave, Long id) {
+  private ModelAndView volverAlEvento(String clave, Object valor) {
     Map<String, Object> modelo = new ModelMap();
-    modelo.put(clave, id);
+    modelo.put(clave, valor);
     return new ModelAndView("redirect:/evento-personalizado", modelo);
   }
 }
