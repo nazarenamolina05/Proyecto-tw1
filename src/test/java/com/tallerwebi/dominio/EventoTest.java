@@ -3,8 +3,13 @@ package com.tallerwebi.dominio;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.List;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 public class EventoTest {
@@ -134,8 +139,73 @@ public class EventoTest {
     assertThat(presupuestoConMasInvitados, is(equalTo(275000.0)));
   }
 
+  @Test
+  public void elAdicionalDebeSerCeroSiElEventoTieneLoMismoQueElPaquete() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+
+    Double adicional = evento.calcularAdicional();
+
+    assertThat(adicional, is(equalTo(0.0)));
+  }
+
+  @Test
+  public void elAdicionalDebeSerElCostoDeUnServicioExtraAgregado() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+    evento.agregarServicio(new ServicioAdicional("Video", 45000.0, false));
+
+    Double adicional = evento.calcularAdicional();
+
+    assertThat(adicional, is(equalTo(45000.0)));
+  }
+
+  @Test
+  public void noDebeCobrarAdicionalSiCambiaAUnCateringMasBarato() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+    evento.setCatering(new Catering("Catering Chico", 1000.0));
+
+    Double adicional = evento.calcularAdicional();
+
+    assertThat(adicional, is(equalTo(0.0)));
+  }
+
+  @Test
+  public void bajarLaCantidadDeInvitadosNoDebeGenerarAdicional() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+    evento.setCantidadInvitados(30);
+
+    Double adicional = evento.calcularAdicional();
+
+    assertThat(adicional, is(equalTo(0.0)));
+  }
+
+  @Test
+  public void elServicioDelPaqueteDebeEstarIncluidoYUnoExtraNo() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+    ServicioAdicional dj = evento.getServiciosAdicionales().get(0);
+
+    assertTrue(evento.esServicioIncluido(dj));
+    assertFalse(evento.esServicioIncluido(new ServicioAdicional("Video", 45000.0, false)));
+  }
+
   private Evento dadoQueTengoUnEventoConInvitados(Integer invitados) {
     return new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), invitados);
+  }
+
+  private Evento dadoQueTengoUnEventoDesdeElPaqueteBasico() {
+    Salon salon = new Salon("Salon Los Alamos", 50000.0);
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
+    Paquete paquete = new Paquete(
+            1L,
+            "Básico",
+            TipoPaquete.CUMPLEANIOS,
+            salon,
+            catering,
+            List.of(dj),
+            165000.0
+    );
+
+    return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 50);
   }
 
   private Double cuandoCalculoElPresupuesto(Evento evento) {
