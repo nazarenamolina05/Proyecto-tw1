@@ -42,13 +42,14 @@ public class ServicioDisponibilidadSalonTest {
 
   private RepositorioSalon repositorioSalon;
   private RepositorioReserva repositorioReserva;
-  private ServicioSalonReserva servicioSalonReserva;
+  private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @BeforeEach
   public void init() {
     repositorioSalon = mock(RepositorioSalon.class);
     repositorioReserva = mock(RepositorioReserva.class);
-    servicioSalonReserva = new ServicioDisponibilidadSalon(repositorioSalon, repositorioReserva);
+    servicioDisponibilidadSalon =
+      new ServicioDisponibilidadSalonImp(repositorioSalon, repositorioReserva);
   }
 
   @Test
@@ -58,7 +59,7 @@ public class ServicioDisponibilidadSalonTest {
     conSalones(salonOcupado, salonLibre);
     conReservas(FECHA, FECHA, unaReserva(salonOcupado, FECHA, EstadoReserva.CONFIRMADA));
 
-    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
+    List<Salon> disponibles = servicioDisponibilidadSalon.obtenerSalonesDisponibles(FECHA, FECHA);
 
     assertThat(disponibles, contains(salonLibre));
   }
@@ -68,8 +69,8 @@ public class ServicioDisponibilidadSalonTest {
     LocalDate ayer = LocalDate.now().minusDays(1);
 
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioSalonReserva.obtenerSalonesDisponibles(ayer, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, FECHA)
     );
   }
 
@@ -78,16 +79,16 @@ public class ServicioDisponibilidadSalonTest {
     LocalDate hoy = LocalDate.now();
 
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioSalonReserva.obtenerSalonesDisponibles(hoy, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(hoy, FECHA)
     );
   }
 
   @Test
   void dadoQueLaFechaEsNulaDeberiaDarError() {
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioSalonReserva.obtenerSalonesDisponibles(null, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(null, FECHA)
     );
   }
 
@@ -98,7 +99,7 @@ public class ServicioDisponibilidadSalonTest {
     conSalones(salonConReservaCancelada, salonLibre);
     conReservas(FECHA, FECHA, unaReserva(salonConReservaCancelada, FECHA, EstadoReserva.CANCELADA));
 
-    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
+    List<Salon> disponibles = servicioDisponibilidadSalon.obtenerSalonesDisponibles(FECHA, FECHA);
 
     assertThat(disponibles, containsInAnyOrder(salonLibre, salonConReservaCancelada));
   }
@@ -112,7 +113,7 @@ public class ServicioDisponibilidadSalonTest {
     sinPaquete.setEstado(EstadoReserva.CONFIRMADA);
     conReservas(FECHA, FECHA, sinPaquete);
 
-    List<Salon> disponibles = servicioSalonReserva.obtenerSalonesDisponibles(FECHA, FECHA);
+    List<Salon> disponibles = servicioDisponibilidadSalon.obtenerSalonesDisponibles(FECHA, FECHA);
 
     assertThat(disponibles, contains(salon));
   }
@@ -122,7 +123,9 @@ public class ServicioDisponibilidadSalonTest {
     YearMonth mes = YearMonth.now().plusMonths(1);
     conSalones(unSalon(1L, "Norte"), unSalon(2L, "Sur"));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.size(), equalTo(mes.lengthOfMonth()));
     assertThat(calendario.values(), everyItem(is(true)));
@@ -136,7 +139,9 @@ public class ServicioDisponibilidadSalonTest {
     conSalones(salon);
     conReservasDelMes(mes, unaReserva(salon, diaOcupado, EstadoReserva.CONFIRMADA));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(diaOcupado), is(false));
     assertThat(calendario.get(mes.atDay(11)), is(true));
@@ -151,7 +156,9 @@ public class ServicioDisponibilidadSalonTest {
     conSalones(norte, sur);
     conReservasDelMes(mes, unaReserva(norte, dia, EstadoReserva.CONFIRMADA));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(dia), is(true));
   }
@@ -164,12 +171,14 @@ public class ServicioDisponibilidadSalonTest {
     Salon sur = unSalon(2L, "Sur");
     conSalones(norte, sur);
     conReservasDelMes(
-            mes,
-            unaReserva(norte, dia, EstadoReserva.CONFIRMADA),
-            unaReserva(sur, dia, EstadoReserva.SENIADA)
+      mes,
+      unaReserva(norte, dia, EstadoReserva.CONFIRMADA),
+      unaReserva(sur, dia, EstadoReserva.SENIADA)
     );
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(dia), is(false));
   }
@@ -182,12 +191,14 @@ public class ServicioDisponibilidadSalonTest {
     Salon sur = unSalon(2L, "Sur");
     conSalones(norte, sur);
     conReservasDelMes(
-            mes,
-            unaReserva(norte, dia, EstadoReserva.SENIADA),
-            unaReserva(norte, dia, EstadoReserva.CONFIRMADA)
+      mes,
+      unaReserva(norte, dia, EstadoReserva.SENIADA),
+      unaReserva(norte, dia, EstadoReserva.CONFIRMADA)
     );
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(dia), is(true));
   }
@@ -200,7 +211,9 @@ public class ServicioDisponibilidadSalonTest {
     conSalones(salon);
     conReservasDelMes(mes, unaReserva(salon, dia, EstadoReserva.CANCELADA));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(dia), is(true));
   }
@@ -211,7 +224,9 @@ public class ServicioDisponibilidadSalonTest {
     YearMonth mes = YearMonth.from(hoy);
     conSalones(unSalon(1L, "Norte"));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.get(hoy), is(false));
     calendario.forEach((fecha, disponible) -> assertThat(disponible, equalTo(fecha.isAfter(hoy))));
@@ -222,7 +237,9 @@ public class ServicioDisponibilidadSalonTest {
     YearMonth mes = YearMonth.now().minusMonths(1);
     conSalones(unSalon(1L, "Norte"));
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.size(), equalTo(mes.lengthOfMonth()));
     assertThat(calendario.values(), everyItem(is(false)));
@@ -233,7 +250,9 @@ public class ServicioDisponibilidadSalonTest {
     YearMonth mes = YearMonth.now().plusMonths(1);
     conSalones();
 
-    Map<LocalDate, Boolean> calendario = servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    Map<LocalDate, Boolean> calendario = servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(
+      mes
+    );
 
     assertThat(calendario.values(), everyItem(is(false)));
   }
@@ -243,7 +262,7 @@ public class ServicioDisponibilidadSalonTest {
     YearMonth mes = YearMonth.now().plusMonths(1);
     conSalones(unSalon(1L, "Norte"));
 
-    servicioSalonReserva.obtenerDisponibilidadDelMes(mes);
+    servicioDisponibilidadSalon.obtenerDisponibilidadDelMes(mes);
 
     verify(repositorioReserva).buscarEntreFechas(mes.atDay(1), mes.atEndOfMonth());
     verifyNoMoreInteractions(repositorioReserva);

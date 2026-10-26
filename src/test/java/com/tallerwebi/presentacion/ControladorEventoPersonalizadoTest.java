@@ -37,19 +37,19 @@ public class ControladorEventoPersonalizadoTest {
   private EventoPersonalizado evento;
   private Usuario user;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
-  private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
+  private ServicioDisponibilidadSalonImp servicioDisponibilidadSalonImp;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioEventoPersonalizado.class);
     servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
-    servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
+    servicioDisponibilidadSalonImp = mock(ServicioDisponibilidadSalonImp.class);
     controlador =
-            new ControladorEventoPersonalizado(
-                    servicio,
-                    servicioSugerenciaServicios,
-                    servicioDisponibilidadSalon
-            );
+      new ControladorEventoPersonalizado(
+        servicio,
+        servicioSugerenciaServicios,
+        servicioDisponibilidadSalonImp
+      );
     sesion = mock(HttpSession.class);
     evento = mock(EventoPersonalizado.class);
     user = mock(Usuario.class);
@@ -86,7 +86,7 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("evento"), sameInstance(evento));
     assertThat(mav.getModel().get("salonElegidoId"), nullValue());
     assertThat(mav.getModel().get("cateringElegidoId"), nullValue());
-    verify(servicioDisponibilidadSalon).obtenerSalonesDisponibles(fecha, fecha);
+    verify(servicioDisponibilidadSalonImp).obtenerSalonesDisponibles(fecha, fecha);
     verify(servicio).obtenerCaterings();
     //    verify(servicio).obtenerServicioAdicionales();
   }
@@ -95,11 +95,16 @@ public class ControladorEventoPersonalizadoTest {
   public void conEventoConFechaCargaSoloLosSalonesDisponiblesDeEsaFecha() {
     LocalDate fecha = LocalDate.now().plusDays(10);
     Salon salonDisponible = mock(Salon.class);
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(fecha);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(fecha, fecha))
-            .thenReturn(List.of(salonDisponible));
+    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(fecha, fecha))
+      .thenReturn(List.of(salonDisponible));
+
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
     ModelAndView mav = controlador.verEventoPersonalizado(sesion);
 
@@ -110,11 +115,17 @@ public class ControladorEventoPersonalizadoTest {
   @Test
   public void conFechaInvalidaMuestraUnaListaVaciaYElMensajeDeError() {
     LocalDate ayer = LocalDate.now().minusDays(1);
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
+
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(ayer);
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, ayer))
-            .thenThrow(new FechaInvalida());
+    when(servicioDisponibilidadSalonImp.obtenerSalonesDisponibles(ayer, ayer))
+      .thenThrow(new FechaInvalida());
+
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
 
     ModelAndView mav = controlador.verEventoPersonalizado(sesion);
 
