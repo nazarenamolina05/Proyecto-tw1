@@ -49,7 +49,7 @@ public class ServicioDisponibilidadSalonTest {
     repositorioSalon = mock(RepositorioSalon.class);
     repositorioReserva = mock(RepositorioReserva.class);
     servicioDisponibilidadSalon =
-      new ServicioDisponibilidadSalonImp(repositorioSalon, repositorioReserva);
+      new ServicioDisponibilidadSalonImpl(repositorioSalon, repositorioReserva);
   }
 
   @Test
