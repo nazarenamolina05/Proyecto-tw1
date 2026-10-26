@@ -255,23 +255,25 @@ public class RepositorioReservaTest {
     return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
   }
 
-  private Paquete guardarPaquete(String nombre, Salon salon) {
+ private Paquete guardarPaquete(String nombre, Salon salon) {
     Catering catering = new Catering("Catering basico", 1500.0);
     ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
     this.sessionFactory.getCurrentSession().persist(catering);
     this.sessionFactory.getCurrentSession().persist(dj);
 
     Paquete paquete = new Paquete(
-      null,
-      nombre,
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      catering,
-      List.of(dj),
-      100000.0
+        null,
+        nombre,
+        TipoPaquete.CUMPLEANIOS,
+        salon,
+        catering,
+        List.of(dj),
+        100000.0
     );
+
     this.sessionFactory.getCurrentSession().persist(paquete);
     return paquete;
+}
   private void dadoQueExisteUnaReservaEnLaFecha(Usuario usuario, Paquete paquete, LocalDate fecha) {
     Reserva reserva = this.dadoQueTengoUnaReserva(usuario, paquete);
     reserva.setFecha(fecha);
