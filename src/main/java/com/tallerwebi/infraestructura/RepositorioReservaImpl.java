@@ -51,7 +51,8 @@ public class RepositorioReservaImpl implements RepositorioReserva {
       .setParameter("hasta", hasta)
       .getResultList();
   }
-  
+
+  @Override
   public void guardar(Reserva reserva) {
     sessionFactory.getCurrentSession().persist(reserva);
   }

@@ -1,8 +1,10 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
+import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ public class ControladorEventoPersonalizado {
   private ServicioEventoPersonalizado servicioEventoPersonalizado;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
+  private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @Autowired
   public ControladorEventoPersonalizado(
@@ -31,6 +34,11 @@ public class ControladorEventoPersonalizado {
     this.servicioEventoPersonalizado = servicioEventoPersonalizado;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioPaquetes = servicioPaquetes;
+    ServicioDisponibilidadSalon servicioDisponibilidadSalon
+  ) {
+    this.servicioEventoPersonalizado = servicioEventoPersonalizado;
+    this.servicioSugerenciaServicios = servicioSugerenciaServicios;
+    this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
@@ -44,7 +52,7 @@ public class ControladorEventoPersonalizado {
     EventoPersonalizado evento = obtenerEvento(session);
     if (evento != null) {
       modelo.put("evento", evento);
-      modelo.put("salones", servicioEventoPersonalizado.obtenerSalones());
+      modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
       modelo.put("caterings", servicioEventoPersonalizado.obtenerCaterings());
       //      modelo.put("servicio", servicioEventoPersonalizado.obtenerServicioAdicionales());
       ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
@@ -149,6 +157,22 @@ public class ControladorEventoPersonalizado {
       return new ModelAndView("redirect:/evento-personalizado?error=incompleto");
     }
     return volverAlEvento();
+  }
+
+  // Solo se ofrecen los salones sin reserva activa en la fecha del evento.
+  private List<Salon> obtenerSalonesDisponibles(
+    EventoPersonalizado evento,
+    Map<String, Object> modelo
+  ) {
+    try {
+      return servicioDisponibilidadSalon.obtenerSalonesDisponibles(
+        evento.getFecha(),
+        evento.getFecha()
+      );
+    } catch (FechaInvalida excepcion) {
+      modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
+      return List.of();
+    }
   }
 
   private EventoPersonalizado obtenerEvento(HttpSession sesion) {
