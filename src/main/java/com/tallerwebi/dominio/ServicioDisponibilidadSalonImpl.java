@@ -15,12 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
-public class ServicioDisponibilidadSalonImp implements ServicioDisponibilidadSalon {
+public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSalon {
 
   private final RepositorioSalon repositorioSalon;
   private final RepositorioReserva repositorioReserva;
 
-  public ServicioDisponibilidadSalonImp(
+  public ServicioDisponibilidadSalonImpl(
     RepositorioSalon repositorioSalon,
     RepositorioReserva repositorioReserva
   ) {
