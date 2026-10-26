@@ -23,7 +23,7 @@ public class ServicioSugerenciaServiciosImpl implements ServicioSugerenciaServic
   }
 
   @Override
-  public ServiciosClasificados clasificar(EventoPersonalizado evento) {
+  public ServiciosClasificados clasificar(Evento evento) {
     List<CategoriaServicio> sugerida = categoriaPorTipoEvento.getCategoriaSugerida(evento);
 
     Map<Boolean, List<ServicioAdicional>> partes = repositorioServicioAdicional

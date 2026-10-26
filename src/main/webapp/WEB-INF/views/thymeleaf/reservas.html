@@ -28,12 +28,15 @@
         <div class="col-md-6 col-lg-4" th:each="reserva : ${reservas}">
             <div class="card h-100 tarjeta-reserva">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${reserva.nombrePaquete}"></h5>
+                    <h5 class="card-title" th:text="${reserva.evento.nombre}"></h5>
                     <p class="card-text mb-1">
-                        <strong>Fecha:</strong> <span th:text="${reserva.fecha}"></span>
+                        <strong>Fecha:</strong> <span th:text="${reserva.evento.fecha}"></span>
+                    </p>
+                    <p class="card-text mb-1">
+                        <strong>Presupuesto:</strong> $<span th:text="${#numbers.formatDecimal(reserva.presupuesto, 0, 'POINT', 0, 'COMMA')}"></span>
                     </p>
                     <p class="card-text mb-3">
-                        <strong>Presupuesto:</strong> $<span th:text="${reserva.presupuesto}"></span>
+                        <strong>Abonado:</strong> $<span th:text="${#numbers.formatDecimal(reserva.montoAbonado, 0, 'POINT', 0, 'COMMA')}"></span>
                     </p>
                     <span class="badge-estado" th:classappend="${'estado-' + reserva.estado}"
                           th:text="${reserva.estado}"></span>

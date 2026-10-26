@@ -37,11 +37,7 @@ public class ServicioSugerenciaServiciosTest {
         )
       );
     servicioSugerenciaServicios = new ServicioSugerenciaServiciosImpl(repositorioServicioAdicional);
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.CUMPLEANIOS,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 30);
 
     ServiciosClasificados resultado = servicioSugerenciaServicios.clasificar(evento);
 

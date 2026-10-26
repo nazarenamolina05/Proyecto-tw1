@@ -100,12 +100,19 @@ public class Evento {
       return false;
     }
     return paqueteOrigen
-            .getServiciosAdicionales()
-            .stream()
-            .anyMatch(incluido ->
-                    incluido.equals(servicio) ||
-                            (incluido.getId() != null && incluido.getId().equals(servicio.getId()))
-            );
+      .getServiciosAdicionales()
+      .stream()
+      .anyMatch(incluido ->
+        incluido.equals(servicio) ||
+        (incluido.getId() != null && incluido.getId().equals(servicio.getId()))
+      );
+  }
+
+  public String getNombre() {
+    if (paqueteOrigen == null) {
+      return "Evento personalizado";
+    }
+    return paqueteOrigen.getNombre();
   }
 
   public Long getId() {

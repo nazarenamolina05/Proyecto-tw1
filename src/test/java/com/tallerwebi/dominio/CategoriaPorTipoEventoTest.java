@@ -12,11 +12,7 @@ public class CategoriaPorTipoEventoTest {
   // 1- primer test que verifica si trae la lista con la categoria por el tipo de evento CUMPLEANIOS
   @Test
   public void dadoQueSeleccionoUnTipoDeEVentoCumpleaniosQuieroQueMeSugieraLosServiciosParaElTipoDeEVento() {
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.CUMPLEANIOS,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 30);
 
     CategoriaPorTipoEvento categoriaPorTipoEvento = new CategoriaPorTipoEvento();
 
@@ -31,11 +27,7 @@ public class CategoriaPorTipoEventoTest {
   // 2- segundo test que verifica si trae la lista con la categoria por el tipo de evento FIESTA_DE_15
   @Test
   public void dadoQueSeleccionoUnTipoDeEVentoFiestaDe15QuieroQueMeSugieraLosServiciosParaElTipoDeEVento() {
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.FIESTA_DE_15,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.FIESTA_DE_15, LocalDate.now(), 30);
 
     CategoriaPorTipoEvento categoriaPorTipoEvento = new CategoriaPorTipoEvento();
 
@@ -56,11 +48,7 @@ public class CategoriaPorTipoEventoTest {
 
   @Test
   public void dadoQueSeleccionoUnTipoDeEVentoCasamientoQuieroQueMeSugieraLosServiciosParaElTipoDeEVento() {
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.CASAMIENTO,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.CASAMIENTO, LocalDate.now(), 30);
 
     CategoriaPorTipoEvento categoriaPorTipoEvento = new CategoriaPorTipoEvento();
 
@@ -81,11 +69,7 @@ public class CategoriaPorTipoEventoTest {
 
   @Test
   public void dadoQueSeleccionoUnTipoDeEVentoEmpresarialQuieroQueMeSugieraLosServiciosParaElTipoDeEVento() {
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.EMPRESARIAL,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.EMPRESARIAL, LocalDate.now(), 30);
 
     CategoriaPorTipoEvento categoriaPorTipoEvento = new CategoriaPorTipoEvento();
 
@@ -96,11 +80,7 @@ public class CategoriaPorTipoEventoTest {
 
   @Test
   public void alLlamarDosVecesConElMismoEventoDevuelveLasMismasCategorias() {
-    EventoPersonalizado evento = new EventoPersonalizado(
-      TipoPaquete.EMPRESARIAL,
-      LocalDate.now(),
-      30
-    );
+    Evento evento = new Evento(TipoPaquete.EMPRESARIAL, LocalDate.now(), 30);
 
     CategoriaPorTipoEvento categoriaPorTipoEvento = new CategoriaPorTipoEvento();
 

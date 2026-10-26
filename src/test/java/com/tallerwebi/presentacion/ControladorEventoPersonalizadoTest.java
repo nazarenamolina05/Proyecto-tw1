@@ -31,10 +31,10 @@ public class ControladorEventoPersonalizadoTest {
   private static final String EVENTO = "eventoPersonalizado";
   private static final String USUARIO = "USUARIO";
 
-  private ServicioEventoPersonalizado servicio;
+  private ServicioEvento servicio;
   private ControladorEventoPersonalizado controlador;
   private HttpSession sesion;
-  private EventoPersonalizado evento;
+  private Evento evento;
   private Usuario user;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
@@ -42,7 +42,7 @@ public class ControladorEventoPersonalizadoTest {
 
   @BeforeEach
   public void init() {
-    servicio = mock(ServicioEventoPersonalizado.class);
+    servicio = mock(ServicioEvento.class);
     servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
     servicioPaquetes = mock(ServicioConsultarPaquetesPredeterminados.class);
     servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
@@ -54,7 +54,7 @@ public class ControladorEventoPersonalizadoTest {
         servicioDisponibilidadSalon
       );
     sesion = mock(HttpSession.class);
-    evento = mock(EventoPersonalizado.class);
+    evento = mock(Evento.class);
     user = mock(Usuario.class);
   }
 
@@ -179,7 +179,7 @@ public class ControladorEventoPersonalizadoTest {
 
     controlador.guardarDatosDelEvento(TipoPaquete.CASAMIENTO, fecha, 50, sesion);
 
-    verify(evento).setTipo(TipoPaquete.CASAMIENTO);
+    verify(evento).setTipoPaquete(TipoPaquete.CASAMIENTO);
     verify(evento).setFecha(fecha);
     verify(evento).setCantidadInvitados(50);
     verify(sesion, never()).setAttribute(eq(EVENTO), any());
@@ -272,61 +272,5 @@ public class ControladorEventoPersonalizadoTest {
     controlador.quitarServicio(3L, sesion);
 
     verify(servicio, never()).quitarServicio(any(), anyLong());
-  }
-
-  // ---------- Reservar ----------
-
-  @Test
-  public void reservarSinEventoVuelveAlEvento() {
-    when(sesion.getAttribute(EVENTO)).thenReturn(null);
-
-    ModelAndView mav = controlador.reservarEvento(sesion);
-
-    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
-  }
-
-  @Test
-  public void reservarSinSalonRedirigeConErrorIncompleto() {
-    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
-    when(evento.getSalon()).thenReturn(null);
-    when(evento.getCatering()).thenReturn(mock(Catering.class));
-    when(sesion.getAttribute(USUARIO)).thenReturn(user);
-
-    ModelAndView mav = controlador.reservarEvento(sesion);
-
-    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=incompleto"));
-  }
-
-  @Test
-  public void reservarSinCateringRedirigeConErrorIncompleto() {
-    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
-    when(evento.getSalon()).thenReturn(mock(Salon.class));
-    when(evento.getCatering()).thenReturn(null);
-    when(sesion.getAttribute(USUARIO)).thenReturn(user);
-
-    ModelAndView mav = controlador.reservarEvento(sesion);
-
-    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=incompleto"));
-  }
-
-  @Test
-  public void alQuererReservarNoDejaPorQueNoExisteUnUsuario() {
-    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
-
-    ModelAndView mav = controlador.reservarEvento(sesion);
-
-    assertThat(mav.getViewName(), equalTo("redirect:/login"));
-  }
-
-  @Test
-  public void reservarConSalonYCateringVuelveAlEvento() {
-    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
-    when(evento.getSalon()).thenReturn(mock(Salon.class));
-    when(evento.getCatering()).thenReturn(mock(Catering.class));
-    when(sesion.getAttribute(USUARIO)).thenReturn(user);
-
-    ModelAndView mav = controlador.reservarEvento(sesion);
-
-    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
   }
 }

@@ -5,11 +5,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import java.util.List;
 
 import java.time.LocalDate;
 import java.util.List;
-
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class EventoTest {
@@ -191,18 +190,32 @@ public class EventoTest {
     return new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), invitados);
   }
 
+  @Test
+  public void elNombreDebeSerElDelPaqueteDeOrigen() {
+    Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
+
+    assertThat(evento.getNombre(), is(equalTo("Básico")));
+  }
+
+  @Test
+  public void unEventoSinPaqueteDebeLlamarseEventoPersonalizado() {
+    Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
+
+    assertThat(evento.getNombre(), is(equalTo("Evento personalizado")));
+  }
+
   private Evento dadoQueTengoUnEventoDesdeElPaqueteBasico() {
     Salon salon = new Salon("Salon Los Alamos", 50000.0);
     Catering catering = new Catering("Catering Basico", 1500.0);
     ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
     Paquete paquete = new Paquete(
-            1L,
-            "Básico",
-            TipoPaquete.CUMPLEANIOS,
-            salon,
-            catering,
-            List.of(dj),
-            165000.0
+      1L,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      List.of(dj),
+      165000.0
     );
 
     return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 50);

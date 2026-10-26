@@ -38,16 +38,16 @@
                         <select id="tipo" name="tipo" class="form-select" required>
                             <option value="">Seleccioná una opción</option>
                             <option value="CASAMIENTO"
-                                    th:selected="${evento != null and evento.tipo.name() == 'CASAMIENTO'}">Casamiento
+                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CASAMIENTO'}">Casamiento
                             </option>
                             <option value="FIESTA_DE_15"
-                                    th:selected="${evento != null and evento.tipo.name() == 'FIESTA_DE_15'}">Fiesta de 15
+                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'FIESTA_DE_15'}">Fiesta de 15
                             </option>
                             <option value="CUMPLEANIOS"
-                                    th:selected="${evento != null and evento.tipo.name() == 'CUMPLEANIOS'}">Cumpleaños
+                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CUMPLEANIOS'}">Cumpleaños
                             </option>
                             <option value="EMPRESARIAL"
-                                    th:selected="${evento != null and evento.tipo.name() == 'EMPRESARIAL'}">Empresarial
+                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'EMPRESARIAL'}">Empresarial
                             </option>
                         </select>
                     </div>
@@ -294,18 +294,29 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <form th:action="@{/evento-personalizado/reservar}" method="post">
-                                        <button type="submit" class="btn btn-buscar w-100 rounded-pill py-2"
+                                    <form th:action="@{/reservas}" method="post">
+                                        <button type="submit" name="tipoPago" value="SENIA"
+                                                class="btn btn-buscar w-100 rounded-pill py-2 mb-2"
                                                 th:disabled="${evento.salon == null or evento.catering == null}">
-                                            Guardar y reservar
+                                            Señar el
+                                            <span th:text="${#numbers.formatDecimal(T(com.tallerwebi.dominio.Reserva).PORCENTAJE_SENIA * 100, 0, 0)}">30</span>%
+                                        </button>
+                                        <button type="submit" name="tipoPago" value="TOTAL"
+                                                class="btn btn-outline-light w-100 rounded-pill py-2"
+                                                th:disabled="${evento.salon == null or evento.catering == null}">
+                                            Pagar el total
                                         </button>
                                     </form>
 
                                     <p class="small mt-2 mb-0" th:if="${evento.salon == null or evento.catering == null}">
                                         Elegí un salón y un catering para poder reservar.
                                     </p>
-                                    <p class="small mt-2 mb-0 text-warning" th:if="${param.error != null}">
-                                        Faltan datos para reservar: elegí al menos un salón y un catering.
+                                    <p class="small mt-2 mb-0 text-warning" th:if="${param.error != null}"
+                                       th:switch="${param.error[0]}">
+                                        <span th:case="'salonNoDisponible'">Ese salón ya fue reservado para la fecha elegida. Probá con otro.</span>
+                                        <span th:case="'fecha'">La fecha del evento tiene que ser posterior a hoy.</span>
+                                        <span th:case="'incompleto'">Faltan datos para reservar: elegí al menos un salón y un catering.</span>
+                                        <span th:case="*">No pudimos completar la reserva. Intentá de nuevo.</span>
                                     </p>
                                 </div>
                             </div>
