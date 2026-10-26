@@ -2,9 +2,13 @@ package com.tallerwebi.dominio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
 
+import com.tallerwebi.dominio.excepcion.EventoIncompleto;
+import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,5 +45,80 @@ public class ServicioReservaTest {
     List<Reserva> reservasObtenidas = servicioReserva.obtenerReservasDe(usuario);
 
     assertThat(reservasObtenidas, equalTo(List.of()));
+  }
+
+  @Test
+  void deberiaGuardarLaReservaSiElSalonEstaLibre() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, LocalDate.now().plusDays(30));
+    when(repositorioReservaMock.obtenerFechasOcupadasPorSalon(1L)).thenReturn(List.of());
+
+    Reserva reserva = servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA);
+
+    verify(repositorioReservaMock).guardar(reserva);
+    assertThat(reserva.getEstado(), equalTo(EstadoReserva.SENIADA));
+  }
+
+  @Test
+  void noDeberiaReservarSiElSalonYaEstaOcupadoEseDia() {
+    LocalDate fecha = LocalDate.now().plusDays(30);
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, fecha);
+    when(repositorioReservaMock.obtenerFechasOcupadasPorSalon(1L)).thenReturn(List.of(fecha));
+
+    assertThrows(
+      SalonNoDisponible.class,
+      () -> servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA)
+    );
+    verify(repositorioReservaMock, never()).guardar(any(Reserva.class));
+  }
+
+  @Test
+  void deberiaReservarSiElSalonEstaOcupadoPeroOtroDia() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, LocalDate.now().plusDays(30));
+    when(repositorioReservaMock.obtenerFechasOcupadasPorSalon(1L))
+      .thenReturn(List.of(LocalDate.now().plusDays(31)));
+
+    Reserva reserva = servicioReserva.reservar(new Usuario(), evento, TipoPago.TOTAL);
+
+    verify(repositorioReservaMock).guardar(reserva);
+  }
+
+  @Test
+  void noDeberiaReservarConUnaFechaPasada() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, LocalDate.now().minusDays(1));
+
+    assertThrows(
+      FechaInvalida.class,
+      () -> servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA)
+    );
+    verify(repositorioReservaMock, never()).guardar(any(Reserva.class));
+  }
+
+  @Test
+  void noDeberiaReservarUnEventoSinFecha() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, null);
+
+    assertThrows(
+      FechaInvalida.class,
+      () -> servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA)
+    );
+  }
+
+  @Test
+  void noDeberiaReservarUnEventoSinSalon() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+
+    assertThrows(
+      EventoIncompleto.class,
+      () -> servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA)
+    );
+    verify(repositorioReservaMock, never()).guardar(any(Reserva.class));
+  }
+
+  private Evento dadoQueTengoUnEventoConSalonParaElDia(Long idSalon, LocalDate fecha) {
+    Salon salon = new Salon("Salon Los Alamos", 50000.0);
+    salon.setId(idSalon);
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 30);
+    evento.setSalon(salon);
+    return evento;
   }
 }
