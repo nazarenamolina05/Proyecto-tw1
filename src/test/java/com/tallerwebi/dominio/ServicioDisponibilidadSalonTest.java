@@ -24,22 +24,6 @@ public class ServicioDisponibilidadSalonTest {
 
   private static final LocalDate FECHA = LocalDate.now().plusDays(10);
 
-  // Paquete de prueba que solo sabe cuál es su salón. Se usa una subclase en lugar del
-  // constructor de Paquete para que el test no dependa de cómo evolucione el catálogo.
-  private static class PaqueteConSalon extends Paquete {
-
-    private final Salon salon;
-
-    PaqueteConSalon(Salon salon) {
-      this.salon = salon;
-    }
-
-    @Override
-    public Salon getSalon() {
-      return salon;
-    }
-  }
-
   private RepositorioSalon repositorioSalon;
   private RepositorioReserva repositorioReserva;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
@@ -105,13 +89,23 @@ public class ServicioDisponibilidadSalonTest {
   }
 
   @Test
-  void dadoUnaReservaSinPaqueteNoSeRompeNiBloqueaSalones() {
+  void dadoUnaReservaSinEventoNoSeRompeNiBloqueaSalones() {
     Salon salon = unSalon(1L, "Norte");
     conSalones(salon);
-    Reserva sinPaquete = new Reserva();
-    sinPaquete.setFecha(FECHA);
-    sinPaquete.setEstado(EstadoReserva.CONFIRMADA);
-    conReservas(FECHA, FECHA, sinPaquete);
+    Reserva sinEvento = new Reserva();
+    sinEvento.setEstado(EstadoReserva.CONFIRMADA);
+    conReservas(FECHA, FECHA, sinEvento);
+
+    List<Salon> disponibles = servicioDisponibilidadSalon.obtenerSalonesDisponibles(FECHA, FECHA);
+
+    assertThat(disponibles, contains(salon));
+  }
+
+  @Test
+  void dadoUnaReservaConEventoSinSalonNoSeRompeNiBloqueaSalones() {
+    Salon salon = unSalon(1L, "Norte");
+    conSalones(salon);
+    conReservas(FECHA, FECHA, unaReserva(null, FECHA, EstadoReserva.CONFIRMADA));
 
     List<Salon> disponibles = servicioDisponibilidadSalon.obtenerSalonesDisponibles(FECHA, FECHA);
 
@@ -275,9 +269,11 @@ public class ServicioDisponibilidadSalonTest {
   }
 
   private Reserva unaReserva(Salon salon, LocalDate fecha, EstadoReserva estado) {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 50);
+    evento.setSalon(salon);
+
     Reserva reserva = new Reserva();
-    reserva.setPaquete(new PaqueteConSalon(salon));
-    reserva.setFecha(fecha);
+    reserva.setEvento(evento);
     reserva.setEstado(estado);
     return reserva;
   }

@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -7,10 +8,29 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import java.time.LocalDate;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Reserva {
+
+  public static final double PORCENTAJE_SENIA = 0.30;
+
+  public Reserva() {}
+
+  public Reserva(Usuario usuario, Evento evento, TipoPago tipoPago) {
+    this.usuario = usuario;
+    this.evento = evento;
+    this.tipoPago = tipoPago;
+    this.presupuesto = evento.calcularPresupuesto();
+
+    if (tipoPago == TipoPago.SENIA) {
+      this.estado = EstadoReserva.SENIADA;
+      this.montoAbonado = presupuesto * PORCENTAJE_SENIA;
+    } else {
+      this.estado = EstadoReserva.CONFIRMADA;
+      this.montoAbonado = presupuesto;
+    }
+  }
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,10 +39,9 @@ public class Reserva {
   @ManyToOne
   private Usuario usuario;
 
-  @ManyToOne
-  private Paquete paquete;
+  @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+  private Evento evento;
 
-  private LocalDate fecha;
   private Double presupuesto;
 
   @Enumerated(EnumType.STRING)
@@ -51,20 +70,12 @@ public class Reserva {
     this.usuario = usuario;
   }
 
-  public Paquete getPaquete() {
-    return paquete;
+  public Evento getEvento() {
+    return evento;
   }
 
-  public void setPaquete(Paquete paquete) {
-    this.paquete = paquete;
-  }
-
-  public LocalDate getFecha() {
-    return fecha;
-  }
-
-  public void setFecha(LocalDate fecha) {
-    this.fecha = fecha;
+  public void setEvento(Evento evento) {
+    this.evento = evento;
   }
 
   public Double getPresupuesto() {

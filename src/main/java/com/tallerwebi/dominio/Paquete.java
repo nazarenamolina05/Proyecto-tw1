@@ -1,6 +1,7 @@
 package com.tallerwebi.dominio;
 
 import jakarta.persistence.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,17 @@ public class Paquete {
     this.catering = catering;
     this.serviciosAdicionales = new ArrayList<>(serviciosAdicionales);
     this.precioEstimado = precioEstimado;
+  }
+
+  // El paquete es el molde: el evento parte de su salón, catering y servicios,
+  // pero con su propia lista, para que modificarlo no altere el paquete.
+  public Evento crearEvento(TipoPaquete tipoEvento, LocalDate fecha, Integer cantidadInvitados) {
+    Evento evento = new Evento(tipoEvento, fecha, cantidadInvitados);
+    evento.setPaqueteOrigen(this);
+    evento.setSalon(salon);
+    evento.setCatering(catering);
+    serviciosAdicionales.forEach(evento::agregarServicio);
+    return evento;
   }
 
   public Long getId() {
