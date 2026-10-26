@@ -71,6 +71,10 @@
                         </button>
                     </div>
                 </form>
+                <div th:if="${errorFecha != null}" class="alert alert-warning mt-3 mb-0" role="alert"
+                     th:text="${errorFecha}">
+                    Elegí una fecha posterior a hoy.
+                </div>
             </div>
         </section>
 
@@ -95,6 +99,9 @@
                             <div class="linea-titulo"></div>
                         </div>
                         <div class="row g-4 mb-5">
+                            <div class="col-12" th:if="${#lists.isEmpty(salones) and errorFecha == null}">
+                                <p class="mb-0">No hay salones disponibles para la fecha elegida. Probá con otra fecha.</p>
+                            </div>
                             <div class="col-12 col-md-6 col-xl-4" th:each="salon : ${salones}">
                                 <article class="pack-card"
                                          th:classappend="${salon.id == salonElegidoId} ? 'opcion-elegida'">
