@@ -25,21 +25,19 @@ public class ControladorEventoPersonalizado {
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
-  @Autowired
-  public ControladorEventoPersonalizado(
+@Autowired
+public ControladorEventoPersonalizado(
     ServicioEventoPersonalizado servicioEventoPersonalizado,
     ServicioSugerenciaServicios servicioSugerenciaServicios,
-    ServicioConsultarPaquetesPredeterminados servicioPaquetes
-  ) {
+    ServicioConsultarPaquetesPredeterminados servicioPaquetes,
+    ServicioDisponibilidadSalon servicioDisponibilidadSalon
+) {
     this.servicioEventoPersonalizado = servicioEventoPersonalizado;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioPaquetes = servicioPaquetes;
-    ServicioDisponibilidadSalon servicioDisponibilidadSalon
-  ) {
-    this.servicioEventoPersonalizado = servicioEventoPersonalizado;
-    this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
-  }
+}
+
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
   public ModelAndView verEventoPersonalizado(
