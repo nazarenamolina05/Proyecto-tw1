@@ -43,8 +43,8 @@ import java.util.List;
 
 public class CategoriaPorTipoEvento {
 
-  public List<CategoriaServicio> getCategoriaSugerida(EventoPersonalizado evento) {
-    return switch (evento.getTipo()) {
+  public List<CategoriaServicio> getCategoriaSugerida(Evento evento) {
+    return switch (evento.getTipoPaquete()) {
       case CUMPLEANIOS -> List.of(
         CategoriaServicio.ANIMACION,
         CategoriaServicio.COTILLON,

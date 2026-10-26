@@ -68,6 +68,21 @@ public class Paquete {
     return evento;
   }
 
+  public Double calcularPrecio(Integer cantidadInvitados) {
+    Double total = 0.0;
+
+    if (salon != null) {
+      total += salon.getPrecio();
+    }
+    if (catering != null) {
+      total += catering.getPrecioPorPersona() * cantidadInvitados;
+    }
+    for (ServicioAdicional servicio : serviciosAdicionales) {
+      total += servicio.calcularCosto(cantidadInvitados);
+    }
+    return total;
+  }
+
   public Long getId() {
     return id;
   }

@@ -53,7 +53,7 @@ public class ServicioEventoTest {
     servicioEvento.agregarServicio(evento, 6L);
     servicioEvento.agregarServicio(evento, 6L);
 
-    assertThat(evento.getServicioAdicionalsList(), hasSize(1));
+    assertThat(evento.getServiciosAdicionales(), hasSize(1));
   }
 
   @Test
@@ -86,7 +86,7 @@ public class ServicioEventoTest {
       ElementoInexistenteException.class,
       () -> servicioEvento.agregarServicio(evento, 99L)
     );
-    assertThat(evento.getServicioAdicionalsList(), is(empty()));
+    assertThat(evento.getServiciosAdicionales(), is(empty()));
   }
 
   @Test
@@ -98,7 +98,7 @@ public class ServicioEventoTest {
       ElementoInexistenteException.class,
       () -> servicioEvento.quitarServicio(evento, 99L)
     );
-    assertThat(evento.getServicioAdicionalsList(), is(empty()));
+    assertThat(evento.getServiciosAdicionales(), is(empty()));
   }
 
   @Test
@@ -131,7 +131,7 @@ public class ServicioEventoTest {
 
     servicioEvento.agregarServicio(evento, 1L);
 
-    assertThat(evento.getServicioAdicionalsList(), contains(dj));
+    assertThat(evento.getServiciosAdicionales(), contains(dj));
   }
 
   @Test
@@ -147,7 +147,7 @@ public class ServicioEventoTest {
 
     servicioEvento.quitarServicio(evento, 5L);
 
-    assertThat(evento.getServicioAdicionalsList(), contains(dj));
+    assertThat(evento.getServiciosAdicionales(), contains(dj));
   }
 
   @Test

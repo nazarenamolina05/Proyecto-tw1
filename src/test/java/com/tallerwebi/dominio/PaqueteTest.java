@@ -53,7 +53,7 @@ public class PaqueteTest {
 
     assertSame(paquete.getSalon(), evento.getSalon());
     assertSame(paquete.getCatering(), evento.getCatering());
-    assertEquals(paquete.getServiciosAdicionales(), evento.getServicioAdicionalsList());
+    assertEquals(paquete.getServiciosAdicionales(), evento.getServiciosAdicionales());
   }
 
   @Test
@@ -85,7 +85,7 @@ public class PaqueteTest {
     evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
 
     assertEquals(2, paquete.getServiciosAdicionales().size());
-    assertEquals(3, evento.getServicioAdicionalsList().size());
+    assertEquals(3, evento.getServiciosAdicionales().size());
   }
 
   private Paquete dadoQueTengoUnPaqueteConDosServicios() {

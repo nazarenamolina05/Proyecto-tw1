@@ -81,6 +81,40 @@ public class Evento {
     return total;
   }
 
+  public Double calcularPrecioBase() {
+    if (paqueteOrigen == null) {
+      return 0.0;
+    }
+    return paqueteOrigen.calcularPrecio(cantidadInvitados);
+  }
+
+  public Double calcularAdicional() {
+    if (paqueteOrigen == null) {
+      return 0.0;
+    }
+    return Math.max(0.0, calcularPresupuesto() - calcularPrecioBase());
+  }
+
+  public boolean esServicioIncluido(ServicioAdicional servicio) {
+    if (paqueteOrigen == null) {
+      return false;
+    }
+    return paqueteOrigen
+      .getServiciosAdicionales()
+      .stream()
+      .anyMatch(incluido ->
+        incluido.equals(servicio) ||
+        (incluido.getId() != null && incluido.getId().equals(servicio.getId()))
+      );
+  }
+
+  public String getNombre() {
+    if (paqueteOrigen == null) {
+      return "Evento personalizado";
+    }
+    return paqueteOrigen.getNombre();
+  }
+
   public Long getId() {
     return id;
   }
@@ -137,11 +171,11 @@ public class Evento {
     this.catering = catering;
   }
 
-  public List<ServicioAdicional> getServicioAdicionalsList() {
+  public List<ServicioAdicional> getServiciosAdicionales() {
     return servicioAdicionalesList;
   }
 
-  public void setServicioAdicionalsList(List<ServicioAdicional> servicioAdicionalesList) {
-    this.servicioAdicionalesList = servicioAdicionalesList;
+  public void setServiciosAdicionales(List<ServicioAdicional> serviciosAdicionales) {
+    this.servicioAdicionalesList = serviciosAdicionales;
   }
 }

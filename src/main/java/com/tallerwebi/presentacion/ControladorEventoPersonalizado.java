@@ -18,21 +18,20 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorEventoPersonalizado {
 
   private static final String EVENTO = "eventoPersonalizado";
-  private static final String USUARIO = "USUARIO";
   private static final String MODO = "modo";
-  private ServicioEventoPersonalizado servicioEventoPersonalizado;
+  private ServicioEvento servicioEvento;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
 
   @Autowired
   public ControladorEventoPersonalizado(
-    ServicioEventoPersonalizado servicioEventoPersonalizado,
+    ServicioEvento servicioEvento,
     ServicioSugerenciaServicios servicioSugerenciaServicios,
     ServicioConsultarPaquetesPredeterminados servicioPaquetes,
     ServicioDisponibilidadSalon servicioDisponibilidadSalon
   ) {
-    this.servicioEventoPersonalizado = servicioEventoPersonalizado;
+    this.servicioEvento = servicioEvento;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioPaquetes = servicioPaquetes;
     this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
@@ -46,12 +45,12 @@ public class ControladorEventoPersonalizado {
     Map<String, Object> modelo = new ModelMap();
     modelo.put(MODO, modo);
     modelo.put("paquetes", servicioPaquetes.consultarTodos());
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
     if (evento != null) {
       modelo.put("evento", evento);
       modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
-      modelo.put("caterings", servicioEventoPersonalizado.obtenerCaterings());
-      //      modelo.put("servicio", servicioEventoPersonalizado.obtenerServicioAdicionales());
+      modelo.put("caterings", servicioEvento.obtenerCaterings());
+      //      modelo.put("servicio", servicioEvento.obtenerServicioAdicionales());
       ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
@@ -86,14 +85,11 @@ public class ControladorEventoPersonalizado {
     @RequestParam("cantidadInvitados") Integer cantidadInvitados,
     HttpSession session
   ) {
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
     if (evento == null) {
-      session.setAttribute(
-        EVENTO,
-        servicioEventoPersonalizado.crearEvento(tipo, fecha, cantidadInvitados)
-      );
+      session.setAttribute(EVENTO, servicioEvento.crearEvento(tipo, fecha, cantidadInvitados));
     } else {
-      evento.setTipo(tipo);
+      evento.setTipoPaquete(tipo);
       evento.setFecha(fecha);
       evento.setCantidadInvitados(cantidadInvitados);
     }
@@ -102,19 +98,19 @@ public class ControladorEventoPersonalizado {
 
   @RequestMapping(value = "/evento-personalizado/salon", method = RequestMethod.POST)
   public ModelAndView elegirSalon(@RequestParam("id") Long id, HttpSession session) {
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEventoPersonalizado.elegirSalon(evento, id);
+      servicioEvento.elegirSalon(evento, id);
     }
     return volverAlEvento("salon", id);
   }
 
   @RequestMapping(value = "/evento-personalizado/catering", method = RequestMethod.POST)
   public ModelAndView elegirCatering(@RequestParam("id") Long id, HttpSession session) {
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
 
     if (evento != null) {
-      servicioEventoPersonalizado.elegirCatering(evento, id);
+      servicioEvento.elegirCatering(evento, id);
     }
 
     return volverAlEvento("catering", id);
@@ -122,45 +118,42 @@ public class ControladorEventoPersonalizado {
 
   @RequestMapping(value = "/evento-personalizado/servicio/agregar", method = RequestMethod.POST)
   public ModelAndView agregarServicio(@RequestParam("id") Long id, HttpSession session) {
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEventoPersonalizado.agregarServicio(evento, id);
+      servicioEvento.agregarServicio(evento, id);
     }
     return volverAlEvento("agregarServicio", id);
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/quitar", method = RequestMethod.POST)
   public ModelAndView quitarServicio(@RequestParam("id") Long id, HttpSession session) {
-    EventoPersonalizado evento = obtenerEvento(session);
+    Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEventoPersonalizado.quitarServicio(evento, id);
+      servicioEvento.quitarServicio(evento, id);
     }
     return volverAlEvento("quitarServicio", id);
   }
 
-  @RequestMapping(value = "/evento-personalizado/reservar", method = RequestMethod.POST)
-  public ModelAndView reservarEvento(HttpSession session) {
-    EventoPersonalizado evento = obtenerEvento(session);
-    Usuario user = obtenerUsuario(session);
-    if (evento == null) {
-      return volverAlEvento();
-    }
-
-    if (user == null) {
-      return new ModelAndView("redirect:/login");
-    }
-
-    if (evento.getSalon() == null || evento.getCatering() == null) {
-      return new ModelAndView("redirect:/evento-personalizado?error=incompleto");
-    }
-    return volverAlEvento();
-  }
+  //  @RequestMapping(value = "/evento-personalizado/reservar", method = RequestMethod.POST)
+  //  public ModelAndView reservarEvento(HttpSession session) {
+  //    Evento evento = obtenerEvento(session);
+  //    Usuario user = obtenerUsuario(session);
+  //    if (evento == null) {
+  //      return volverAlEvento();
+  //    }
+  //
+  //    if (user == null) {
+  //      return new ModelAndView("redirect:/login");
+  //    }
+  //
+  //    if (evento.getSalon() == null || evento.getCatering() == null) {
+  //      return new ModelAndView("redirect:/evento-personalizado?error=incompleto");
+  //    }
+  //    return volverAlEvento();
+  //  }
 
   // Solo se ofrecen los salones sin reserva activa en la fecha del evento.
-  private List<Salon> obtenerSalonesDisponibles(
-    EventoPersonalizado evento,
-    Map<String, Object> modelo
-  ) {
+  private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
     try {
       return servicioDisponibilidadSalon.obtenerSalonesDisponibles(
         evento.getFecha(),
@@ -172,12 +165,8 @@ public class ControladorEventoPersonalizado {
     }
   }
 
-  private EventoPersonalizado obtenerEvento(HttpSession sesion) {
-    return (EventoPersonalizado) sesion.getAttribute(EVENTO);
-  }
-
-  private Usuario obtenerUsuario(HttpSession session) {
-    return (Usuario) session.getAttribute(USUARIO);
+  private Evento obtenerEvento(HttpSession sesion) {
+    return (Evento) sesion.getAttribute(EVENTO);
   }
 
   private ModelAndView volverAlEvento() {

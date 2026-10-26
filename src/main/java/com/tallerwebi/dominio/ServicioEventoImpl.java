@@ -76,7 +76,7 @@ public class ServicioEventoImpl implements ServicioEvento {
   @Override
   public void quitarServicio(Evento evento, Long idServicio) {
     ServicioAdicional aQuitar = null;
-    for (ServicioAdicional servicio : evento.getServicioAdicionalsList()) {
+    for (ServicioAdicional servicio : evento.getServiciosAdicionales()) {
       if (servicio.getId().equals(idServicio)) {
         aQuitar = servicio;
       }
