@@ -13,6 +13,25 @@ import jakarta.persistence.OneToOne;
 @Entity
 public class Reserva {
 
+  public static final double PORCENTAJE_SENIA = 0.30;
+
+  public Reserva() {}
+
+  public Reserva(Usuario usuario, Evento evento, TipoPago tipoPago) {
+    this.usuario = usuario;
+    this.evento = evento;
+    this.tipoPago = tipoPago;
+    this.presupuesto = evento.calcularPresupuesto();
+
+    if (tipoPago == TipoPago.SENIA) {
+      this.estado = EstadoReserva.SENIADA;
+      this.montoAbonado = presupuesto * PORCENTAJE_SENIA;
+    } else {
+      this.estado = EstadoReserva.CONFIRMADA;
+      this.montoAbonado = presupuesto;
+    }
+  }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
