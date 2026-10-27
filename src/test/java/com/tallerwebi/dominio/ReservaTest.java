@@ -66,6 +66,11 @@ public class ReservaTest {
     assertThat(reserva.getEvento(), is(equalTo(evento)));
   }
 
+  @Test
+  void laSeniaDebeSerElTreintaPorCientoDelPresupuesto() {
+    assertThat(Reserva.calcularSenia(100000.0), is(closeTo(30000.0, 0.01)));
+  }
+
   private Evento dadoQueTengoUnEventoQueCuesta(Double precioSalon) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", precioSalon));

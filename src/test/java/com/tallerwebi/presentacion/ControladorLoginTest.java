@@ -150,4 +150,19 @@ public class ControladorLoginTest {
     // validacion
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/login"));
   }
+
+  @Test
+  public void loginCorrectoConDestinoGuardadoDeberiaLlevarAEseDestino() {
+    Usuario usuarioEncontradoMock = mock(Usuario.class);
+    when(requestMock.getSession()).thenReturn(sessionMock);
+    when(servicioLoginMock.consultarUsuario(anyString(), anyString()))
+      .thenReturn(usuarioEncontradoMock);
+    when(sessionMock.getAttribute(ControladorLogin.DESTINO_POST_LOGIN))
+      .thenReturn("/evento-personalizado");
+
+    ModelAndView modelAndView = controladorLogin.validarLogin(datosLoginMock, requestMock);
+
+    assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/evento-personalizado"));
+    verify(sessionMock).removeAttribute(ControladorLogin.DESTINO_POST_LOGIN);
+  }
 }

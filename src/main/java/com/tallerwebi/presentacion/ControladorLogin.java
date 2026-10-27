@@ -4,6 +4,7 @@ import com.tallerwebi.dominio.ServicioLogin;
 import com.tallerwebi.dominio.Usuario;
 import com.tallerwebi.dominio.excepcion.UsuarioExistente;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession; // NUEVO
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class ControladorLogin {
+
+  public static final String DESTINO_POST_LOGIN = "DESTINO_POST_LOGIN";
+  private static final String HOME = "/home-eventos";
 
   private ServicioLogin servicioLogin;
 
@@ -40,9 +44,10 @@ public class ControladorLogin {
       datosLogin.getPassword()
     );
     if (usuarioBuscado != null) {
-      request.getSession().setAttribute("ROL", usuarioBuscado.getRol());
-      request.getSession().setAttribute("USUARIO", usuarioBuscado); // linea nueva agregada para reservas
-      return new ModelAndView("redirect:/home-eventos");
+      HttpSession session = request.getSession();
+      session.setAttribute("ROL", usuarioBuscado.getRol());
+      session.setAttribute("USUARIO", usuarioBuscado);
+      return new ModelAndView("redirect:" + obtenerDestinoTrasLogin(session));
     } else {
       Map<String, Object> model = new ModelMap();
       model.put("error", "Usuario o clave incorrecta");
@@ -80,5 +85,13 @@ public class ControladorLogin {
   @RequestMapping(path = "/", method = RequestMethod.GET)
   public ModelAndView inicio() {
     return new ModelAndView("redirect:/login");
+  }
+
+  // si alguien nos mandó al login desde otra pantalla, vuelve ahí; si no, al home
+  // se borra apenas se lee para que valga una sola vez.
+  private String obtenerDestinoTrasLogin(HttpSession session) {
+    Object destino = session.getAttribute(DESTINO_POST_LOGIN);
+    session.removeAttribute(DESTINO_POST_LOGIN);
+    return destino instanceof String ruta ? ruta : HOME;
   }
 }

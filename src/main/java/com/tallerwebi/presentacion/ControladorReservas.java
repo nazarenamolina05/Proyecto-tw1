@@ -21,13 +21,40 @@ public class ControladorReservas {
 
   private static final String EVENTO = "eventoPersonalizado";
   private static final String USUARIO = "USUARIO";
-  private static final String VOLVER_AL_EVENTO = "redirect:/evento-personalizado";
+  private static final String RUTA_EVENTO = "/evento-personalizado"; // NUEVO
+  private static final String VOLVER_AL_EVENTO = "redirect:" + RUTA_EVENTO;
 
   private ServicioReserva servicioReserva;
 
   @Autowired
   public ControladorReservas(ServicioReserva servicioReserva) {
     this.servicioReserva = servicioReserva;
+  }
+
+  // muestra el formulario de datos + el ticket con el resumen
+  @RequestMapping(path = "/reservar", method = RequestMethod.GET)
+  public ModelAndView verResumenDeReserva(HttpServletRequest request) {
+    HttpSession session = request.getSession();
+
+    if (session.getAttribute(USUARIO) == null) {
+      return irAlLoginYVolverAlEvento(session);
+    }
+    if (!(session.getAttribute(EVENTO) instanceof Evento evento)) {
+      return new ModelAndView(VOLVER_AL_EVENTO);
+    }
+    if (!evento.isCompleto()) {
+      return new ModelAndView(VOLVER_AL_EVENTO + "?error=incompleto");
+    }
+
+    Double presupuesto = evento.calcularPresupuesto();
+    Map<String, Object> modelo = new ModelMap();
+    modelo.put("evento", evento);
+    modelo.put("presupuesto", presupuesto);
+    modelo.put("precioBase", evento.calcularPrecioBase());
+    modelo.put("adicional", evento.calcularAdicional());
+    modelo.put("montoSenia", Reserva.calcularSenia(presupuesto));
+    modelo.put("porcentajeSenia", (int) (Reserva.PORCENTAJE_SENIA * 100));
+    return new ModelAndView("reservar", modelo);
   }
 
   @RequestMapping(path = "/reservas", method = RequestMethod.POST)
@@ -39,7 +66,7 @@ public class ControladorReservas {
     Usuario usuario = (Usuario) session.getAttribute(USUARIO);
 
     if (usuario == null) {
-      return new ModelAndView("redirect:/login");
+      return irAlLoginYVolverAlEvento(session);
     }
     if (!(session.getAttribute(EVENTO) instanceof Evento evento)) {
       return new ModelAndView(VOLVER_AL_EVENTO);
@@ -72,5 +99,11 @@ public class ControladorReservas {
     List<Reserva> reservas = servicioReserva.obtenerReservasDe(usuarioLogueado);
     modelo.put("reservas", reservas);
     return new ModelAndView("reservas", modelo);
+  }
+
+  // deja anotado en la sesión a dónde volver y manda al login
+  private ModelAndView irAlLoginYVolverAlEvento(HttpSession session) {
+    session.setAttribute(ControladorLogin.DESTINO_POST_LOGIN, RUTA_EVENTO);
+    return new ModelAndView("redirect:/login");
   }
 }

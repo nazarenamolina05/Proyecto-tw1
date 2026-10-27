@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Reservar</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/css/home-eventos.css}"/>
+    <link rel="stylesheet" th:href="@{/css/evento-personalizado.css}"/>
+    <link rel="stylesheet" th:href="@{/css/reservar.css}"/>
+</head>
+<body>
+
+<header class="encabezado py-3">
+    <nav class="container d-flex justify-content-between align-items-center">
+        <a th:href="@{/home-eventos}" class="text-white text-decoration-none fw-bold">Eventos</a>
+        <a th:href="@{/mis-reservas}" class="text-white text-decoration-none">Mis reservas</a>
+    </nav>
+</header>
+
+<main class="container py-5">
+    <div class="linea-titulo mb-2"></div>
+    <h1 class="mb-4">Completá tu reserva</h1>
+
+    <div class="row g-4">
+        <!-- DATOS -->
+        <section class="col-12 col-lg-7">
+            <div class="reservar-card">
+                <h2 class="h5 fw-bold mb-3">Tus datos</h2>
+                <form id="form-reserva" th:action="@{/reservas}" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" class="form-control"
+                                   required maxlength="50" autocomplete="given-name"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="apellido" class="form-label">Apellido</label>
+                            <input type="text" id="apellido" name="apellido" class="form-control"
+                                   required maxlength="50" autocomplete="family-name"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="dni" class="form-label">DNI</label>
+                            <input type="text" id="dni" name="dni" class="form-control"
+                                   required inputmode="numeric" pattern="[0-9]{7,8}"
+                                   title="Ingresá tu DNI sin puntos (7 u 8 números)"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" class="form-control"
+                                   required pattern="[0-9 +()-]{8,20}" autocomplete="tel"/>
+                        </div>
+                        <div class="col-12">
+                            <label for="email" class="form-label">Mail</label>
+                            <input type="email" id="email" name="email" class="form-control"
+                                   required maxlength="100" autocomplete="email"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <a th:href="@{/evento-personalizado}" class="volver-evento d-inline-block mt-3">
+                ← Volver a modificar mi evento
+            </a>
+        </section>
+
+        <!-- TICKET -->
+        <aside class="col-12 col-lg-5">
+            <div class="ticket como-funciona rounded-4 p-4">
+                <h2 class="h5 fw-bold">Resumen de tu reserva</h2>
+                <p class="small mb-3">
+                    <span th:text="${evento.cantidadInvitados}">30</span> invitados ·
+                    <span th:text="${evento.fecha}">2026-11-15</span>
+                </p>
+
+                <ul class="list-unstyled resumen-lista mb-3">
+                    <li class="d-flex justify-content-between">
+                        <span th:text="${evento.salon.nombre}">Salón</span>
+                        <span th:text="'$ ' + ${#numbers.formatDecimal(evento.salon.precio, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <span th:text="${evento.catering.nombre}">Catering</span>
+                        <span th:text="'$ ' + ${#numbers.formatDecimal(evento.catering.precioPorPersona * evento.cantidadInvitados, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                    </li>
+                    <li class="d-flex justify-content-between" th:each="servicio : ${evento.serviciosAdicionales}">
+                        <span th:text="${servicio.nombre}">Servicio</span>
+                        <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                    </li>
+                </ul>
+
+                <hr class="ticket-corte"/>
+
+                <small class="text-uppercase">Total</small>
+                <div class="ticket-total mb-2"
+                     th:text="'$ ' + ${#numbers.formatDecimal(presupuesto, 0, 'POINT', 0, 'COMMA')}">$ 0</div>
+                <div class="d-flex justify-content-between small">
+                    <span>Seña (<span th:text="${porcentajeSenia}">30</span>%)</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(montoSenia, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                </div>
+
+                <button type="submit" form="form-reserva" name="tipoPago" value="TOTAL"
+                        class="btn btn-buscar w-100 rounded-pill py-2 mt-4 mb-2">
+                    Pagar el total
+                </button>
+                <button type="submit" form="form-reserva" name="tipoPago" value="SENIA"
+                        class="btn btn-senar w-100 rounded-pill py-2">
+                    Señar el <span th:text="${porcentajeSenia}">30</span>%
+                </button>
+            </div>
+        </aside>
+    </div>
+</main>
+</body>
+</html>

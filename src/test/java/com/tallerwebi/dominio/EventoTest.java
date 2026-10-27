@@ -204,6 +204,23 @@ public class EventoTest {
     assertThat(evento.getNombre(), is(equalTo("Evento personalizado")));
   }
 
+  @Test
+  public void unEventoConSalonYCateringDebeEstarCompleto() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
+    evento.setCatering(new Catering("Catering Basico", 1500.0));
+
+    assertTrue(evento.isCompleto());
+  }
+
+  @Test
+  public void unEventoSinCateringNoDebeEstarCompleto() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
+
+    assertFalse(evento.isCompleto());
+  }
+
   private Evento dadoQueTengoUnEventoDesdeElPaqueteBasico() {
     Salon salon = new Salon("Salon Los Alamos", 50000.0);
     Catering catering = new Catering("Catering Basico", 1500.0);
