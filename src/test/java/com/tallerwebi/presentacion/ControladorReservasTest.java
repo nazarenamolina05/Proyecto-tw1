@@ -1,7 +1,9 @@
 package com.tallerwebi.presentacion;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -106,5 +108,62 @@ public class ControladorReservasTest {
     ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=incompleto"));
+  }
+
+  @Test
+  void alVerLaReservaSinUsuarioDeberiaRedirigirAlLogin() {
+    ModelAndView mav = controlador.verResumenDeReserva(requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/login"));
+  }
+
+  @Test
+  void alVerLaReservaSinEventoEnSesionDeberiaVolverAlArmadoDelEvento() {
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+
+    ModelAndView mav = controlador.verResumenDeReserva(requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
+  }
+
+  @Test
+  void alVerLaReservaConEventoIncompletoDeberiaVolverConElError() {
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+    when(sessionMock.getAttribute(EVENTO))
+      .thenReturn(new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30));
+
+    ModelAndView mav = controlador.verResumenDeReserva(requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=incompleto"));
+  }
+
+  @Test
+  void alVerLaReservaConEventoCompletoDeberiaMostrarElResumenConLaSenia() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
+    evento.setCatering(new Catering("Catering Basico", 5000.0));
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+    when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
+
+    ModelAndView mav = controlador.verResumenDeReserva(requestMock);
+
+    assertThat(mav.getViewName(), equalTo("reservar"));
+    assertThat(mav.getModel().get("evento"), equalTo(evento));
+    assertThat((Double) mav.getModel().get("presupuesto"), is(closeTo(200000.0, 0.01)));
+    assertThat((Double) mav.getModel().get("montoSenia"), is(closeTo(60000.0, 0.01)));
+  }
+
+  @Test
+  void siNoHayUsuarioAlReservarDeberiaGuardarElEventoComoDestinoTrasElLogin() {
+    controlador.reservar(TipoPago.SENIA, requestMock);
+
+    verify(sessionMock).setAttribute(ControladorLogin.DESTINO_POST_LOGIN, "/evento-personalizado");
+  }
+
+  @Test
+  void siNoHayUsuarioAlVerLaReservaDeberiaGuardarElEventoComoDestinoTrasElLogin() {
+    controlador.verResumenDeReserva(requestMock);
+
+    verify(sessionMock).setAttribute(ControladorLogin.DESTINO_POST_LOGIN, "/evento-personalizado");
   }
 }

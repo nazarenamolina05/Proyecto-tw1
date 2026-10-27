@@ -17,6 +17,10 @@ public class Reserva {
 
   public Reserva() {}
 
+  public static Double calcularSenia(Double presupuesto) {
+    return presupuesto * PORCENTAJE_SENIA;
+  }
+
   public Reserva(Usuario usuario, Evento evento, TipoPago tipoPago) {
     this.usuario = usuario;
     this.evento = evento;
@@ -25,7 +29,7 @@ public class Reserva {
 
     if (tipoPago == TipoPago.SENIA) {
       this.estado = EstadoReserva.SENIADA;
-      this.montoAbonado = presupuesto * PORCENTAJE_SENIA;
+      this.montoAbonado = calcularSenia(presupuesto);
     } else {
       this.estado = EstadoReserva.CONFIRMADA;
       this.montoAbonado = presupuesto;

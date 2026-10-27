@@ -115,6 +115,10 @@ public class Evento {
     return paqueteOrigen.getNombre();
   }
 
+  public boolean isCompleto() {
+    return salon != null && catering != null;
+  }
+
   public Long getId() {
     return id;
   }

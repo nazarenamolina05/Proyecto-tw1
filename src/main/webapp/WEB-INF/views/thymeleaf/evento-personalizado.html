@@ -305,21 +305,15 @@
                                     </div>
                                 </div>
                                 <div class="mt-4">
-                                    <form th:action="@{/reservas}" method="post">
-                                        <button type="submit" name="tipoPago" value="SENIA"
-                                                class="btn btn-buscar w-100 rounded-pill py-2 mb-2"
-                                                th:disabled="${evento.salon == null or evento.catering == null}">
-                                            Señar el
-                                            <span th:text="${#numbers.formatDecimal(T(com.tallerwebi.dominio.Reserva).PORCENTAJE_SENIA * 100, 0, 0)}">30</span>%
-                                        </button>
-                                        <button type="submit" name="tipoPago" value="TOTAL"
-                                                class="btn btn-outline-light w-100 rounded-pill py-2"
-                                                th:disabled="${evento.salon == null or evento.catering == null}">
-                                            Pagar el total
+                                    <form th:action="@{/reservar}" method="get">
+                                        <button type="submit"
+                                                class="btn btn-buscar w-100 rounded-pill py-2"
+                                                th:disabled="${!evento.completo}">
+                                            Reservar
                                         </button>
                                     </form>
 
-                                    <p class="small mt-2 mb-0" th:if="${evento.salon == null or evento.catering == null}">
+                                    <p class="small mt-2 mb-0" th:unless="${evento.completo}">
                                         Elegí un salón y un catering para poder reservar.
                                     </p>
                                     <p class="small mt-2 mb-0 text-warning" th:if="${param.error != null}"
