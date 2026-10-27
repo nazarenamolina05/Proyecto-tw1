@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -55,6 +57,8 @@ public class ControladorEventoPersonalizado {
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
       modelo.put("presupuesto", evento.calcularPresupuesto());
+      modelo.put("precioBase", evento.calcularPrecioBase());
+      modelo.put("adicional", evento.calcularAdicional());
       modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
       modelo.put(
         "cateringElegidoId",
@@ -161,8 +165,28 @@ public class ControladorEventoPersonalizado {
       );
     } catch (FechaInvalida excepcion) {
       modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
-      return List.of();
+      // Sin fecha válida no sabemos qué salones están libres,
+      // pero si el evento ya trae uno (el del paquete) lo seguimos mostrando.
+      return evento.getSalon() == null ? List.of() : List.of(evento.getSalon());
     }
+  }
+
+  @RequestMapping(value = "/evento-personalizado/paquete/{id}", method = RequestMethod.GET)
+  public ModelAndView modificarPaquete(@PathVariable("id") Long id, HttpSession session) {
+    try {
+      Paquete paquete = servicioPaquetes.consultarPorId(id);
+      Evento anterior = obtenerEvento(session);
+
+      LocalDate fecha = anterior == null ? null : anterior.getFecha();
+      Integer invitados = anterior == null
+        ? paquete.getSalon().getCapacidad()
+        : anterior.getCantidadInvitados();
+
+      session.setAttribute(EVENTO, paquete.crearEvento(paquete.getTipo(), fecha, invitados));
+    } catch (PaqueteNoEncontrado e) {
+      return new ModelAndView("redirect:/home-eventos");
+    }
+    return volverAlEvento();
   }
 
   private Evento obtenerEvento(HttpSession sesion) {
