@@ -71,7 +71,7 @@
             <div class="col-12 col-md-6 col-lg-4"
                  th:each="paquete : ${paquetes}">
 
-                <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, ${paquete.predeterminado} ? 'ver-mas' : 'sin-detalle', true)}"></th:block>
+                <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, ${paquete.predeterminado} ? 'acciones' : 'sin-detalle', true)}"></th:block>
 
             </div>
 

@@ -287,6 +287,17 @@
                                             <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
                                         </li>
                                     </ul>
+                                    <div th:if="${evento.paqueteOrigen != null}" class="mb-3">
+                                        <hr class="my-2"/>
+                                        <div class="d-flex justify-content-between small">
+                                            <span>Paquete <span th:text="${evento.nombre}">Básico</span></span>
+                                            <span th:text="'$ ' + ${#numbers.formatDecimal(precioBase, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span>Adicional</span>
+                                            <span th:text="'+ $ ' + ${#numbers.formatDecimal(adicional, 0, 'POINT', 0, 'COMMA')}">+ $ 0</span>
+                                        </div>
+                                    </div>
 
                                     <small class="text-uppercase">Presupuesto total</small>
                                     <div class="resumen-total">$ <span

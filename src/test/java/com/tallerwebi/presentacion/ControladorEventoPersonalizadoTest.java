@@ -18,12 +18,14 @@ import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControladorEventoPersonalizadoTest {
@@ -137,6 +139,28 @@ public class ControladorEventoPersonalizadoTest {
   }
 
   @Test
+  public void conFechaInvalidaPeroConSalonDelPaqueteMuestraSoloEseSalon() {
+    Salon salonDelPaquete = mock(Salon.class);
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
+
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+    when(evento.getFecha()).thenReturn(null);
+    when(evento.getSalon()).thenReturn(salonDelPaquete);
+    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(null, null))
+      .thenThrow(new FechaInvalida());
+
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
+
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
+
+    assertThat(mav.getModel().get("salones"), equalTo(List.of(salonDelPaquete)));
+    assertThat(mav.getModel().get("errorFecha"), notNullValue());
+  }
+
+  @Test
   public void conSalonYCateringElegidosPasaSusIdsALaVista() {
     Salon salon = mock(Salon.class); // ajustá el tipo si tu clase se llama distinto
     Catering catering = mock(Catering.class);
@@ -156,6 +180,25 @@ public class ControladorEventoPersonalizadoTest {
 
     assertThat(mav.getModel().get("salonElegidoId"), equalTo(1L));
     assertThat(mav.getModel().get("cateringElegidoId"), equalTo(2L));
+  }
+
+  @Test
+  public void conEventoDePaqueteCargaPrecioBaseYAdicionalEnElModelo() {
+    ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+    when(evento.getFecha()).thenReturn(LocalDate.now().plusDays(10));
+    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(evento.calcularPrecioBase()).thenReturn(165000.0);
+    when(evento.calcularAdicional()).thenReturn(30000.0);
+
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
+    when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
+    when(clasificadosMock.getRestantes()).thenReturn(new ArrayList<>());
+
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
+
+    assertThat(mav.getModel().get("precioBase"), equalTo(165000.0));
+    assertThat(mav.getModel().get("adicional"), equalTo(30000.0));
   }
 
   // ---------- POST /evento-personalizado ----------
@@ -214,6 +257,45 @@ public class ControladorEventoPersonalizadoTest {
     controlador.elegirSalon(1L, sesion);
 
     verify(servicio, never()).elegirSalon(any(), anyLong());
+  }
+
+  @Test
+  public void modificarUnPaqueteGuardaEnSesionUnEventoConLoQueIncluyeElPaquete() {
+    Salon salon = new Salon("Salon Los Alamos", 50000.0);
+    salon.setCapacidad(50);
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    Paquete paquete = new Paquete(
+      1L,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      new ArrayList<>(),
+      165000.0
+    );
+    when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
+    when(sesion.getAttribute(EVENTO)).thenReturn(null);
+
+    ModelAndView mav = controlador.modificarPaquete(1L, sesion);
+
+    ArgumentCaptor<Evento> captor = ArgumentCaptor.forClass(Evento.class);
+    verify(sesion).setAttribute(eq(EVENTO), captor.capture());
+    Evento cargado = captor.getValue();
+    assertThat(cargado.getPaqueteOrigen(), sameInstance(paquete));
+    assertThat(cargado.getSalon(), sameInstance(salon));
+    assertThat(cargado.getCatering(), sameInstance(catering));
+    assertThat(cargado.getCantidadInvitados(), equalTo(50));
+    assertThat(mav.getViewName(), startsWith("redirect:/evento-personalizado"));
+  }
+
+  @Test
+  public void modificarUnPaqueteInexistenteVuelveAlHomeSinTocarLaSesion() {
+    when(servicioPaquetes.consultarPorId(99L)).thenThrow(new PaqueteNoEncontrado());
+
+    ModelAndView mav = controlador.modificarPaquete(99L, sesion);
+
+    verify(sesion, never()).setAttribute(eq(EVENTO), any());
+    assertThat(mav.getViewName(), equalTo("redirect:/home-eventos"));
   }
 
   // ---------- Catering ----------
