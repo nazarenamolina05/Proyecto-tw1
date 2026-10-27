@@ -1,0 +1,12 @@
+<div xmlns:th="http://www.thymeleaf.org"
+     th:fragment="aviso(icono, titulo, resaltado, texto)"
+     class="aviso-modificar">
+    <span class="aviso-icono" th:text="${icono}">&#9998;</span>
+    <div>
+        <h2 class="aviso-titulo">
+            <span th:text="${titulo}">Título</span>
+            <span class="aviso-paquete" th:if="${resaltado != null}" th:text="${resaltado}">Básico</span>
+        </h2>
+        <p class="aviso-texto" th:text="${texto}">Texto</p>
+    </div>
+</div>

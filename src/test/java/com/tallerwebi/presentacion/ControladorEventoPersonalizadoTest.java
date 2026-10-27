@@ -411,4 +411,12 @@ public class ControladorEventoPersonalizadoTest {
     verify(sesion, never()).setAttribute(eq(EVENTO), any());
     verify(sesion).setAttribute(ERROR_PAQUETE, "Este paquete permite hasta 50 invitados.");
   }
+
+  @Test
+  public void alEmpezarDeCeroLimpiaElEventoYElPaquetePendiente() {
+    ModelAndView mav = controlador.volverAEmpezar("desde-cero", sesion);
+
+    verify(sesion).removeAttribute(EVENTO);
+    verify(sesion).removeAttribute(PAQUETE_PENDIENTE);
+  }
 }

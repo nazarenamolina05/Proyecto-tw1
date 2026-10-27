@@ -94,6 +94,7 @@ public class ControladorEventoPersonalizado {
     HttpSession session
   ) {
     session.removeAttribute(EVENTO);
+    session.removeAttribute(PAQUETE_PENDIENTE);
     return volverAlEvento(MODO, modo);
   }
 
