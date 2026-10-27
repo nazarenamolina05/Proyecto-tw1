@@ -49,3 +49,71 @@ body {
     font-weight: 800;
     line-height: 1.1;
 }
+
+.paquete-seleccionado {
+    position: relative;
+}
+
+.paquete-seleccionado .pack-card {
+    border-color: #6d3fd6;
+    box-shadow:
+            0 0 0 3px rgba(109, 63, 214, 0.35),
+            0 14px 34px -14px rgba(109, 63, 214, 0.55);
+}
+
+.paquete-seleccionado::before {
+    content: "Modificando";
+    position: absolute;
+    top: -10px;
+    left: 28px;
+    z-index: 2;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: #6d3fd6;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.aviso-modificar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #f3eeff 0%, #ffffff 100%);
+    border: 1px solid #e2d6fb;
+    border-left: 6px solid #6d3fd6;
+    box-shadow: 0 10px 30px -18px rgba(109, 63, 214, 0.5);
+}
+
+.aviso-icono {
+    flex: 0 0 auto;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #6d3fd6;
+    color: #fff;
+    font-size: 1.2rem;
+}
+
+.aviso-titulo {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1052;
+}
+
+.aviso-paquete {
+    color: #6d3fd6;
+}
+
+.aviso-texto {
+    margin: 2px 0 0;
+    font-size: 0.95rem;
+    color: #6b6390;
+}

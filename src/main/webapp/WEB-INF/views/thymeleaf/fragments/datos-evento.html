@@ -1,0 +1,44 @@
+<form xmlns:th="http://www.thymeleaf.org"
+      th:fragment="datosEvento(evento, paqueteId)"
+      th:action="@{/evento-personalizado}" method="post"
+      class="row g-3 mt-3 bg-white text-dark p-3 rounded-4 hero-search">
+
+    <input type="hidden" name="paqueteId" th:if="${paqueteId != null}" th:value="${paqueteId}"/>
+
+    <div class="col-12 col-lg-3">
+        <label for="tipo" class="form-label">Tipo de evento</label>
+        <select id="tipo" name="tipo" class="form-select" required>
+            <option value="">Seleccioná una opción</option>
+            <option value="CASAMIENTO"
+                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CASAMIENTO'}">Casamiento
+            </option>
+            <option value="FIESTA_DE_15"
+                    th:selected="${evento != null and evento.tipoPaquete.name() == 'FIESTA_DE_15'}">Fiesta de 15
+            </option>
+            <option value="CUMPLEANIOS"
+                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CUMPLEANIOS'}">Cumpleaños
+            </option>
+            <option value="EMPRESARIAL"
+                    th:selected="${evento != null and evento.tipoPaquete.name() == 'EMPRESARIAL'}">Empresarial
+            </option>
+        </select>
+    </div>
+
+    <div class="col-12 col-lg-3">
+        <label for="fecha" class="form-label">Fecha</label>
+        <input id="fecha" name="fecha" type="date" class="form-control" required
+               th:value="${evento != null ? evento.fecha : ''}"/>
+    </div>
+
+    <div class="col-12 col-lg-3">
+        <label for="cantidadInvitados" class="form-label">Invitados</label>
+        <input id="cantidadInvitados" name="cantidadInvitados" type="number" min="1"
+               class="form-control" required
+               th:value="${evento != null ? evento.cantidadInvitados : ''}"/>
+    </div>
+    <div class="col-12 col-lg-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-buscar w-100 rounded-pill"
+                th:text="${evento == null} ? 'Comenzar' : 'Actualizar datos'">Comenzar
+        </button>
+    </div>
+</form>

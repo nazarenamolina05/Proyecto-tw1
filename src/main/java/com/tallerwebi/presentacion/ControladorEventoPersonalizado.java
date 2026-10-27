@@ -3,6 +3,7 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
+import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,22 +22,27 @@ public class ControladorEventoPersonalizado {
 
   private static final String EVENTO = "eventoPersonalizado";
   private static final String MODO = "modo";
+  private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
+  private static final String ERROR_PAQUETE = "errorPaquete";
   private ServicioEvento servicioEvento;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
+  private ServicioValidarSeleccionPaquete servicioValidacion;
 
   @Autowired
   public ControladorEventoPersonalizado(
     ServicioEvento servicioEvento,
     ServicioSugerenciaServicios servicioSugerenciaServicios,
     ServicioConsultarPaquetesPredeterminados servicioPaquetes,
-    ServicioDisponibilidadSalon servicioDisponibilidadSalon
+    ServicioDisponibilidadSalon servicioDisponibilidadSalon,
+    ServicioValidarSeleccionPaquete servicioValidacion
   ) {
     this.servicioEvento = servicioEvento;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioPaquetes = servicioPaquetes;
     this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
+    this.servicioValidacion = servicioValidacion;
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
@@ -48,6 +54,15 @@ public class ControladorEventoPersonalizado {
     modelo.put(MODO, modo);
     modelo.put("paquetes", servicioPaquetes.consultarTodos());
     Evento evento = obtenerEvento(session);
+    Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
+    if (evento == null && pendiente != null) {
+      modelo.put("paqueteSeleccionadoId", pendiente);
+    }
+    Object errorPaquete = session.getAttribute(ERROR_PAQUETE);
+    if (errorPaquete != null) {
+      modelo.put("errorPaquete", errorPaquete);
+      session.removeAttribute(ERROR_PAQUETE);
+    }
     if (evento != null) {
       modelo.put("evento", evento);
       modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
@@ -96,6 +111,31 @@ public class ControladorEventoPersonalizado {
       evento.setTipoPaquete(tipo);
       evento.setFecha(fecha);
       evento.setCantidadInvitados(cantidadInvitados);
+    }
+    return volverAlEvento();
+  }
+
+  @RequestMapping(
+    value = "/evento-personalizado",
+    method = RequestMethod.POST,
+    params = "paqueteId"
+  )
+  public ModelAndView modificarPaqueteConDatos(
+    @RequestParam("paqueteId") Long paqueteId,
+    @RequestParam("tipo") TipoPaquete tipo,
+    @RequestParam("fecha") LocalDate fecha,
+    @RequestParam("cantidadInvitados") Integer cantidadInvitados,
+    HttpSession session
+  ) {
+    try {
+      servicioValidacion.validar(paqueteId, tipo, fecha, cantidadInvitados);
+      Paquete paquete = servicioPaquetes.consultarPorId(paqueteId);
+      session.setAttribute(EVENTO, paquete.crearEvento(tipo, fecha, cantidadInvitados));
+      session.removeAttribute(PAQUETE_PENDIENTE);
+    } catch (SeleccionInvalida e) {
+      session.setAttribute(ERROR_PAQUETE, e.getMessage());
+    } catch (PaqueteNoEncontrado e) {
+      return new ModelAndView("redirect:/home-eventos");
     }
     return volverAlEvento();
   }
@@ -174,18 +214,12 @@ public class ControladorEventoPersonalizado {
   @RequestMapping(value = "/evento-personalizado/paquete/{id}", method = RequestMethod.GET)
   public ModelAndView modificarPaquete(@PathVariable("id") Long id, HttpSession session) {
     try {
-      Paquete paquete = servicioPaquetes.consultarPorId(id);
-      Evento anterior = obtenerEvento(session);
-
-      LocalDate fecha = anterior == null ? null : anterior.getFecha();
-      Integer invitados = anterior == null
-        ? paquete.getSalon().getCapacidad()
-        : anterior.getCantidadInvitados();
-
-      session.setAttribute(EVENTO, paquete.crearEvento(paquete.getTipo(), fecha, invitados));
+      servicioPaquetes.consultarPorId(id);
     } catch (PaqueteNoEncontrado e) {
       return new ModelAndView("redirect:/home-eventos");
     }
+    session.removeAttribute(EVENTO);
+    session.setAttribute(PAQUETE_PENDIENTE, id);
     return volverAlEvento();
   }
 

@@ -25,52 +25,13 @@
 
     <main>
         <!-- DATOS DEL EVENTO -->
-        <section class="hero py-5">
+        <section class="hero py-5" th:unless="${paqueteSeleccionadoId != null}">
             <div class="container">
                 <h1 class="fs-2 fw-bold">Armá tu evento personalizado</h1>
                 <p class="mt-2 mb-0">Elegí cada componente y mirá cómo se actualiza el presupuesto.</p>
 
-                <form th:action="@{/evento-personalizado}" method="post"
-                      class="row g-3 mt-3 bg-white text-dark p-3 rounded-4 hero-search">
+                <th:block th:replace="~{fragments/datos-evento :: datosEvento(${evento}, null)}"></th:block>
 
-                    <div class="col-12 col-lg-3">
-                        <label for="tipo" class="form-label">Tipo de evento</label>
-                        <select id="tipo" name="tipo" class="form-select" required>
-                            <option value="">Seleccioná una opción</option>
-                            <option value="CASAMIENTO"
-                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CASAMIENTO'}">Casamiento
-                            </option>
-                            <option value="FIESTA_DE_15"
-                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'FIESTA_DE_15'}">Fiesta de 15
-                            </option>
-                            <option value="CUMPLEANIOS"
-                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'CUMPLEANIOS'}">Cumpleaños
-                            </option>
-                            <option value="EMPRESARIAL"
-                                    th:selected="${evento != null and evento.tipoPaquete.name() == 'EMPRESARIAL'}">Empresarial
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="col-12 col-lg-3">
-                        <label for="fecha" class="form-label">Fecha</label>
-                        <input id="fecha" name="fecha" type="date" class="form-control" required
-                               th:value="${evento != null ? evento.fecha : ''}"/>
-                    </div>
-
-                    <div class="col-12 col-lg-3">
-                        <label for="cantidadInvitados" class="form-label">Invitados</label>
-                        <input id="cantidadInvitados" name="cantidadInvitados" type="number" min="1"
-                               class="form-control" required
-                               th:value="${evento != null ? evento.cantidadInvitados : ''}"/>
-                    </div>
-
-                    <div class="col-12 col-lg-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-buscar w-100 rounded-pill"
-                                th:text="${evento == null} ? 'Comenzar' : 'Actualizar datos'">Comenzar
-                        </button>
-                    </div>
-                </form>
                 <div th:if="${errorFecha != null}" class="alert alert-warning mt-3 mb-0" role="alert"
                      th:text="${errorFecha}">
                     Elegí una fecha posterior a hoy.
@@ -81,11 +42,18 @@
         <!-- PAQUETES PREDETERMINADOS -->
         <section class="seccion-clara pt-5">
             <div class="container">
-                <details th:open="${modo == 'predefinidos' and evento == null}">
+                <details th:with="resaltadoId=${paqueteSeleccionadoId != null
+                                          ? paqueteSeleccionadoId
+                                          : (evento != null and evento.paqueteOrigen != null ? evento.paqueteOrigen.id : null)}"
+                         th:open="${(modo == 'predefinidos' and evento == null) or resaltadoId != null}">
                     <summary class="fw-bold fs-4 mb-3">Paquetes predeterminados</summary>
 
+                    <!-- DEBUG TEMPORAL: borrar cuando se vean las cards -->
+                    <p class="small text-muted" th:text="'DEBUG paquetes: ' + ${#lists.size(paquetes)}">DEBUG</p>
+
                     <div class="row g-4 mt-1">
-                        <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
+                        <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}"
+                             th:classappend="${paquete.id == resaltadoId} ? 'paquete-seleccionado'">
                             <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'acciones', false)}"></th:block>
                         </div>
                     </div>
@@ -93,8 +61,37 @@
             </div>
         </section>
 
+        <!-- AVISO (solo con paquete pendiente) -->
+        <section class="seccion-clara pt-4" th:if="${paqueteSeleccionadoId != null}">
+            <div class="container">
+                <div class="aviso-modificar">
+                    <span class="aviso-icono">&#9998;</span>
+                    <div>
+                        <h2 class="aviso-titulo">
+                            Vas a modificar el paquete
+                            <span class="aviso-paquete" th:each="p : ${paquetes}"
+                                  th:if="${p.id == paqueteSeleccionadoId}" th:text="${p.nombre}">Básico</span>
+                        </h2>
+                        <p class="aviso-texto">
+                            Antes de hacer cambios, contanos el tipo de evento, la fecha y la cantidad de
+                            invitados. Con eso vemos que el salón esté libre y te mostramos el paquete completo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORMULARIO (solo con paquete pendiente) -->
+        <section class="hero py-4" th:if="${paqueteSeleccionadoId != null}">
+            <div class="container">
+                <div th:if="${errorPaquete != null}" class="alert alert-warning mb-0" role="alert"
+                     th:text="${errorPaquete}">Error</div>
+                <th:block th:replace="~{fragments/datos-evento :: datosEvento(null, ${paqueteSeleccionadoId})}"></th:block>
+            </div>
+        </section>
+
         <!-- SIN EVENTO TODAVÍA -->
-        <section class="seccion-clara py-5" th:if="${evento == null}">
+        <section class="seccion-clara py-5" th:if="${evento == null and paqueteSeleccionadoId == null}">
             <div class="container text-center">
                 <p class="mb-0">Completá el tipo de evento, la fecha y la cantidad de invitados para ver salones, catering y
                     servicios.</p>
