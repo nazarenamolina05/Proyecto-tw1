@@ -452,3 +452,181 @@ html, body {
     transform: translateY(-2px);
     box-shadow: 0 14px 26px -8px rgba(109, 63, 214, 0.75);
 }
+
+/* ============================================
+   BOTONES GRANDES DEL INICIO (CTA)
+   ============================================ */
+
+.cta-boton {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    height: 100%;
+    padding: 1.25rem 1.5rem;
+    border: 2px solid transparent;
+    border-radius: 1.25rem;
+    text-decoration: none;
+    transition:
+            transform 0.25s ease,
+            box-shadow 0.25s ease,
+            background 0.25s ease,
+            color 0.25s ease,
+            border-color 0.25s ease;
+}
+
+.cta-icono {
+    flex: 0 0 auto;
+    width: 56px;
+    height: 56px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    font-size: 1.6rem;
+    transition: background 0.25s ease, color 0.25s ease;
+}
+
+.cta-texto {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.cta-titulo {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.cta-subtitulo {
+    margin-top: 0.2rem;
+    font-size: 0.9rem;
+    transition: color 0.25s ease;
+}
+
+.cta-flecha {
+    flex: 0 0 auto;
+    font-size: 1.7rem;
+    font-weight: 700;
+    transition: transform 0.25s ease;
+}
+
+.cta-boton:hover {
+    transform: translateY(-4px);
+}
+
+.cta-boton:hover .cta-flecha {
+    transform: translateX(6px);
+}
+
+.cta-boton:active {
+    transform: translateY(-1px) scale(0.99);
+}
+
+.cta-boton:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+}
+
+/* ---------- Principal: pre-definidos ---------- */
+.cta-principal {
+    background: linear-gradient(90deg, #ff5c8a, #ff8a65);
+    color: #fff;
+    box-shadow: 0 16px 32px -12px rgba(255, 92, 138, 0.75);
+}
+
+.cta-principal .cta-icono {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+
+.cta-principal .cta-subtitulo {
+    color: rgba(255, 255, 255, 0.92);
+}
+
+.cta-principal:hover {
+    color: #fff;
+    box-shadow: 0 22px 40px -12px rgba(255, 92, 138, 0.9);
+}
+
+/* ---------- Secundario: desde cero (neón) ---------- */
+.cta-secundario {
+    background: linear-gradient(90deg, #00e5ff, #5cffc8);
+    border-color: #b8fbff;
+    color: #0b0638;
+    box-shadow:
+            0 0 14px rgba(0, 229, 255, 0.6),
+            0 16px 36px -12px rgba(0, 229, 255, 0.7);
+    animation: cta-neon 2.4s ease-in-out infinite;
+}
+
+.cta-secundario .cta-icono {
+    background: #0b0638;
+    color: #00e5ff;
+}
+
+.cta-secundario .cta-subtitulo {
+    color: rgba(11, 6, 56, 0.8);
+    font-weight: 500;
+}
+
+.cta-secundario:hover {
+    background: linear-gradient(90deg, #5cffc8, #00e5ff);
+    color: #0b0638;
+    animation: none;
+    box-shadow:
+            0 0 28px rgba(0, 229, 255, 0.95),
+            0 22px 44px -12px rgba(0, 229, 255, 0.9);
+}
+
+.cta-secundario:hover .cta-icono {
+    background: #0b0638;
+    color: #5cffc8;
+}
+
+.cta-secundario:hover .cta-subtitulo {
+    color: rgba(11, 6, 56, 0.85);
+}
+
+@keyframes cta-neon {
+    0%, 100% {
+        box-shadow:
+                0 0 10px rgba(0, 229, 255, 0.45),
+                0 16px 36px -12px rgba(0, 229, 255, 0.55);
+    }
+    50% {
+        box-shadow:
+                0 0 24px rgba(0, 229, 255, 0.9),
+                0 16px 36px -12px rgba(0, 229, 255, 0.8);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-secundario {
+        animation: none;
+    }
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 575px) {
+    .cta-boton {
+        padding: 1rem 1.1rem;
+    }
+
+    .cta-icono {
+        width: 46px;
+        height: 46px;
+        font-size: 1.3rem;
+    }
+
+    .cta-titulo {
+        font-size: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-boton,
+    .cta-flecha {
+        transition: none;
+    }
+}

@@ -25,7 +25,7 @@
 
     <main>
         <!-- DATOS DEL EVENTO -->
-        <section class="hero py-5" th:unless="${paqueteSeleccionadoId != null}">
+        <section class="hero py-5" th:if="${evento != null}">
             <div class="container">
                 <h1 class="fs-2 fw-bold">Armá tu evento personalizado</h1>
                 <p class="mt-2 mb-0">Elegí cada componente y mirá cómo se actualiza el presupuesto.</p>
@@ -48,9 +48,6 @@
                          th:open="${(modo == 'predefinidos' and evento == null) or resaltadoId != null}">
                     <summary class="fw-bold fs-4 mb-3">Paquetes predeterminados</summary>
 
-                    <!-- DEBUG TEMPORAL: borrar cuando se vean las cards -->
-                    <p class="small text-muted" th:text="'DEBUG paquetes: ' + ${#lists.size(paquetes)}">DEBUG</p>
-
                     <div class="row g-4 mt-1">
                         <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}"
                              th:classappend="${paquete.id == resaltadoId} ? 'paquete-seleccionado'">
@@ -61,28 +58,28 @@
             </div>
         </section>
 
-        <!-- AVISO (solo con paquete pendiente) -->
-        <section class="seccion-clara pt-4" th:if="${paqueteSeleccionadoId != null}">
+
+        <!-- AVISO: se ve mientras no haya evento (modificando un paquete o desde cero) -->
+        <section class="seccion-clara pt-4" th:if="${evento == null}">
             <div class="container">
-                <div class="aviso-modificar">
-                    <span class="aviso-icono">&#9998;</span>
-                    <div>
-                        <h2 class="aviso-titulo">
-                            Vas a modificar el paquete
-                            <span class="aviso-paquete" th:each="p : ${paquetes}"
-                                  th:if="${p.id == paqueteSeleccionadoId}" th:text="${p.nombre}">Básico</span>
-                        </h2>
-                        <p class="aviso-texto">
-                            Antes de hacer cambios, contanos el tipo de evento, la fecha y la cantidad de
-                            invitados. Con eso vemos que el salón esté libre y te mostramos el paquete completo.
-                        </p>
-                    </div>
-                </div>
+
+                <!-- Modificando un paquete -->
+                <th:block th:if="${paqueteSeleccionadoId != null}">
+                    <th:block th:each="p : ${paquetes}" th:if="${p.id == paqueteSeleccionadoId}">
+                        <th:block th:replace="~{fragments/aviso-evento :: aviso('&#9998;', 'Vas a modificar el paquete', ${p.nombre}, 'Antes de hacer cambios, contanos el tipo de evento, la fecha y la cantidad de invitados. Con eso vemos que el salón esté libre y te mostramos el paquete completo.')}"></th:block>
+                    </th:block>
+                </th:block>
+
+                <!-- Desde cero -->
+                <th:block th:if="${paqueteSeleccionadoId == null}">
+                    <th:block th:replace="~{fragments/aviso-evento :: aviso('&#10022;', 'Creá tu evento desde cero', null, 'Podés diseñar tu propio evento a medida. Contanos el tipo de evento, la fecha y la cantidad de invitados para ver los salones disponibles.')}"></th:block>
+                </th:block>
+
             </div>
         </section>
 
-        <!-- FORMULARIO (solo con paquete pendiente) -->
-        <section class="hero py-4" th:if="${paqueteSeleccionadoId != null}">
+        <!-- FORMULARIO: el mismo para las dos entradas -->
+        <section class="hero py-4" th:if="${evento == null}">
             <div class="container">
                 <div th:if="${errorPaquete != null}" class="alert alert-warning mb-0" role="alert"
                      th:text="${errorPaquete}">Error</div>
@@ -90,13 +87,6 @@
             </div>
         </section>
 
-        <!-- SIN EVENTO TODAVÍA -->
-        <section class="seccion-clara py-5" th:if="${evento == null and paqueteSeleccionadoId == null}">
-            <div class="container text-center">
-                <p class="mb-0">Completá el tipo de evento, la fecha y la cantidad de invitados para ver salones, catering y
-                    servicios.</p>
-            </div>
-        </section>
 
         <!-- ARMADO -->
         <section class="seccion-clara py-5" th:if="${evento != null}">

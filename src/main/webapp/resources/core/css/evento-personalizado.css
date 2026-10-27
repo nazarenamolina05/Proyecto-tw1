@@ -117,3 +117,161 @@ body {
     font-size: 0.95rem;
     color: #6b6390;
 }
+
+/* ============================================
+   BOTONES INTERACTIVOS
+   ============================================ */
+
+/* ---------- Comenzar / Reservar ---------- */
+.btn-buscar {
+    background: linear-gradient(90deg, #ff5c8a, #ff8a65, #ff5c8a);
+    background-size: 200% 100%;
+    background-position: 0 0;
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 10px 22px -8px rgba(255, 92, 138, 0.7);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-position 0.4s ease;
+}
+
+.btn-buscar:hover:not(:disabled) {
+    color: #fff;
+    opacity: 1;
+    background-position: 100% 0;
+    transform: translateY(-2px);
+    box-shadow: 0 16px 28px -8px rgba(255, 92, 138, 0.85);
+}
+
+.btn-buscar:active:not(:disabled) {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 6px 14px -6px rgba(255, 92, 138, 0.7);
+}
+
+/* Reservar bloqueado: que se note que todavía no se puede */
+.btn-buscar:disabled {
+    background: #ddd8ee;
+    color: #8a82a8;
+    box-shadow: none;
+    opacity: 1;
+    cursor: not-allowed;
+}
+
+/* ---------- Elegir / Agregar ---------- */
+.pack-card .btn-pack {
+    background: linear-gradient(90deg, #6d3fd6, #9b5cf6, #6d3fd6);
+    background-size: 200% 100%;
+    background-position: 0 0;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-position 0.4s ease;
+}
+
+.pack-card .btn-pack:hover {
+    background-position: 100% 0;
+    transform: translateY(-2px);
+}
+
+.pack-card .btn-pack:active {
+    transform: translateY(0) scale(0.98);
+}
+
+/* Opción ya elegida: azul noche, distinta al violeta de "Elegir" */
+.opcion-elegida .btn-pack:not(.btn-quitar) {
+    background: #1a1052;
+    box-shadow: 0 10px 22px -8px rgba(26, 16, 82, 0.7);
+}
+
+/* Quitar: botón blanco con borde */
+.pack-card .btn-pack.btn-quitar {
+    background: #fff;
+    color: #6d3fd6;
+    border: 2px solid #6d3fd6;
+    box-shadow: none;
+}
+
+.pack-card .btn-pack.btn-quitar:hover {
+    background: #f3eeff;
+    color: #5e31be;
+    box-shadow: 0 10px 22px -10px rgba(109, 63, 214, 0.5);
+}
+
+/* ---------- Desplegable "Paquetes predeterminados" ---------- */
+.seccion-clara details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 1.2rem;
+    border-radius: 999px;
+    background: #f3eeff;
+    border: 1px solid #e2d6fb;
+    color: #1a1052;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.seccion-clara details > summary::-webkit-details-marker {
+    display: none;
+}
+
+.seccion-clara details > summary::before {
+    content: "\25B8"; /* ▸ */
+    color: #6d3fd6;
+    transition: transform 0.2s ease;
+}
+
+.seccion-clara details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.seccion-clara details > summary:hover {
+    background: #e9defd;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px -10px rgba(109, 63, 214, 0.5);
+}
+
+/* ---------- Ingresar (header) ---------- */
+.encabezado .btn-outline-light {
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.encabezado .btn-outline-light:hover {
+    background-color: #fff;
+    color: #17104d;
+    transform: translateY(-1px);
+}
+
+/* ---------- Campos del formulario ---------- */
+.hero-search .form-control,
+.hero-search .form-select {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-search .form-control:hover,
+.hero-search .form-select:hover {
+    border-color: #b9a2ef;
+}
+
+.hero-search .form-control:focus,
+.hero-search .form-select:focus {
+    border-color: #6d3fd6;
+    box-shadow: 0 0 0 0.2rem rgba(109, 63, 214, 0.2);
+}
+
+/* ---------- Accesibilidad ---------- */
+.btn-buscar:focus-visible,
+.pack-card .btn-pack:focus-visible,
+.seccion-clara details > summary:focus-visible {
+    outline: 3px solid rgba(109, 63, 214, 0.45);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn-buscar,
+    .pack-card .btn-pack,
+    .seccion-clara details > summary {
+        transition: none;
+    }
+}
