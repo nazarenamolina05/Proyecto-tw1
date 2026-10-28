@@ -10,4 +10,6 @@ public interface RepositorioPaquete {
   Paquete obtenerPredeterminadoPorId(Long id);
 
   List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados);
+
+  void guardar(Paquete paquete);
 }

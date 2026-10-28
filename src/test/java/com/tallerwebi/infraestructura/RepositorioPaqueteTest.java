@@ -4,12 +4,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.tallerwebi.dominio.Catering;
-import com.tallerwebi.dominio.Paquete;
-import com.tallerwebi.dominio.RepositorioPaquete;
-import com.tallerwebi.dominio.Salon;
-import com.tallerwebi.dominio.ServicioAdicional;
-import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.*;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -315,6 +310,45 @@ public class RepositorioPaqueteTest {
     // Validación
     assertThat(obtenidos.size(), equalTo(1));
     assertThat(obtenidos.get(0).getNombre(), equalTo("Cumpleaños válido"));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaGuardarUnPaquetePublicadoConSuPublicador() {
+    //Preparación
+    Salon salon = guardarSalon("Salón Los Álamos", 50000.0, 100);
+
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    session().persist(catering);
+
+    Usuario publicador = new Usuario();
+    publicador.setEmail("publicador@test.com");
+    session().persist(publicador);
+
+    Paquete paquete = new Paquete(
+      null,
+      "Mi cumple de 30",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      List.of(),
+      400000.0
+    );
+    paquete.setPublicador(publicador);
+
+    // Ejecución
+    repositorioPaquete.guardar(paquete);
+    session().flush();
+    session().clear();
+
+    // Validación
+    Paquete obtenido = session().get(Paquete.class, paquete.getId());
+
+    assertNotNull(obtenido);
+    assertEquals("Mi cumple de 30", obtenido.getNombre());
+    assertEquals(publicador.getId(), obtenido.getPublicador().getId());
+    assertTrue(obtenido.isPublicado());
   }
 
   // ---------- Métodos auxiliares ----------

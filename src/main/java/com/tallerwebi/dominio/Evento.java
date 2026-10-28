@@ -115,6 +115,10 @@ public class Evento {
     return paqueteOrigen.getNombre();
   }
 
+  public boolean yaOcurrio() {
+    return fecha != null && fecha.isBefore(LocalDate.now());
+  }
+
   public boolean isCompleto() {
     return salon != null && catering != null;
   }

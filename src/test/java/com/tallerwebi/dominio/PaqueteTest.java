@@ -1,6 +1,9 @@
 package com.tallerwebi.dominio;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.time.LocalDate;
@@ -88,6 +91,65 @@ public class PaqueteTest {
     assertEquals(3, evento.getServiciosAdicionales().size());
   }
 
+  @Test
+  void unPaqueteSinPublicadorNoDeberiaEstarPublicado() {
+    Paquete paquete = new Paquete();
+
+    assertThat(paquete.isPublicado(), is(false));
+  }
+
+  @Test
+  void unPaqueteConPublicadorDeberiaEstarPublicado() {
+    Paquete paquete = new Paquete();
+    paquete.setPublicador(new Usuario());
+
+    assertThat(paquete.isPublicado(), is(true));
+  }
+
+  @Test
+  void alPublicarUnEventoSeCreaUnPaqueteConSusDatosYSuPublicador() {
+    Usuario publicador = new Usuario();
+    Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
+
+    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", publicador);
+
+    assertEquals("Mi cumple de 30", paquete.getNombre());
+    assertEquals(evento.getTipoPaquete(), paquete.getTipo());
+    assertSame(evento.getSalon(), paquete.getSalon());
+    assertSame(evento.getCatering(), paquete.getCatering());
+    assertEquals(evento.getServiciosAdicionales(), paquete.getServiciosAdicionales());
+    assertSame(publicador, paquete.getPublicador());
+  }
+
+  @Test
+  void modificarLosServiciosDelEventoNoDeberiaAlterarLosDelPaquetePublicado() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
+    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", new Usuario());
+
+    evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
+
+    assertEquals(1, paquete.getServiciosAdicionales().size());
+    assertEquals(2, evento.getServiciosAdicionales().size());
+  }
+
+  @Test
+  void elPrecioEstimadoDelPaquetePublicadoDeberiaSerElPresupuestoDelEvento() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
+
+    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", new Usuario());
+
+    assertEquals(evento.calcularPresupuesto(), paquete.getPrecioEstimado());
+  }
+
+  @Test
+  void elPaquetePublicadoNoDeberiaSerPredeterminado() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
+
+    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", new Usuario());
+
+    assertFalse(paquete.isPredeterminado());
+  }
+
   private Paquete dadoQueTengoUnPaqueteConDosServicios() {
     return new Paquete(
       1L,
@@ -105,5 +167,13 @@ public class PaqueteTest {
 
   private Evento cuandoCreoUnEventoDesde(Paquete paquete) {
     return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+  }
+
+  private Evento dadoQueTengoUnEventoConSalonCateringYServicios() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().minusDays(10), 40);
+    evento.setSalon(new Salon("Salón los Alamos", 50000.0));
+    evento.setCatering(new Catering("Catering Basico", 1500.0));
+    evento.agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
+    return evento;
   }
 }

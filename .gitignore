@@ -24,3 +24,6 @@ hs_err_pid*
 
 # Reportes de codigo limpio y cobertura de pruebas
 .calidad-de-codigo/
+
+# Contraseña de la base de datos
+src/main/java/com/tallerwebi/config/HibernateConfig.java

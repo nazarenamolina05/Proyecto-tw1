@@ -60,4 +60,9 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
       .setParameter("invitados", invitados)
       .getResultList();
   }
+
+  @Override
+  public void guardar(Paquete paquete) {
+    sessionFactory.getCurrentSession().persist(paquete);
+  }
 }
