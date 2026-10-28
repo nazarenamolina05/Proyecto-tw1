@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Detalle del paquete</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
     <link rel="stylesheet" th:href="@{/css/paquete-detalle.css}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
@@ -15,7 +16,7 @@
     <div class="container">
         <nav class="d-flex justify-content-between align-items-center">
             <a th:href="@{/home-eventos}" class="text-light text-decoration-none fw-bold">Eventos</a>
-            <a th:href="@{/home-eventos#packs}" class="text-light text-decoration-none">Volver a los packs</a>
+            <a th:href="@{/home-eventos#packs}" class="text-light text-decoration-none"><i class="bi bi-arrow-left me-1"></i>Volver a los packs</a>
         </nav>
     </div>
 </header>
@@ -54,10 +55,10 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="button" class="btn btn-pack flex-fill rounded-pill"
-                                data-bs-toggle="modal" data-bs-target="#modalReservar">Reservar</button>
+                                data-bs-toggle="modal" data-bs-target="#modalReservar"><i class="bi bi-calendar-check me-1"></i>Reservar</button>
 
                         <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
-                           class="btn btn-pack flex-fill rounded-pill">Modificar</a>
+                           class="btn btn-pack flex-fill rounded-pill"><i class="bi bi-pencil-square me-1"></i>Modificar</a>
                     </div>
 
                 </div>
@@ -67,7 +68,7 @@
         <div th:if="${paquete == null}" class="text-center py-5">
             <h2 class="fw-bold">No encontramos ese paquete</h2>
             <a th:href="@{/home-eventos#packs}" class="btn btn-pack rounded-pill px-4 mt-3">
-                Ver los packs disponibles
+                <i class="bi bi-grid me-1"></i>Ver los packs disponibles
             </a>
         </div>
 
@@ -121,8 +122,8 @@
                     </div>
 
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-pack rounded-pill">Confirmar reserva</button>
+                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancelar</button>
+                        <button type="submit" class="btn btn-pack rounded-pill"><i class="bi bi-check2-circle me-1"></i>Confirmar reserva</button>
                     </div>
                 </form>
             </div>

@@ -43,13 +43,13 @@
         <th:block th:switch="${modo}">
             <a th:case="'ver-mas'"
                th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
-               class="btn btn-pack w-100 rounded-pill">Ver más</a>
+               class="btn btn-pack w-100 rounded-pill"><i class="bi bi-eye me-1"></i>Ver más</a>
 
             <div th:case="'acciones'" class="d-flex gap-2">
                 <button type="button" class="btn btn-outline-secondary flex-fill rounded-pill"
-                        disabled title="proximamente">Reservar</button>
+                        disabled title="Próximamente"><i class="bi bi-calendar-check me-1"></i>Reservar</button>
                 <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
-                   class="btn btn-pack flex-fill rounded-pill">Modificar</a>
+                   class="btn btn-pack flex-fill rounded-pill"><i class="bi bi-pencil-square me-1"></i>Modificar</a>
             </div>
 
 

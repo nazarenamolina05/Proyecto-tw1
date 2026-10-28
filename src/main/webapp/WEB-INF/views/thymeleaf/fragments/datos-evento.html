@@ -37,8 +37,9 @@
                th:value="${evento != null ? evento.cantidadInvitados : ''}"/>
     </div>
     <div class="col-12 col-lg-3 d-flex align-items-end">
-        <button type="submit" class="btn btn-buscar w-100 rounded-pill"
-                th:text="${evento == null} ? 'Comenzar' : 'Actualizar datos'">Comenzar
+        <button type="submit" class="btn btn-buscar w-100 rounded-pill">
+            <th:block th:if="${evento == null}"><i class="bi bi-play-circle me-1"></i>Comenzar</th:block>
+            <th:block th:unless="${evento == null}"><i class="bi bi-arrow-repeat me-1"></i>Actualizar datos</th:block>
         </button>
     </div>
 </form>

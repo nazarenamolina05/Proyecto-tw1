@@ -8,6 +8,7 @@
     <title>Resultados de la búsqueda</title>
 
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
 </head>
 
@@ -21,13 +22,13 @@
 
             <a th:href="@{/home-eventos}"
                class="text-light text-decoration-none">
-                <span>✦</span>
+                <i class="bi bi-stars"></i>
                 <span>Eventos</span>
             </a>
 
             <a th:href="@{/home-eventos}"
                class="btn btn-outline-light rounded-pill px-4">
-                Volver al inicio
+                <i class="bi bi-arrow-left me-1"></i>Volver al inicio
             </a>
 
         </nav>
