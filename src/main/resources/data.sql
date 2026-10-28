@@ -86,3 +86,19 @@ WHERE p.nombre = 'Estándar' AND s.nombre IN ('DJ', 'Fotografia');
 INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
 SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
 WHERE p.nombre = 'Premium' AND s.nombre IN ('DJ', 'Fotografia', 'Video', 'Decoracion');
+
+-- EVENTO YA REALIZADO DEL USUARIO TEST (para probar publicarlo como paquete) --
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id)
+VALUES ('2026-09-12', 'CUMPLEANIOS', 40,
+        (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
+        (SELECT id FROM Catering WHERE nombre = 'Catering Basico'));
+
+INSERT INTO evento_servicio(evento_id, servicio_id)
+SELECT e.id, s.id FROM Evento e, ServicioAdicional s
+WHERE e.fecha = '2026-09-12' AND s.nombre IN ('DJ', 'Fotografia');
+
+-- Presupuesto: salon 50000 + catering 1500 x 40 + DJ 40000 + Fotografia 30000 = 180000
+INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoAbonado)
+VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
+        (SELECT id FROM Evento WHERE fecha = '2026-09-12'),
+        180000.0, 'FINALIZADA', 'TOTAL', 180000.0);

@@ -37,6 +37,12 @@ public class Paquete {
 
   private boolean predeterminado;
 
+  @ManyToOne
+  @JoinColumn(name = "publicador_id")
+  private Usuario publicador;
+
+  //Constructores
+
   public Paquete() {}
 
   public Paquete(
@@ -55,6 +61,20 @@ public class Paquete {
     this.catering = catering;
     this.serviciosAdicionales = new ArrayList<>(serviciosAdicionales);
     this.precioEstimado = precioEstimado;
+  }
+
+  public static Paquete desdeEvento(Evento evento, String nombre, Usuario publicador) {
+    Paquete nuevo = new Paquete(
+      null,
+      nombre,
+      evento.getTipoPaquete(),
+      evento.getSalon(),
+      evento.getCatering(),
+      evento.getServiciosAdicionales(),
+      evento.calcularPresupuesto()
+    );
+    nuevo.setPublicador(publicador);
+    return nuevo;
   }
 
   // El paquete es el molde: el evento parte de su salón, catering y servicios,
@@ -81,6 +101,10 @@ public class Paquete {
       total += servicio.calcularCosto(cantidadInvitados);
     }
     return total;
+  }
+
+  public boolean isPublicado() {
+    return publicador != null;
   }
 
   public Long getId() {
@@ -117,5 +141,13 @@ public class Paquete {
 
   public void setPredeterminado(boolean predeterminado) {
     this.predeterminado = predeterminado;
+  }
+
+  public Usuario getPublicador() {
+    return publicador;
+  }
+
+  public void setPublicador(Usuario usuario) {
+    this.publicador = usuario;
   }
 }

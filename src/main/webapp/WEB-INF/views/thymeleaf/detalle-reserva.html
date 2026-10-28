@@ -61,6 +61,25 @@
                     </li>
                 </ul>
             </div>
+
+            <div class="detalle-card mb-4" th:if="${reserva.evento.yaOcurrio()}">
+                <h2 class="h5 fw-bold mb-3">Compartí tu evento</h2>
+                <p class="mb-3">Publicalo como paquete para que otras personas puedan elegirlo.</p>
+
+                <div class="alert alert-danger" th:if="${param.error != null and param.error[0] == 'nombre'}">
+                    Ingresá un nombre para el paquete.
+                </div>
+                <div class="alert alert-danger" th:if="${param.error != null and param.error[0] == 'noFinalizado'}">
+                    Solo podés publicar eventos que ya se realizaron.
+                </div>
+
+                <form th:action="@{/mis-reservas/{id}/publicar(id=${reserva.id})}" method="post"
+                      class="d-flex gap-2">
+                    <input type="text" name="nombre" class="form-control"
+                           placeholder="Nombre del paquete" required />
+                    <button type="submit" class="btn btn-primary">Publicar</button>
+                </form>
+            </div>
         </section>
 
         <aside class="col-12 col-lg-5">
