@@ -149,17 +149,31 @@
                 </div>
             </form>
 
-            <div class="d-flex flex-column flex-md-row align-items-center gap-4 mt-4">
+            <div class="row g-3 mt-4">
 
-                <a th:href="@{/evento-personalizado(modo='predefinidos')}"
-                   class="btn btn-crear-evento rounded-pill px-4">
-                    Eventos pre-definidos
-                </a>
+                <div class="col-12 col-md-6">
+                    <a th:href="@{/evento-personalizado(modo='predefinidos')}"
+                       class="cta-boton cta-principal">
+                        <span class="cta-icono">★</span>
+                        <span class="cta-texto">
+                <span class="cta-titulo">Eventos pre-definidos</span>
+                <span class="cta-subtitulo">Elegí un paquete listo y modificalo a tu gusto</span>
+            </span>
+                        <span class="cta-flecha">→</span>
+                    </a>
+                </div>
 
-                <a th:href="@{/evento-personalizado/nuevo(modo='desde-cero')}"
-                   class="text-light text-decoration-none">
-                    Armá tu evento desde cero →
-                </a>
+                <div class="col-12 col-md-6">
+                    <a th:href="@{/evento-personalizado/nuevo(modo='desde-cero')}"
+                       class="cta-boton cta-secundario">
+                        <span class="cta-icono">✦</span>
+                        <span class="cta-texto">
+                <span class="cta-titulo">Armá tu evento desde cero</span>
+                <span class="cta-subtitulo">Diseñá un evento a medida, componente por componente</span>
+            </span>
+                        <span class="cta-flecha">→</span>
+                    </a>
+                </div>
 
             </div>
 

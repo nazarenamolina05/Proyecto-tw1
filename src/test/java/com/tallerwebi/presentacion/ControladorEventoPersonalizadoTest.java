@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,7 @@ import static org.mockito.Mockito.when;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
+import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -41,6 +43,9 @@ public class ControladorEventoPersonalizadoTest {
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
+  private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
+  private static final String ERROR_PAQUETE = "errorPaquete";
+  private ServicioValidarSeleccionPaquete servicioValidacion;
 
   @BeforeEach
   public void init() {
@@ -48,13 +53,17 @@ public class ControladorEventoPersonalizadoTest {
     servicioSugerenciaServicios = mock(ServicioSugerenciaServicios.class);
     servicioPaquetes = mock(ServicioConsultarPaquetesPredeterminados.class);
     servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
+    servicioValidacion = mock(ServicioValidarSeleccionPaquete.class);
+
     controlador =
       new ControladorEventoPersonalizado(
         servicio,
         servicioSugerenciaServicios,
         servicioPaquetes,
-        servicioDisponibilidadSalon
+        servicioDisponibilidadSalon,
+        servicioValidacion
       );
+
     sesion = mock(HttpSession.class);
     evento = mock(Evento.class);
     user = mock(Usuario.class);
@@ -201,6 +210,22 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("adicional"), equalTo(30000.0));
   }
 
+  @Test
+  public void conPaquetePendienteYSinEventoPasaElPaqueteYElErrorALaVista() {
+    when(sesion.getAttribute(EVENTO)).thenReturn(null);
+    when(sesion.getAttribute(PAQUETE_PENDIENTE)).thenReturn(1L);
+    when(sesion.getAttribute(ERROR_PAQUETE)).thenReturn("Esa fecha está ocupada, seleccioná otra.");
+
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
+
+    assertThat(mav.getModel().get("paqueteSeleccionadoId"), equalTo(1L));
+    assertThat(
+      mav.getModel().get("errorPaquete"),
+      equalTo("Esa fecha está ocupada, seleccioná otra.")
+    );
+    verify(sesion).removeAttribute(ERROR_PAQUETE);
+  }
+
   // ---------- POST /evento-personalizado ----------
 
   @Test
@@ -260,31 +285,13 @@ public class ControladorEventoPersonalizadoTest {
   }
 
   @Test
-  public void modificarUnPaqueteGuardaEnSesionUnEventoConLoQueIncluyeElPaquete() {
-    Salon salon = new Salon("Salon Los Alamos", 50000.0);
-    salon.setCapacidad(50);
-    Catering catering = new Catering("Catering Basico", 1500.0);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      catering,
-      new ArrayList<>(),
-      165000.0
-    );
-    when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
-    when(sesion.getAttribute(EVENTO)).thenReturn(null);
+  public void modificarUnPaqueteLoDejaPendienteYLimpiaElEventoEnCurso() {
+    when(servicioPaquetes.consultarPorId(1L)).thenReturn(mock(Paquete.class));
 
     ModelAndView mav = controlador.modificarPaquete(1L, sesion);
 
-    ArgumentCaptor<Evento> captor = ArgumentCaptor.forClass(Evento.class);
-    verify(sesion).setAttribute(eq(EVENTO), captor.capture());
-    Evento cargado = captor.getValue();
-    assertThat(cargado.getPaqueteOrigen(), sameInstance(paquete));
-    assertThat(cargado.getSalon(), sameInstance(salon));
-    assertThat(cargado.getCatering(), sameInstance(catering));
-    assertThat(cargado.getCantidadInvitados(), equalTo(50));
+    verify(sesion).removeAttribute(EVENTO);
+    verify(sesion).setAttribute(PAQUETE_PENDIENTE, 1L);
     assertThat(mav.getViewName(), startsWith("redirect:/evento-personalizado"));
   }
 
@@ -294,7 +301,7 @@ public class ControladorEventoPersonalizadoTest {
 
     ModelAndView mav = controlador.modificarPaquete(99L, sesion);
 
-    verify(sesion, never()).setAttribute(eq(EVENTO), any());
+    verify(sesion, never()).setAttribute(eq(PAQUETE_PENDIENTE), any());
     assertThat(mav.getViewName(), equalTo("redirect:/home-eventos"));
   }
 
@@ -354,5 +361,62 @@ public class ControladorEventoPersonalizadoTest {
     controlador.quitarServicio(3L, sesion);
 
     verify(servicio, never()).quitarServicio(any(), anyLong());
+  }
+
+  @Test
+  public void conDatosValidosCreaElEventoDesdeElPaqueteYLimpiaElPendiente() {
+    LocalDate fecha = LocalDate.now().plusDays(10);
+    Salon salon = new Salon("Salon Los Alamos", 50000.0);
+    salon.setCapacidad(50);
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    Paquete paquete = new Paquete(
+      1L,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      new ArrayList<>(),
+      165000.0
+    );
+    when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
+
+    ModelAndView mav = controlador.modificarPaqueteConDatos(
+      1L,
+      TipoPaquete.CUMPLEANIOS,
+      fecha,
+      40,
+      sesion
+    );
+
+    ArgumentCaptor<Evento> captor = ArgumentCaptor.forClass(Evento.class);
+    verify(sesion).setAttribute(eq(EVENTO), captor.capture());
+    Evento creado = captor.getValue();
+    assertThat(creado.getPaqueteOrigen(), sameInstance(paquete));
+    assertThat(creado.getSalon(), sameInstance(salon));
+    assertThat(creado.getFecha(), equalTo(fecha));
+    assertThat(creado.getCantidadInvitados(), equalTo(40));
+    verify(sesion).removeAttribute(PAQUETE_PENDIENTE);
+    assertThat(mav.getViewName(), startsWith("redirect:/evento-personalizado"));
+  }
+
+  @Test
+  public void conDatosInvalidosNoCreaElEventoYGuardaElError() {
+    LocalDate fecha = LocalDate.now().plusDays(10);
+    doThrow(new SeleccionInvalida("Este paquete permite hasta 50 invitados."))
+      .when(servicioValidacion)
+      .validar(1L, TipoPaquete.CUMPLEANIOS, fecha, 80);
+
+    controlador.modificarPaqueteConDatos(1L, TipoPaquete.CUMPLEANIOS, fecha, 80, sesion);
+
+    verify(sesion, never()).setAttribute(eq(EVENTO), any());
+    verify(sesion).setAttribute(ERROR_PAQUETE, "Este paquete permite hasta 50 invitados.");
+  }
+
+  @Test
+  public void alEmpezarDeCeroLimpiaElEventoYElPaquetePendiente() {
+    ModelAndView mav = controlador.volverAEmpezar("desde-cero", sesion);
+
+    verify(sesion).removeAttribute(EVENTO);
+    verify(sesion).removeAttribute(PAQUETE_PENDIENTE);
   }
 }
