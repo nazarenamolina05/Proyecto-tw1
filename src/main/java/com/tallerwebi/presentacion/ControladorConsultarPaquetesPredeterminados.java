@@ -1,11 +1,9 @@
 package com.tallerwebi.presentacion;
 
-import com.tallerwebi.dominio.Paquete;
-import com.tallerwebi.dominio.ServicioConsultarPaquetesPredeterminados;
-import com.tallerwebi.dominio.ServicioValidarSeleccionPaquete;
-import com.tallerwebi.dominio.TipoPaquete;
+import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
+import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -23,13 +21,16 @@ public class ControladorConsultarPaquetesPredeterminados {
 
   private ServicioConsultarPaquetesPredeterminados servicio;
   private ServicioValidarSeleccionPaquete servicioValidacion;
+  private ServicioEvento servicioEvento;
 
   public ControladorConsultarPaquetesPredeterminados(
     ServicioConsultarPaquetesPredeterminados servicio,
-    ServicioValidarSeleccionPaquete servicioValidacion
+    ServicioValidarSeleccionPaquete servicioValidacion,
+    ServicioEvento servicioEvento
   ) {
     this.servicio = servicio;
     this.servicioValidacion = servicioValidacion;
+    this.servicioEvento = servicioEvento;
   }
 
   @GetMapping(path = "/paquetes-predeterminados/{id}")
@@ -44,7 +45,8 @@ public class ControladorConsultarPaquetesPredeterminados {
     @RequestParam(value = "fecha", required = false) @DateTimeFormat(
       iso = DateTimeFormat.ISO.DATE
     ) LocalDate fecha,
-    @RequestParam(value = "cantidadInvitados", required = false) Integer cantidadInvitados
+    @RequestParam(value = "cantidadInvitados", required = false) Integer cantidadInvitados,
+    HttpSession session
   ) {
     Map<String, Object> modelo = armarModeloDetalle(id);
     modelo.put("tipoSeleccionado", tipoEvento);
@@ -53,7 +55,15 @@ public class ControladorConsultarPaquetesPredeterminados {
 
     try {
       servicioValidacion.validar(id, tipoEvento, fecha, cantidadInvitados);
-      modelo.put("mensajeExito", "¡Todo listo para reservar!");
+
+      Paquete paquete = servicio.consultarPorId(id);
+      Evento evento = servicioEvento.crearEvento(tipoEvento, fecha, cantidadInvitados);
+      evento.setSalon(paquete.getSalon());
+      evento.setCatering(paquete.getCatering());
+      paquete.getServiciosAdicionales().forEach(evento::agregarServicio);
+
+      session.setAttribute(ControladorReservas.EVENTO, evento);
+      return new ModelAndView("redirect:/reservar");
     } catch (SeleccionInvalida e) {
       modelo.put("error", e.getMessage());
     } catch (PaqueteNoEncontrado e) {

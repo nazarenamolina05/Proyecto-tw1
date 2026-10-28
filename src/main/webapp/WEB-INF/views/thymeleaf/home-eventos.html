@@ -178,9 +178,8 @@
             <div class="row g-4">
 
                 <div class="col-12 col-md-6 col-lg-4" th:each="paquete : ${paquetes}">
-                    <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'acciones', false)}"></th:block>
+                    <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'ver-mas', false)}"></th:block>
                 </div>
-
             </div>
         </div>
     </section>

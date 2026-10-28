@@ -47,10 +47,13 @@
 
             <div th:case="'acciones'" class="d-flex gap-2">
                 <button type="button" class="btn btn-outline-secondary flex-fill rounded-pill"
-                        disabled title="Próximamente">Reservar</button>
+                        disabled title="proximamente">Reservar</button>
                 <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
                    class="btn btn-pack flex-fill rounded-pill">Modificar</a>
             </div>
+
+
+
 
             <p th:case="'sin-detalle'" class="small text-secondary text-center mb-0 py-2">
                 Detalle no disponible por el momento
