@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Eventos</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
 </head>
 <body>
@@ -14,7 +15,7 @@
     <div class="container">
         <nav class="d-flex justify-content-between align-items-center">
             <a href="#inicio" class="text-light text-decoration-none">
-                <span>✦</span>
+                <i class="bi bi-stars"></i>
                 <span>Eventos</span>
             </a>
 
@@ -42,20 +43,20 @@
             </ul>
 
             <div class="d-flex align-items-center gap-3">
-                <button type="button" class="btn text-light" aria-label="Buscar">
-                    🔍
-                </button>
+                <a href="#inicio" class="btn btn-outline-light rounded-circle" aria-label="Buscar">
+                    <i class="bi bi-search"></i>
+                </a>
 
                 <a th:if="${session.USUARIO == null}" th:href="@{/login}" class="btn btn-outline-light rounded-pill px-4"
-                >Ingresar</a
+                ><i class="bi bi-person me-1"></i>Ingresar</a
                 >
 
                 <a th:if="${session.USUARIO != null}" th:href="@{/mis-reservas}" class="btn btn-outline-light rounded-pill px-4"
-                >Mis reservas</a
+                ><i class="bi bi-calendar-check me-1"></i>Mis reservas</a
                 >
 
                 <a th:if="${session.USUARIO != null}" href="#" class="btn btn-outline-light rounded-pill px-4"
-                >Mi perfil</a
+                ><i class="bi bi-person-circle me-1"></i>Mi perfil</a
                 >
             </div>
         </nav>
@@ -144,7 +145,7 @@
 
                 <div class="col-12 col-lg-3 d-flex align-items-center">
                     <button type="submit" class="btn btn-buscar w-100 rounded-pill">
-                        Buscar
+                        <i class="bi bi-search me-1"></i>Buscar
                     </button>
                 </div>
             </form>
@@ -154,24 +155,24 @@
                 <div class="col-12 col-md-6">
                     <a th:href="@{/evento-personalizado(modo='predefinidos')}"
                        class="cta-boton cta-principal">
-                        <span class="cta-icono">★</span>
+                        <span class="cta-icono"><i class="bi bi-star"></i></span>
                         <span class="cta-texto">
                 <span class="cta-titulo">Eventos pre-definidos</span>
                 <span class="cta-subtitulo">Elegí un paquete listo y modificalo a tu gusto</span>
             </span>
-                        <span class="cta-flecha">→</span>
+                        <span class="cta-flecha"><i class="bi bi-arrow-right"></i></span>
                     </a>
                 </div>
 
                 <div class="col-12 col-md-6">
                     <a th:href="@{/evento-personalizado/nuevo(modo='desde-cero')}"
                        class="cta-boton cta-secundario">
-                        <span class="cta-icono">✦</span>
+                        <span class="cta-icono"><i class="bi bi-stars"></i></span>
                         <span class="cta-texto">
                 <span class="cta-titulo">Armá tu evento desde cero</span>
                 <span class="cta-subtitulo">Diseñá un evento a medida, componente por componente</span>
             </span>
-                        <span class="cta-flecha">→</span>
+                        <span class="cta-flecha"><i class="bi bi-arrow-right"></i></span>
                     </a>
                 </div>
 
@@ -217,42 +218,42 @@
 
                 <div class="col">
                     <a th:href="@{/paquetes(tipo='CASAMIENTO')}" class="tipo-evento">
-                        <span class="tipo-icono">♡</span>
+                        <span class="tipo-icono"><i class="bi bi-heart"></i></span>
                         <span>Casamientos</span>
                     </a>
                 </div>
 
                 <div class="col">
                     <a th:href="@{/paquetes(tipo='FIESTA_DE_15')}" class="tipo-evento">
-                        <span class="tipo-icono">♕</span>
+                        <span class="tipo-icono"><i class="bi bi-gem"></i></span>
                         <span>15 años</span>
                     </a>
                 </div>
 
                 <div class="col">
                     <a th:href="@{/paquetes(tipo='CUMPLEANIOS')}" class="tipo-evento">
-                        <span class="tipo-icono">♨</span>
+                        <span class="tipo-icono"><i class="bi bi-cake2"></i></span>
                         <span>Cumpleaños</span>
                     </a>
                 </div>
 
                 <div class="col">
                     <a th:href="@{/paquetes(tipo='EMPRESARIAL')}" class="tipo-evento">
-                        <span class="tipo-icono">▣</span>
+                        <span class="tipo-icono"><i class="bi bi-briefcase"></i></span>
                         <span>Empresariales</span>
                     </a>
                 </div>
 
                 <div class="col">
                     <a href="#" class="tipo-evento">
-                        <span class="tipo-icono">♧</span>
+                        <span class="tipo-icono"><i class="bi bi-balloon"></i></span>
                         <span>Infantiles</span>
                     </a>
                 </div>
 
                 <div class="col">
                     <a href="#" class="tipo-evento">
-                        <span class="tipo-icono">•••</span>
+                        <span class="tipo-icono"><i class="bi bi-three-dots"></i></span>
                         <span>Otros</span>
                     </a>
                 </div>
@@ -289,7 +290,7 @@
                         </div>
 
                         <div class="icono-paso">
-                            🔎
+                            <i class="bi bi-search"></i>
                         </div>
 
                         <h5 class="fw-bold mt-3">
@@ -312,7 +313,7 @@
                         </div>
 
                         <div class="icono-paso">
-                            ★
+                            <i class="bi bi-star"></i>
                         </div>
 
                         <h5 class="fw-bold mt-3">
@@ -335,7 +336,7 @@
                         </div>
 
                         <div class="icono-paso">
-                            📅
+                            <i class="bi bi-calendar-event"></i>
                         </div>
 
                         <h5 class="fw-bold mt-3">
@@ -358,7 +359,7 @@
                         </div>
 
                         <div class="icono-paso">
-                            ✓
+                            <i class="bi bi-check-circle"></i>
                         </div>
 
                         <h5 class="fw-bold mt-3">

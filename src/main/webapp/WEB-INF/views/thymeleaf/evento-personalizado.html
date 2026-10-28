@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Evento personalizado</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}"/>
     <link rel="stylesheet" th:href="@{/css/evento-personalizado.css}"/>
 </head>
@@ -13,11 +14,11 @@
     <header class="encabezado py-3">
         <div class="container">
             <nav class="d-flex justify-content-between align-items-center">
-                <a th:href="@{/home-eventos}" class="text-light text-decoration-none"><span>✦</span>
+                <a th:href="@{/home-eventos}" class="text-light text-decoration-none"><i class="bi bi-stars"></i>
                     <span>Eventos</span></a>
                 <div class="d-flex align-items-center gap-3">
                     <a th:href="@{/home-eventos}" class="text-light text-decoration-none">Inicio</a>
-                    <a href="/login" class="btn btn-outline-light rounded-pill px-4">Ingresar</a>
+                    <a th:href="@{/login}" class="btn btn-outline-light rounded-pill px-4"><i class="bi bi-person me-1"></i>Ingresar</a>
                 </div>
             </nav>
         </div>
@@ -117,8 +118,9 @@
                                         </div>
                                         <form th:action="@{/evento-personalizado/salon}" method="post">
                                             <input type="hidden" name="id" th:value="${salon.id}"/>
-                                            <button type="submit" class="btn btn-pack w-100 rounded-pill"
-                                                    th:text="${salon.id == salonElegidoId} ? 'Elegido ✓' : 'Elegir'">Elegir
+                                            <button type="submit" class="btn btn-pack w-100 rounded-pill">
+                                                <th:block th:if="${salon.id == salonElegidoId}"><i class="bi bi-check-circle-fill me-1"></i>Elegido</th:block>
+                                                <th:block th:unless="${salon.id == salonElegidoId}"><i class="bi bi-hand-index me-1"></i>Elegir</th:block>
                                             </button>
                                         </form>
                                     </div>
@@ -151,9 +153,9 @@
                                         </div>
                                         <form th:action="@{/evento-personalizado/catering}" method="post">
                                             <input type="hidden" name="id" th:value="${catering.id}"/>
-                                            <button type="submit" class="btn btn-pack w-100 rounded-pill"
-                                                    th:text="${catering.id == cateringElegidoId} ? 'Elegido ✓' : 'Elegir'">
-                                                Elegir
+                                            <button type="submit" class="btn btn-pack w-100 rounded-pill">
+                                                <th:block th:if="${catering.id == cateringElegidoId}"><i class="bi bi-check-circle-fill me-1"></i>Elegido</th:block>
+                                                <th:block th:unless="${catering.id == cateringElegidoId}"><i class="bi bi-hand-index me-1"></i>Elegir</th:block>
                                             </button>
                                         </form>
                                     </div>
@@ -223,8 +225,9 @@
                                                   th:action="${elegido} ? @{/evento-personalizado/servicio/quitar} : @{/evento-personalizado/servicio/agregar}">
                                                 <input type="hidden" name="id" th:value="${servicio.id}"/>
                                                 <button type="submit" class="btn btn-pack w-100 rounded-pill"
-                                                        th:classappend="${elegido} ? 'btn-quitar'"
-                                                        th:text="${elegido} ? 'Quitar' : 'Agregar'">Agregar
+                                                        th:classappend="${elegido} ? 'btn-quitar'">
+                                                    <th:block th:if="${elegido}"><i class="bi bi-dash-circle me-1"></i>Quitar</th:block>
+                                                    <th:block th:unless="${elegido}"><i class="bi bi-plus-circle me-1"></i>Agregar</th:block>
                                                 </button>
                                             </form>
                                         </div>
@@ -260,13 +263,13 @@
                                             <span th:text="${evento.salon != null} ? ${evento.salon.nombre} : 'Salón'">Salón</span>
                                             <span th:if="${evento.salon != null}"
                                                   th:text="'$ ' + ${#numbers.formatDecimal(evento.salon.precio, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                            <span th:unless="${evento.salon != null}">—</span>
+                                            <span th:unless="${evento.salon != null}">-</span>
                                         </li>
                                         <li class="d-flex justify-content-between">
                                             <span th:text="${evento.catering != null} ? ${evento.catering.nombre} : 'Catering'">Catering</span>
                                             <span th:if="${evento.catering != null}"
                                                   th:text="'$ ' + ${#numbers.formatDecimal(evento.catering.precioPorPersona * evento.cantidadInvitados, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                            <span th:unless="${evento.catering != null}">—</span>
+                                            <span th:unless="${evento.catering != null}">-</span>
                                         </li>
                                         <li class="d-flex justify-content-between"
                                             th:each="servicio : ${evento.serviciosAdicionales}">
@@ -296,7 +299,7 @@
                                         <button type="submit"
                                                 class="btn btn-buscar w-100 rounded-pill py-2"
                                                 th:disabled="${!evento.completo}">
-                                            Reservar
+                                            <i class="bi bi-calendar-check me-1"></i>Reservar
                                         </button>
                                     </form>
 
