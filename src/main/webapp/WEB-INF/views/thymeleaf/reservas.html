@@ -40,6 +40,11 @@
                     </p>
                     <span class="badge-estado" th:classappend="${'estado-' + reserva.estado}"
                           th:text="${reserva.estado}"></span>
+                    <div class="mt-3">
+                        <a th:href="@{/mis-reservas/{id}(id=${reserva.id})}" class="btn btn-detalle rounded-pill">
+                            Ver detalle
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

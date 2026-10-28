@@ -58,6 +58,13 @@ public class Reserva {
   private String nombreContacto;
   private String telefonoContacto;
 
+  public Double calcularSaldoPendiente() {
+    if (presupuesto == null || montoAbonado == null) {
+      return 0.0;
+    }
+    return Math.max(0.0, presupuesto - montoAbonado);
+  }
+
   public Long getId() {
     return id;
   }

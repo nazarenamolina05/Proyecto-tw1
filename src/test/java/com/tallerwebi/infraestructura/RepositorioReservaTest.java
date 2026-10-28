@@ -1,18 +1,14 @@
 package com.tallerwebi.infraestructura;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -161,6 +157,50 @@ public class RepositorioReservaTest {
     assertThat(obtenidas, is(empty()));
   }
 
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerUnaReservaPorSuId() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Reserva reserva =
+      this.dadoQueTengoUnaReserva(
+          usuario,
+          this.dadoQueTengoUnEvento(null, LocalDate.now().plusDays(30)),
+          EstadoReserva.SENIADA
+        );
+    repositorioReserva.guardar(reserva);
+
+    Reserva obtenida = this.cuandoBuscoLaReservaPorId(reserva.getId());
+
+    assertThat(obtenida.getId(), is(equalTo(reserva.getId())));
+    assertThat(obtenida.getEstado(), is(equalTo(EstadoReserva.SENIADA)));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaDevolverNullSiNoExisteLaReservaBuscadaPorId() {
+    assertThat(repositorioReserva.buscarPorId(999999L), is(nullValue()));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaTraerLosServiciosAdicionalesDelEventoYaInicializados() {
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    ServicioAdicional dj = new ServicioAdicional("DJ", 20000.0, false);
+    this.sessionFactory.getCurrentSession().persist(dj);
+    Evento evento = this.dadoQueTengoUnEvento(null, LocalDate.now().plusDays(30));
+    evento.agregarServicio(dj);
+    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, evento, EstadoReserva.CONFIRMADA);
+    repositorioReserva.guardar(reserva);
+
+    Reserva obtenida = this.cuandoBuscoLaReservaPorId(reserva.getId());
+
+    assertThat(Hibernate.isInitialized(obtenida.getEvento().getServiciosAdicionales()), is(true));
+    assertThat(obtenida.getEvento().getServiciosAdicionales().size(), is(equalTo(1)));
+  }
+
   // ---------- dado ----------
 
   private Usuario dadoQueExisteUnUsuario(String email) {
@@ -219,6 +259,12 @@ public class RepositorioReservaTest {
     this.sessionFactory.getCurrentSession().flush();
     this.sessionFactory.getCurrentSession().clear();
     return repositorioReserva.obtenerFechasOcupadasPorSalon(salon.getId());
+  }
+
+  private Reserva cuandoBuscoLaReservaPorId(Long id) {
+    this.sessionFactory.getCurrentSession().flush();
+    this.sessionFactory.getCurrentSession().clear();
+    return repositorioReserva.buscarPorId(id);
   }
 
   // ---------- entonces ----------

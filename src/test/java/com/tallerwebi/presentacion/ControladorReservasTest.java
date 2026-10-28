@@ -10,6 +10,7 @@ import static org.mockito.Mockito.*;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.EventoIncompleto;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -165,5 +166,37 @@ public class ControladorReservasTest {
     controlador.verResumenDeReserva(requestMock);
 
     verify(sessionMock).setAttribute(ControladorLogin.DESTINO_POST_LOGIN, "/evento-personalizado");
+  }
+
+  @Test
+  void alVerElDetalleSinUsuarioDeberiaRedirigirAlLogin() {
+    ModelAndView mav = controlador.verDetalleDeReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/login"));
+    verify(servicioReservaMock, never()).obtenerReservaDe(any(), any());
+  }
+
+  @Test
+  void alVerElDetalleDeUnaReservaPropiaDeberiaMostrarLaVistaConLaReserva() {
+    Usuario usuario = new Usuario();
+    Reserva reserva = new Reserva();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenReturn(reserva);
+
+    ModelAndView mav = controlador.verDetalleDeReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("detalle-reserva"));
+    assertThat(mav.getModel().get("reserva"), equalTo(reserva));
+  }
+
+  @Test
+  void alVerElDetalleDeUnaReservaInexistenteODeOtroUsuarioDeberiaVolverAMisReservas() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenThrow(new ReservaNoEncontrada());
+
+    ModelAndView mav = controlador.verDetalleDeReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
   }
 }

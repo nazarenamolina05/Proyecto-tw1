@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mis reservas</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/reservas.css}" />
+</head>
+<body>
+
+<header class="encabezado py-3">
+    <nav class="container d-flex justify-content-between align-items-center">
+        <a th:href="@{/home-eventos}" class="text-white text-decoration-none fw-bold">Eventos</a>
+        <a th:href="@{/mis-reservas}" class="text-white text-decoration-none">Mis reservas</a>
+    </nav>
+</header>
+
+<main class="container py-5">
+    <a th:href="@{/mis-reservas}" class="volver-reservas d-inline-block mb-3">← Volver a mis reservas</a>
+
+    <div class="linea-titulo mb-2"></div>
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+        <h1 class="mb-0" th:text="${reserva.evento.nombre}">Nombre del evento</h1>
+        <span class="badge-estado" th:classappend="${'estado-' + reserva.estado}"
+              th:text="${reserva.estado}"></span>
+    </div>
+
+    <div class="row g-4">
+        <section class="col-12 col-lg-7">
+            <div class="detalle-card mb-4">
+                <h2 class="h5 fw-bold mb-3">Datos del evento</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Tipo de evento</dt>
+                    <dd class="col-sm-7" th:text="${reserva.evento.tipoPaquete}"></dd>
+
+                    <dt class="col-sm-5">Fecha</dt>
+                    <dd class="col-sm-7" th:text="${reserva.evento.fecha}"></dd>
+
+                    <dt class="col-sm-5">Invitados</dt>
+                    <dd class="col-sm-7" th:text="${reserva.evento.cantidadInvitados}"></dd>
+
+                    <dt class="col-sm-5" th:if="${reserva.evento.salon != null}">Salón</dt>
+                    <dd class="col-sm-7" th:if="${reserva.evento.salon != null}"
+                        th:text="${reserva.evento.salon.nombre}"></dd>
+
+                    <dt class="col-sm-5" th:if="${reserva.evento.catering != null}">Catering</dt>
+                    <dd class="col-sm-7" th:if="${reserva.evento.catering != null}"
+                        th:text="${reserva.evento.catering.nombre}"></dd>
+                </dl>
+            </div>
+
+            <div class="detalle-card mb-4" th:if="${not reserva.evento.serviciosAdicionales.isEmpty()}">
+                <h2 class="h5 fw-bold mb-3">Servicios adicionales</h2>
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between py-1"
+                        th:each="servicio : ${reserva.evento.serviciosAdicionales}">
+                        <span th:text="${servicio.nombre}"></span>
+                        <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(reserva.evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}"></span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <aside class="col-12 col-lg-5">
+            <div class="detalle-pago rounded-4 p-4">
+                <h2 class="h5 fw-bold mb-3">Resumen de pago</h2>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Presupuesto</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(reserva.presupuesto, 0, 'POINT', 0, 'COMMA')}"></span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Abonado</span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(reserva.montoAbonado, 0, 'POINT', 0, 'COMMA')}"></span>
+                </div>
+
+                <hr class="detalle-corte"/>
+
+                <small class="text-uppercase">Saldo pendiente</small>
+                <div class="detalle-saldo"
+                     th:text="'$ ' + ${#numbers.formatDecimal(reserva.calcularSaldoPendiente(), 0, 'POINT', 0, 'COMMA')}"></div>
+
+                <!-- PAGO: aca se engancha el botón de pagar el saldo (mercado pago) -->
+            </div>
+        </aside>
+    </div>
+</main>
+
+</body>
+</html>

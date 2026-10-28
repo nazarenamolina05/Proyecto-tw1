@@ -80,4 +80,22 @@ public class ReservaTest {
   private Reserva cuandoReservoCon(Evento evento, TipoPago tipoPago) {
     return new Reserva(new Usuario(), evento, tipoPago);
   }
+
+  @Test
+  public void elSaldoPendienteDeUnaReservaSeniadaDebeSerLoQueFaltaAbonar() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+
+    assertThat(reserva.calcularSaldoPendiente(), is(closeTo(70000.0, 0.01)));
+  }
+
+  @Test
+  public void elSaldoPendienteDeUnaReservaPagadaPorCompletoDebeSerCero() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+
+    assertThat(reserva.calcularSaldoPendiente(), is(closeTo(0.0, 0.01)));
+  }
 }
