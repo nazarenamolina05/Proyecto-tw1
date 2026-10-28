@@ -55,7 +55,11 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="button" class="btn btn-pack flex-fill rounded-pill"
-                                data-bs-toggle="modal" data-bs-target="#modalReservar"><i class="bi bi-calendar-check me-1"></i>Reservar</button>
+                                data-bs-toggle="modal" data-bs-target="#modalReservar"
+                                th:data-action="@{/paquetes-predeterminados/{id}/reservar(id=${paquete.id})}"
+                                th:data-nombre="${paquete.nombre}"
+                                th:data-capacidad="${paquete.salon.capacidad}">
+                            <i class="bi bi-calendar-check me-1"></i>Reservar</button>
 
                         <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
                            class="btn btn-pack flex-fill rounded-pill"><i class="bi bi-pencil-square me-1"></i>Modificar</a>
@@ -74,66 +78,70 @@
 
     </div>
 
-    <div th:if="${paquete != null}" class="modal fade" id="modalReservar" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Reservar <span th:text="${paquete.nombre}"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-                </div>
+<!--    <div th:if="${paquete != null}" class="modal fade" id="modalReservar" tabindex="-1" aria-hidden="true">-->
+<!--        <div class="modal-dialog modal-dialog-centered">-->
+<!--            <div class="modal-content">-->
+<!--                <div class="modal-header">-->
+<!--                    <h5 class="modal-title fw-bold">Reservar <span th:text="${paquete.nombre}"></span></h5>-->
+<!--                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>-->
+<!--                </div>-->
 
-                <form th:action="@{/paquetes-predeterminados/{id}/reservar(id=${paquete.id})}" method="post">
-                    <div class="modal-body">
+<!--                <form th:action="@{/paquetes-predeterminados/{id}/reservar(id=${paquete.id})}" method="post">-->
+<!--                    <div class="modal-body">-->
 
-                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}">Error</div>
+<!--                        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}">Error</div>-->
 
-                        <div class="mb-3">
-                            <label for="tipoEvento" class="form-label fw-bold">Tipo de evento</label>
-                            <select id="tipoEvento" name="tipoEvento" class="form-select" required>
-                                <option value="">Seleccioná un tipo</option>
-                                <th:block th:each="tipo : ${tiposEvento}" th:switch="${tipo.name()}">
-                                    <option th:case="'CUMPLEANIOS'" th:value="${tipo.name()}"
-                                            th:selected="${tipoSeleccionado == tipo}">Cumpleaños</option>
-                                    <option th:case="'FIESTA_DE_15'" th:value="${tipo.name()}"
-                                            th:selected="${tipoSeleccionado == tipo}">Fiesta de 15</option>
-                                    <option th:case="'CASAMIENTO'" th:value="${tipo.name()}"
-                                            th:selected="${tipoSeleccionado == tipo}">Casamiento</option>
-                                    <option th:case="'EMPRESARIAL'" th:value="${tipo.name()}"
-                                            th:selected="${tipoSeleccionado == tipo}">Empresarial</option>
-                                </th:block>
-                            </select>
-                        </div>
+<!--                        <div class="mb-3">-->
+<!--                            <label for="tipoEvento" class="form-label fw-bold">Tipo de evento</label>-->
+<!--                            <select id="tipoEvento" name="tipoEvento" class="form-select" required>-->
+<!--                                <option value="">Seleccioná un tipo</option>-->
+<!--                                <th:block th:each="tipo : ${tiposEvento}" th:switch="${tipo.name()}">-->
+<!--                                    <option th:case="'CUMPLEANIOS'" th:value="${tipo.name()}"-->
+<!--                                            th:selected="${tipoSeleccionado == tipo}">Cumpleaños</option>-->
+<!--                                    <option th:case="'FIESTA_DE_15'" th:value="${tipo.name()}"-->
+<!--                                            th:selected="${tipoSeleccionado == tipo}">Fiesta de 15</option>-->
+<!--                                    <option th:case="'CASAMIENTO'" th:value="${tipo.name()}"-->
+<!--                                            th:selected="${tipoSeleccionado == tipo}">Casamiento</option>-->
+<!--                                    <option th:case="'EMPRESARIAL'" th:value="${tipo.name()}"-->
+<!--                                            th:selected="${tipoSeleccionado == tipo}">Empresarial</option>-->
+<!--                                </th:block>-->
+<!--                            </select>-->
+<!--                        </div>-->
 
-                        <div class="mb-3">
-                            <label for="fecha" class="form-label fw-bold">Fecha del evento</label>
-                            <input id="fecha" name="fecha" type="text" class="form-control"
-                                   placeholder="Elegí una fecha" th:value="${fechaSeleccionada}" required readonly />
-                        </div>
+<!--                        <div class="mb-3">-->
+<!--                            <label for="fecha" class="form-label fw-bold">Fecha del evento</label>-->
+<!--                            <input id="fecha" name="fecha" type="text" class="form-control"-->
+<!--                                   placeholder="Elegí una fecha" th:value="${fechaSeleccionada}" required readonly />-->
+<!--                        </div>-->
 
-                        <div class="mb-3">
-                            <label for="cantidadInvitados" class="form-label fw-bold">
-                                Cantidad de invitados
-                                <span class="text-muted fw-normal">(hasta <span th:text="${capacidad}">50</span>)</span>
-                            </label>
-                            <input id="cantidadInvitados" name="cantidadInvitados" type="number"
-                                   class="form-control" min="1" th:max="${capacidad}"
-                                   th:value="${invitadosSeleccionados}" required />
-                        </div>
-                    </div>
+<!--                        <div class="mb-3">-->
+<!--                            <label for="cantidadInvitados" class="form-label fw-bold">-->
+<!--                                Cantidad de invitados-->
+<!--                                <span class="text-muted fw-normal">(hasta <span th:text="${capacidad}">50</span>)</span>-->
+<!--                            </label>-->
+<!--                            <input id="cantidadInvitados" name="cantidadInvitados" type="number"-->
+<!--                                   class="form-control" min="1" th:max="${capacidad}"-->
+<!--                                   th:value="${invitadosSeleccionados}" required />-->
+<!--                        </div>-->
+<!--                    </div>-->
 
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancelar</button>
-                        <button type="submit" class="btn btn-pack rounded-pill"><i class="bi bi-check2-circle me-1"></i>Confirmar reserva</button>
-                    </div>
+<!--                    <div class="modal-footer">-->
+<!--                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancelar</button>-->
+<!--                        <button type="submit" class="btn btn-pack rounded-pill"><i class="bi bi-check2-circle me-1"></i>Confirmar reserva</button>-->
+<!--                    </div>-->
+                     <th:block th:replace="~{fragments/modal-reservar :: modal}"></th:block>
+
                 </form>
             </div>
         </div>
     </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/es.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!--<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/es.js"></script>-->
+<!--<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>-->
+
+<th:block th:replace="~{fragments/modal-reservar :: scripts}"></th:block>
 
 <script th:inline="javascript">
     const fechasOcupadas = /*[[${fechasOcupadas}]]*/ [];

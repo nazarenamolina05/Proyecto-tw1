@@ -22,7 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class ControladorReservas {
 
   public static final String EVENTO = "eventoPersonalizado";
-  private static final String USUARIO = "USUARIO";
+  public static final String USUARIO = "USUARIO";
   private static final String RUTA_EVENTO = "/evento-personalizado"; // NUEVO
   private static final String VOLVER_AL_EVENTO = "redirect:" + RUTA_EVENTO;
 

@@ -6,6 +6,7 @@
     <title>Evento personalizado</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}"/>
     <link rel="stylesheet" th:href="@{/css/evento-personalizado.css}"/>
 </head>
@@ -319,6 +320,7 @@
                     </div>
                 </div>
         </section>
+        <th:block th:replace="~{fragments/modal-reservar :: modal}"></th:block>
     </main>
 
 <script>
@@ -341,5 +343,6 @@
     })();
 </script>
 
+    <th:block th:replace="~{fragments/modal-reservar :: scripts}"></th:block>
 </body>
 </html>

@@ -150,6 +150,8 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     LocalDate fecha = LocalDate.now().plusDays(10);
     Evento eventoCreado = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 20);
 
+    session.setAttribute(ControladorReservas.USUARIO, new Usuario());
+
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
     when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
 
@@ -169,6 +171,31 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertEquals(salon, eventoEnSesion.getSalon());
     assertEquals(paqueteBasico.getCatering(), eventoEnSesion.getCatering());
     assertEquals(1, eventoEnSesion.getServiciosAdicionales().size());
+    assertEquals("redirect:/reservar", modelAndView.getViewName());
+  }
+
+  @Test
+  public void mandaAlLoginYDejaReservarComoDestinoCuandoNoHayUsuarioLogueado() {
+    Salon salon = new Salon("Salón Los Álamos", 50000.0);
+    salon.setCapacidad(50);
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
+    LocalDate fecha = LocalDate.now().plusDays(10);
+    Evento eventoCreado = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 20);
+
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
+
+    ModelAndView modelAndView = controlador.reservar(
+      1L,
+      TipoPaquete.CUMPLEANIOS,
+      fecha,
+      20,
+      session
+    );
+
+    assertEquals("redirect:/login", modelAndView.getViewName());
+    assertEquals("/reservar", session.getAttribute(ControladorLogin.DESTINO_POST_LOGIN));
+    assertNotNull(session.getAttribute(ControladorReservas.EVENTO));
   }
 
   private Paquete crearPaqueteBasico(Salon salon) {
