@@ -65,9 +65,11 @@ public class ControladorEventoPersonalizado {
     }
     if (evento != null) {
       modelo.put("evento", evento);
+
+      // Se vuelve a utilizar el método privado para evitar el error de PMD
       modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
+
       modelo.put("caterings", servicioEvento.obtenerCaterings());
-      //      modelo.put("servicio", servicioEvento.obtenerServicioAdicionales());
       ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
@@ -179,25 +181,7 @@ public class ControladorEventoPersonalizado {
     return volverAlEvento("quitarServicio", id);
   }
 
-  //  @RequestMapping(value = "/evento-personalizado/reservar", method = RequestMethod.POST)
-  //  public ModelAndView reservarEvento(HttpSession session) {
-  //    Evento evento = obtenerEvento(session);
-  //    Usuario user = obtenerUsuario(session);
-  //    if (evento == null) {
-  //      return volverAlEvento();
-  //    }
-  //
-  //    if (user == null) {
-  //      return new ModelAndView("redirect:/login");
-  //    }
-  //
-  //    if (evento.getSalon() == null || evento.getCatering() == null) {
-  //      return new ModelAndView("redirect:/evento-personalizado?error=incompleto");
-  //    }
-  //    return volverAlEvento();
-  //  }
-
-  // Solo se ofrecen los salones sin reserva activa en la fecha del evento.
+  // Método privado utilizado para obtener salones disponibles y gestionar excepciones
   private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
     try {
       return servicioDisponibilidadSalon.obtenerSalonesDisponibles(
@@ -206,8 +190,6 @@ public class ControladorEventoPersonalizado {
       );
     } catch (FechaInvalida excepcion) {
       modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
-      // Sin fecha válida no sabemos qué salones están libres,
-      // pero si el evento ya trae uno (el del paquete) lo seguimos mostrando.
       return evento.getSalon() == null ? List.of() : List.of(evento.getSalon());
     }
   }

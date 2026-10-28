@@ -3,13 +3,8 @@ package com.tallerwebi.dominio;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,26 +25,15 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
 
   @Override
   public List<Salon> obtenerSalonesDisponibles(LocalDate desde, LocalDate hasta) {
-    if (desde == null || !desde.isAfter(LocalDate.now())) {
-      throw new FechaInvalida();
-    }
+    validarFecha(desde);
 
-    List<Salon> todosLosSalones = repositorioSalon.obtenerTodos();
+    Set<Long> idsOcupados = obtenerIdsSalonesOcupados(desde, hasta);
 
-    Set<Long> idsOcupados = new HashSet<>();
-    for (Reserva reserva : repositorioReserva.buscarEntreFechas(desde, hasta)) {
-      if (bloqueaLaFecha(reserva)) {
-        idsOcupados.add(salonDe(reserva).getId());
-      }
-    }
-
-    List<Salon> disponibles = new ArrayList<>();
-    for (Salon salon : todosLosSalones) {
-      if (!idsOcupados.contains(salon.getId())) {
-        disponibles.add(salon);
-      }
-    }
-    return disponibles;
+    return repositorioSalon
+      .obtenerTodos()
+      .stream()
+      .filter(salon -> !idsOcupados.contains(salon.getId()))
+      .collect(Collectors.toList());
   }
 
   @Override
@@ -59,6 +43,7 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
 
     Map<LocalDate, Set<Long>> salonesOcupadosPorDia = new HashMap<>();
     List<Reserva> reservas = repositorioReserva.buscarEntreFechas(mes.atDay(1), mes.atEndOfMonth());
+
     for (Reserva reserva : reservas) {
       if (bloqueaLaFecha(reserva)) {
         salonesOcupadosPorDia
@@ -76,13 +61,25 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
     return calendario;
   }
 
-  // Único lugar que sabe cómo llegar al salón de una reserva: a través de su evento.
+  private void validarFecha(LocalDate desde) {
+    if (desde == null || !desde.isAfter(LocalDate.now())) {
+      throw new FechaInvalida();
+    }
+  }
+
+  private Set<Long> obtenerIdsSalonesOcupados(LocalDate desde, LocalDate hasta) {
+    return repositorioReserva
+      .buscarEntreFechas(desde, hasta)
+      .stream()
+      .filter(this::bloqueaLaFecha)
+      .map(reserva -> salonDe(reserva).getId())
+      .collect(Collectors.toSet());
+  }
+
   private Salon salonDe(Reserva reserva) {
     return reserva.getEvento() == null ? null : reserva.getEvento().getSalon();
   }
 
-  // Una reserva bloquea su salón si está señada o confirmada. Las reservas sin salón
-  // asociado no se pueden atribuir a ningún salón, así que no bloquean.
   private boolean bloqueaLaFecha(Reserva reserva) {
     return (
       salonDe(reserva) != null &&
