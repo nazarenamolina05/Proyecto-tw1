@@ -63,6 +63,10 @@ public class ControladorConsultarPaquetesPredeterminados {
       paquete.getServiciosAdicionales().forEach(evento::agregarServicio);
 
       session.setAttribute(ControladorReservas.EVENTO, evento);
+      if (session.getAttribute(ControladorReservas.USUARIO) == null) {
+        session.setAttribute(ControladorLogin.DESTINO_POST_LOGIN, "/reservar");
+        return new ModelAndView("redirect:/login");
+      }
       return new ModelAndView("redirect:/reservar");
     } catch (SeleccionInvalida e) {
       modelo.put("error", e.getMessage());
