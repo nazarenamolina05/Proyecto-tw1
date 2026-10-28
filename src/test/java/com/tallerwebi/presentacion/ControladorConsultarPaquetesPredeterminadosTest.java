@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControladorConsultarPaquetesPredeterminadosTest {
@@ -22,12 +23,17 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
   private ServicioConsultarPaquetesPredeterminados servicio;
   private ServicioValidarSeleccionPaquete servicioValidacion;
   private ControladorConsultarPaquetesPredeterminados controlador;
+  private ServicioEvento servicioEvento;
+  private MockHttpSession session;
 
   @BeforeEach
   public void init() {
     servicio = mock(ServicioConsultarPaquetesPredeterminados.class);
     servicioValidacion = mock(ServicioValidarSeleccionPaquete.class);
-    controlador = new ControladorConsultarPaquetesPredeterminados(servicio, servicioValidacion);
+    servicioEvento = mock(ServicioEvento.class);
+    session = new MockHttpSession();
+    controlador =
+      new ControladorConsultarPaquetesPredeterminados(servicio, servicioValidacion, servicioEvento);
   }
 
   @Test
@@ -98,7 +104,13 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
       .validar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
 
     // Ejecución
-    ModelAndView modelAndView = controlador.reservar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
+    ModelAndView modelAndView = controlador.reservar(
+      1L,
+      TipoPaquete.CUMPLEANIOS,
+      fecha,
+      20,
+      session
+    );
 
     // Validación
     assertEquals("paquete-detalle", modelAndView.getViewName());
@@ -107,25 +119,56 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertEquals(TipoPaquete.CUMPLEANIOS, modelAndView.getModel().get("tipoSeleccionado"));
     assertEquals(fecha.toString(), modelAndView.getModel().get("fechaSeleccionada"));
     assertEquals(20, modelAndView.getModel().get("invitadosSeleccionados"));
+    assertNull(session.getAttribute(ControladorReservas.EVENTO));
   }
 
+  //  @Test
+  //  public void muestraMensajeDeExitoCuandoLaSeleccionEsValida() {
+  //    // Preparación
+  //    Salon salon = new Salon("Salón Los Álamos", 50000.0);
+  //    salon.setCapacidad(50);
+  //    Paquete paqueteBasico = crearPaqueteBasico(salon);
+  //    LocalDate fecha = LocalDate.now().plusDays(10);
+  //
+  //    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+  //
+  //    // Ejecución
+  //    ModelAndView modelAndView = controlador.reservar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20, session);
+  //
+  //    // Validación
+  //    assertEquals("paquete-detalle", modelAndView.getViewName());
+  //    assertNull(modelAndView.getModel().get("error"));
+  //    assertNotNull(modelAndView.getModel().get("mensajeExito"));
+  //  }
+
   @Test
-  public void muestraMensajeDeExitoCuandoLaSeleccionEsValida() {
+  public void guardaElEventoEnLaSesionYRedirigeAReservarCuandoLaSeleccionEsValida() {
     // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
     Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fecha = LocalDate.now().plusDays(10);
+    Evento eventoCreado = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 20);
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
 
     // Ejecución
-    ModelAndView modelAndView = controlador.reservar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
+    ModelAndView modelAndView = controlador.reservar(
+      1L,
+      TipoPaquete.CUMPLEANIOS,
+      fecha,
+      20,
+      session
+    );
 
     // Validación
-    assertEquals("paquete-detalle", modelAndView.getViewName());
-    assertNull(modelAndView.getModel().get("error"));
-    assertNotNull(modelAndView.getModel().get("mensajeExito"));
+    assertEquals("redirect:/reservar", modelAndView.getViewName());
+
+    Evento eventoEnSesion = (Evento) session.getAttribute(ControladorReservas.EVENTO);
+    assertEquals(salon, eventoEnSesion.getSalon());
+    assertEquals(paqueteBasico.getCatering(), eventoEnSesion.getCatering());
+    assertEquals(1, eventoEnSesion.getServiciosAdicionales().size());
   }
 
   private Paquete crearPaqueteBasico(Salon salon) {
