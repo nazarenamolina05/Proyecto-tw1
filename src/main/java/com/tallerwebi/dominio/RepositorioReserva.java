@@ -11,4 +11,6 @@ public interface RepositorioReserva {
   List<Reserva> buscarEntreFechas(LocalDate desde, LocalDate hasta);
 
   void guardar(Reserva reserva);
+
+  Reserva buscarPorId(Long id);
 }

@@ -3,6 +3,7 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.*;
 import com.tallerwebi.dominio.excepcion.EventoIncompleto;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -105,5 +107,23 @@ public class ControladorReservas {
   private ModelAndView irAlLoginYVolverAlEvento(HttpSession session) {
     session.setAttribute(ControladorLogin.DESTINO_POST_LOGIN, RUTA_EVENTO);
     return new ModelAndView("redirect:/login");
+  }
+
+  @RequestMapping(path = "/mis-reservas/{id}", method = RequestMethod.GET)
+  public ModelAndView verDetalleDeReserva(@PathVariable("id") Long id, HttpServletRequest request) {
+    Usuario usuarioLogueado = (Usuario) request.getSession().getAttribute(USUARIO);
+
+    if (usuarioLogueado == null) {
+      return new ModelAndView("redirect:/login");
+    }
+
+    try {
+      Reserva reserva = servicioReserva.obtenerReservaDe(id, usuarioLogueado);
+      Map<String, Object> modelo = new ModelMap();
+      modelo.put("reserva", reserva);
+      return new ModelAndView("detalle-reserva", modelo);
+    } catch (ReservaNoEncontrada e) {
+      return new ModelAndView("redirect:/mis-reservas");
+    }
   }
 }

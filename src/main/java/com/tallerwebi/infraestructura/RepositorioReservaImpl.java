@@ -56,4 +56,19 @@ public class RepositorioReservaImpl implements RepositorioReserva {
   public void guardar(Reserva reserva) {
     sessionFactory.getCurrentSession().persist(reserva);
   }
+
+  @Override
+  public Reserva buscarPorId(Long id) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery(
+        "select distinct r from Reserva r " +
+        "join fetch r.evento e " +
+        "left join fetch e.servicioAdicionalesList " +
+        "where r.id = :id",
+        Reserva.class
+      )
+      .setParameter("id", id)
+      .uniqueResult();
+  }
 }

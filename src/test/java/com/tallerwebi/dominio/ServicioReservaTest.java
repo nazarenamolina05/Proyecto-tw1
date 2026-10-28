@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.tallerwebi.dominio.excepcion.EventoIncompleto;
 import com.tallerwebi.dominio.excepcion.FechaInvalida;
+import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
 import java.time.LocalDate;
 import java.util.List;
@@ -112,6 +113,50 @@ public class ServicioReservaTest {
       () -> servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA)
     );
     verify(repositorioReservaMock, never()).guardar(any(Reserva.class));
+  }
+
+  @Test
+  void deberiaObtenerLaReservaPorIdSiPerteneceAlUsuario() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    Reserva reserva = this.dadoQueExisteUnaReservaDe(usuario);
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
+
+    Reserva obtenida = servicioReserva.obtenerReservaDe(10L, usuario);
+
+    assertThat(obtenida, equalTo(reserva));
+  }
+
+  @Test
+  void noDeberiaObtenerUnaReservaQueNoExiste() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(null);
+
+    assertThrows(ReservaNoEncontrada.class, () -> servicioReserva.obtenerReservaDe(10L, usuario));
+  }
+
+  @Test
+  void noDeberiaObtenerLaReservaDeOtroUsuario() {
+    Usuario duenio = this.dadoQueExisteUnUsuarioConId(1L);
+    Usuario otroUsuario = this.dadoQueExisteUnUsuarioConId(2L);
+    when(repositorioReservaMock.buscarPorId(10L))
+      .thenReturn(this.dadoQueExisteUnaReservaDe(duenio));
+
+    assertThrows(
+      ReservaNoEncontrada.class,
+      () -> servicioReserva.obtenerReservaDe(10L, otroUsuario)
+    );
+  }
+
+  private Usuario dadoQueExisteUnUsuarioConId(Long id) {
+    Usuario usuario = new Usuario();
+    usuario.setId(id);
+    return usuario;
+  }
+
+  private Reserva dadoQueExisteUnaReservaDe(Usuario usuario) {
+    Reserva reserva = new Reserva();
+    reserva.setUsuario(usuario);
+    return reserva;
   }
 
   private Evento dadoQueTengoUnEventoConSalonParaElDia(Long idSalon, LocalDate fecha) {
