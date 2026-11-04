@@ -26,7 +26,7 @@ public class ServicioDisponibilidadSalonTest {
     repositorioSalon = mock(RepositorioSalon.class);
     repositorioReserva = mock(RepositorioReserva.class);
     servicioDisponibilidadSalon =
-            new ServicioDisponibilidadSalonImpl(repositorioSalon, repositorioReserva);
+      new ServicioDisponibilidadSalonImpl(repositorioSalon, repositorioReserva);
   }
 
   @Test
@@ -46,8 +46,8 @@ public class ServicioDisponibilidadSalonTest {
     LocalDate ayer = LocalDate.now().minusDays(1);
 
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, FECHA)
     );
   }
 
@@ -56,16 +56,16 @@ public class ServicioDisponibilidadSalonTest {
     LocalDate hoy = LocalDate.now();
 
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(hoy, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(hoy, FECHA)
     );
   }
 
   @Test
   void dadoQueLaFechaEsNulaDeberiaDarError() {
     assertThrows(
-            FechaInvalida.class,
-            () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(null, FECHA)
+      FechaInvalida.class,
+      () -> servicioDisponibilidadSalon.obtenerSalonesDisponibles(null, FECHA)
     );
   }
 

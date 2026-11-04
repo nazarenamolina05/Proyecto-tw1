@@ -11,6 +11,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,6 +25,8 @@ public class ControladorEventoPersonalizado {
   private static final String MODO = "modo";
   private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
   private static final String ERROR_PAQUETE = "errorPaquete";
+  private static final String DATOS = "datos";
+
   private ServicioEvento servicioEvento;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
@@ -66,10 +69,9 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       modelo.put("evento", evento);
 
-      // Se vuelve a utilizar el método privado para evitar el error de PMD
       modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
-
       modelo.put("caterings", servicioEvento.obtenerCaterings());
+
       ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
@@ -81,6 +83,7 @@ public class ControladorEventoPersonalizado {
         "cateringElegidoId",
         evento.getCatering() == null ? null : evento.getCatering().getId()
       );
+
       modelo.put(
         "serviciosElegidosIds",
         evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
@@ -102,18 +105,19 @@ public class ControladorEventoPersonalizado {
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.POST)
   public ModelAndView guardarDatosDelEvento(
-    @RequestParam("tipo") TipoPaquete tipo,
-    @RequestParam("fecha") LocalDate fecha,
-    @RequestParam("cantidadInvitados") Integer cantidadInvitados,
+    @ModelAttribute(DATOS) DatosEventoForm datos,
     HttpSession session
   ) {
     Evento evento = obtenerEvento(session);
     if (evento == null) {
-      session.setAttribute(EVENTO, servicioEvento.crearEvento(tipo, fecha, cantidadInvitados));
+      session.setAttribute(
+        EVENTO,
+        servicioEvento.crearEvento(datos.getTipo(), datos.getFecha(), datos.getCantidadInvitados())
+      );
     } else {
-      evento.setTipoPaquete(tipo);
-      evento.setFecha(fecha);
-      evento.setCantidadInvitados(cantidadInvitados);
+      evento.setTipoPaquete(datos.getTipo());
+      evento.setFecha(datos.getFecha());
+      evento.setCantidadInvitados(datos.getCantidadInvitados());
     }
     return volverAlEvento();
   }
@@ -124,16 +128,21 @@ public class ControladorEventoPersonalizado {
     params = "paqueteId"
   )
   public ModelAndView modificarPaqueteConDatos(
-    @RequestParam("paqueteId") Long paqueteId,
-    @RequestParam("tipo") TipoPaquete tipo,
-    @RequestParam("fecha") LocalDate fecha,
-    @RequestParam("cantidadInvitados") Integer cantidadInvitados,
+    @ModelAttribute(DATOS) DatosEventoForm datos,
     HttpSession session
   ) {
     try {
-      servicioValidacion.validar(paqueteId, tipo, fecha, cantidadInvitados);
-      Paquete paquete = servicioPaquetes.consultarPorId(paqueteId);
-      session.setAttribute(EVENTO, paquete.crearEvento(tipo, fecha, cantidadInvitados));
+      servicioValidacion.validar(
+        datos.getPaqueteId(),
+        datos.getTipo(),
+        datos.getFecha(),
+        datos.getCantidadInvitados()
+      );
+      Paquete paquete = servicioPaquetes.consultarPorId(datos.getPaqueteId());
+      session.setAttribute(
+        EVENTO,
+        paquete.crearEvento(datos.getTipo(), datos.getFecha(), datos.getCantidadInvitados())
+      );
       session.removeAttribute(PAQUETE_PENDIENTE);
     } catch (SeleccionInvalida e) {
       session.setAttribute(ERROR_PAQUETE, e.getMessage());
@@ -144,44 +153,52 @@ public class ControladorEventoPersonalizado {
   }
 
   @RequestMapping(value = "/evento-personalizado/salon", method = RequestMethod.POST)
-  public ModelAndView elegirSalon(@RequestParam("id") Long id, HttpSession session) {
+  public ModelAndView elegirSalon(@ModelAttribute(DATOS) DatosIdForm datos, HttpSession session) {
     Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEvento.elegirSalon(evento, id);
+      servicioEvento.elegirSalon(evento, datos.getId());
     }
-    return volverAlEvento("salon", id);
+    return volverAlEvento("salon", datos.getId());
   }
 
   @RequestMapping(value = "/evento-personalizado/catering", method = RequestMethod.POST)
-  public ModelAndView elegirCatering(@RequestParam("id") Long id, HttpSession session) {
+  public ModelAndView elegirCatering(
+    @ModelAttribute(DATOS) DatosIdForm datos,
+    HttpSession session
+  ) {
     Evento evento = obtenerEvento(session);
 
     if (evento != null) {
-      servicioEvento.elegirCatering(evento, id);
+      servicioEvento.elegirCatering(evento, datos.getId());
     }
 
-    return volverAlEvento("catering", id);
+    return volverAlEvento("catering", datos.getId());
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/agregar", method = RequestMethod.POST)
-  public ModelAndView agregarServicio(@RequestParam("id") Long id, HttpSession session) {
+  public ModelAndView agregarServicio(
+    @ModelAttribute(DATOS) DatosIdForm datos,
+    HttpSession session
+  ) {
     Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEvento.agregarServicio(evento, id);
+      servicioEvento.agregarServicio(evento, datos.getId());
     }
-    return volverAlEvento("agregarServicio", id);
+    return volverAlEvento("agregarServicio", datos.getId());
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/quitar", method = RequestMethod.POST)
-  public ModelAndView quitarServicio(@RequestParam("id") Long id, HttpSession session) {
+  public ModelAndView quitarServicio(
+    @ModelAttribute(DATOS) DatosIdForm datos,
+    HttpSession session
+  ) {
     Evento evento = obtenerEvento(session);
     if (evento != null) {
-      servicioEvento.quitarServicio(evento, id);
+      servicioEvento.quitarServicio(evento, datos.getId());
     }
-    return volverAlEvento("quitarServicio", id);
+    return volverAlEvento("quitarServicio", datos.getId());
   }
 
-  // Método privado utilizado para obtener salones disponibles y gestionar excepciones
   private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
     try {
       return servicioDisponibilidadSalon.obtenerSalonesDisponibles(

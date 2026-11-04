@@ -7,13 +7,12 @@ import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -41,25 +40,31 @@ public class ControladorConsultarPaquetesPredeterminados {
   @PostMapping(path = "/paquetes-predeterminados/{id}/reservar")
   public ModelAndView reservar(
     @PathVariable("id") Long id,
-    @RequestParam(value = "tipoEvento", required = false) TipoPaquete tipoEvento,
-    @RequestParam(value = "fecha", required = false) @DateTimeFormat(
-      iso = DateTimeFormat.ISO.DATE
-    ) LocalDate fecha,
-    @RequestParam(value = "cantidadInvitados", required = false) Integer cantidadInvitados,
+    @ModelAttribute("datos") DatosReservaPaquete datos,
     HttpSession session
   ) {
     Map<String, Object> modelo = armarModeloDetalle(id);
-    modelo.put("tipoSeleccionado", tipoEvento);
-    modelo.put("fechaSeleccionada", fecha == null ? null : fecha.toString());
-    modelo.put("invitadosSeleccionados", cantidadInvitados);
-
+    modelo.put("tipoSeleccionado", datos.getTipoEvento());
+    modelo.put("fechaSeleccionada", datos.getFecha() == null ? null : datos.getFecha().toString());
+    modelo.put("invitadosSeleccionados", datos.getCantidadInvitados());
     try {
-      servicioValidacion.validar(id, tipoEvento, fecha, cantidadInvitados);
+      servicioValidacion.validar(
+        id,
+        datos.getTipoEvento(),
+        datos.getFecha(),
+        datos.getCantidadInvitados()
+      );
 
       Paquete paquete = servicio.consultarPorId(id);
-      Evento evento = servicioEvento.crearEvento(tipoEvento, fecha, cantidadInvitados);
+      Evento evento = servicioEvento.crearEvento(
+        datos.getTipoEvento(),
+        datos.getFecha(),
+        datos.getCantidadInvitados()
+      );
       evento.setSalon(paquete.getSalon());
       evento.setCatering(paquete.getCatering());
+
+      // CORREGIDO: Usamos getServiciosAdicionalesComoCatalogo() para obtener los ServicioAdicional planos
       paquete.getServiciosAdicionales().forEach(evento::agregarServicio);
 
       session.setAttribute(ControladorReservas.EVENTO, evento);

@@ -35,7 +35,10 @@ public class ControladorPublicarPaqueteTest {
 
   @Test
   void siNoHayUsuarioLogueadoDeberiaRedirigirAlLogin() {
-    ModelAndView mav = controlador.publicar(10L, "Mi cumple", requestMock);
+    DatosPublicarPaquete datos = new DatosPublicarPaquete();
+    datos.setNombre("Mi cumple");
+
+    ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/login"));
     verify(servicioMock, never()).publicar(any(), any(), any());
@@ -46,7 +49,10 @@ public class ControladorPublicarPaqueteTest {
     Usuario usuario = new Usuario();
     when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
 
-    ModelAndView mav = controlador.publicar(10L, "Mi cumple", requestMock);
+    DatosPublicarPaquete datos = new DatosPublicarPaquete();
+    datos.setNombre("Mi cumple");
+
+    ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     verify(servicioMock).publicar(10L, usuario, "Mi cumple");
     assertThat(mav.getViewName(), equalTo("redirect:/paquetes"));
@@ -57,7 +63,10 @@ public class ControladorPublicarPaqueteTest {
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(servicioMock.publicar(any(), any(), any())).thenThrow(new ReservaNoEncontrada());
 
-    ModelAndView mav = controlador.publicar(10L, "Mi cumple", requestMock);
+    DatosPublicarPaquete datos = new DatosPublicarPaquete();
+    datos.setNombre("Mi cumple");
+
+    ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
   }
@@ -67,7 +76,10 @@ public class ControladorPublicarPaqueteTest {
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(servicioMock.publicar(any(), any(), any())).thenThrow(new EventoNoFinalizado());
 
-    ModelAndView mav = controlador.publicar(10L, "Mi cumple", requestMock);
+    DatosPublicarPaquete datos = new DatosPublicarPaquete();
+    datos.setNombre("Mi cumple");
+
+    ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas/10?error=noFinalizado"));
   }
@@ -77,7 +89,10 @@ public class ControladorPublicarPaqueteTest {
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(servicioMock.publicar(any(), any(), any())).thenThrow(new NombrePaqueteInvalido());
 
-    ModelAndView mav = controlador.publicar(10L, "  ", requestMock);
+    DatosPublicarPaquete datos = new DatosPublicarPaquete();
+    datos.setNombre("  ");
+
+    ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas/10?error=nombre"));
   }

@@ -102,7 +102,6 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("cateringElegidoId"), nullValue());
     verify(servicioDisponibilidadSalon).obtenerSalonesDisponibles(fecha, fecha);
     verify(servicio).obtenerCaterings();
-    //    verify(servicio).obtenerServicioAdicionales();
   }
 
   @Test
@@ -171,7 +170,7 @@ public class ControladorEventoPersonalizadoTest {
 
   @Test
   public void conSalonYCateringElegidosPasaSusIdsALaVista() {
-    Salon salon = mock(Salon.class); // ajustá el tipo si tu clase se llama distinto
+    Salon salon = mock(Salon.class);
     Catering catering = mock(Catering.class);
     when(salon.getId()).thenReturn(1L);
     when(catering.getId()).thenReturn(2L);
@@ -234,7 +233,12 @@ public class ControladorEventoPersonalizadoTest {
     LocalDate fecha = LocalDate.of(2026, 10, 10);
     when(servicio.crearEvento(TipoPaquete.CASAMIENTO, fecha, 30)).thenReturn(evento);
 
-    ModelAndView mav = controlador.guardarDatosDelEvento(TipoPaquete.CASAMIENTO, fecha, 30, sesion);
+    DatosEventoForm datos = new DatosEventoForm();
+    datos.setTipo(TipoPaquete.CASAMIENTO);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(30);
+
+    ModelAndView mav = controlador.guardarDatosDelEvento(datos, sesion);
 
     verify(sesion).setAttribute(EVENTO, evento);
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
@@ -245,7 +249,12 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     LocalDate fecha = LocalDate.of(2026, 10, 10);
 
-    controlador.guardarDatosDelEvento(TipoPaquete.CASAMIENTO, fecha, 50, sesion);
+    DatosEventoForm datos = new DatosEventoForm();
+    datos.setTipo(TipoPaquete.CASAMIENTO);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(50);
+
+    controlador.guardarDatosDelEvento(datos, sesion);
 
     verify(evento).setTipoPaquete(TipoPaquete.CASAMIENTO);
     verify(evento).setFecha(fecha);
@@ -269,7 +278,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alElegirSalonDelegaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
 
-    ModelAndView mav = controlador.elegirSalon(1L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(1L);
+
+    ModelAndView mav = controlador.elegirSalon(datos, sesion);
 
     verify(servicio).elegirSalon(evento, 1L);
     assertThat(mav.getViewName(), startsWith("redirect:/evento-personalizado"));
@@ -279,7 +291,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alElegirSalonSinEventoNoLlamaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);
 
-    controlador.elegirSalon(1L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(1L);
+
+    controlador.elegirSalon(datos, sesion);
 
     verify(servicio, never()).elegirSalon(any(), anyLong());
   }
@@ -311,7 +326,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alElegirCateringDelegaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
 
-    controlador.elegirCatering(2L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(2L);
+
+    controlador.elegirCatering(datos, sesion);
 
     verify(servicio).elegirCatering(evento, 2L);
   }
@@ -320,7 +338,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alElegirCateringSinEventoNoLlamaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);
 
-    controlador.elegirCatering(2L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(2L);
+
+    controlador.elegirCatering(datos, sesion);
 
     verify(servicio, never()).elegirCatering(any(), anyLong());
   }
@@ -331,7 +352,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alAgregarServicioDelegaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
 
-    controlador.agregarServicio(3L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(3L);
+
+    controlador.agregarServicio(datos, sesion);
 
     verify(servicio).agregarServicio(evento, 3L);
   }
@@ -340,7 +364,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alAgregarServicioSinEventoNoLlamaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);
 
-    controlador.agregarServicio(3L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(3L);
+
+    controlador.agregarServicio(datos, sesion);
 
     verify(servicio, never()).agregarServicio(any(), anyLong());
   }
@@ -349,7 +376,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alQuitarServicioDelegaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
 
-    controlador.quitarServicio(3L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(3L);
+
+    controlador.quitarServicio(datos, sesion);
 
     verify(servicio).quitarServicio(evento, 3L);
   }
@@ -358,7 +388,10 @@ public class ControladorEventoPersonalizadoTest {
   public void alQuitarServicioSinEventoNoLlamaAlServicio() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);
 
-    controlador.quitarServicio(3L, sesion);
+    DatosIdForm datos = new DatosIdForm();
+    datos.setId(3L);
+
+    controlador.quitarServicio(datos, sesion);
 
     verify(servicio, never()).quitarServicio(any(), anyLong());
   }
@@ -380,13 +413,13 @@ public class ControladorEventoPersonalizadoTest {
     );
     when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
 
-    ModelAndView mav = controlador.modificarPaqueteConDatos(
-      1L,
-      TipoPaquete.CUMPLEANIOS,
-      fecha,
-      40,
-      sesion
-    );
+    DatosEventoForm datos = new DatosEventoForm();
+    datos.setPaqueteId(1L);
+    datos.setTipo(TipoPaquete.CUMPLEANIOS);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(40);
+
+    ModelAndView mav = controlador.modificarPaqueteConDatos(datos, sesion);
 
     ArgumentCaptor<Evento> captor = ArgumentCaptor.forClass(Evento.class);
     verify(sesion).setAttribute(eq(EVENTO), captor.capture());
@@ -406,7 +439,13 @@ public class ControladorEventoPersonalizadoTest {
       .when(servicioValidacion)
       .validar(1L, TipoPaquete.CUMPLEANIOS, fecha, 80);
 
-    controlador.modificarPaqueteConDatos(1L, TipoPaquete.CUMPLEANIOS, fecha, 80, sesion);
+    DatosEventoForm datos = new DatosEventoForm();
+    datos.setPaqueteId(1L);
+    datos.setTipo(TipoPaquete.CUMPLEANIOS);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(80);
+
+    controlador.modificarPaqueteConDatos(datos, sesion);
 
     verify(sesion, never()).setAttribute(eq(EVENTO), any());
     verify(sesion).setAttribute(ERROR_PAQUETE, "Este paquete permite hasta 50 invitados.");

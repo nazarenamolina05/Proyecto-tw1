@@ -8,9 +8,9 @@ import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -28,7 +28,7 @@ public class ControladorPublicarPaquete {
   @PostMapping(path = "/mis-reservas/{id}/publicar")
   public ModelAndView publicar(
     @PathVariable("id") Long idReserva,
-    @RequestParam("nombre") String nombre,
+    @ModelAttribute("datos") DatosPublicarPaquete datos,
     HttpServletRequest request
   ) {
     Usuario usuario = (Usuario) request.getSession().getAttribute(USUARIO);
@@ -39,7 +39,7 @@ public class ControladorPublicarPaquete {
 
     String volverAlDetalle = "redirect:/mis-reservas/" + idReserva;
     try {
-      servicioPublicarPaquete.publicar(idReserva, usuario, nombre);
+      servicioPublicarPaquete.publicar(idReserva, usuario, datos.getNombre());
     } catch (ReservaNoEncontrada e) {
       return new ModelAndView("redirect:/mis-reservas");
     } catch (EventoNoFinalizado e) {

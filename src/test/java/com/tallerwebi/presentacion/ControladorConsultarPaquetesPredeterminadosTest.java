@@ -38,37 +38,29 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
 
   @Test
   public void muestraElDetalleDeUnPaqueteSegunSuId() {
-    // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
-
     Paquete paqueteBasico = crearPaqueteBasico(salon);
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
 
-    // Ejecución
     ModelAndView modelAndView = controlador.mostrarDetalle(1L);
 
-    // Validación
     assertEquals("paquete-detalle", modelAndView.getViewName());
     assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
   }
 
   @Test
   public void muestraLaVistaSinPaqueteCuandoElIdNoExiste() {
-    // Preparación
     when(servicio.consultarPorId(99L)).thenThrow(new PaqueteNoEncontrado());
 
-    // Ejecución
     ModelAndView modelAndView = controlador.mostrarDetalle(99L);
 
-    // Validación
     assertEquals("paquete-detalle", modelAndView.getViewName());
     assertNull(modelAndView.getModel().get("paquete"));
   }
 
   @Test
   public void muestraElDetalleConFechasOcupadasCapacidadYTiposDeEvento() {
-    // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
 
@@ -78,10 +70,8 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
     when(servicioValidacion.obtenerFechasOcupadas(1L)).thenReturn(List.of(fechaOcupada));
 
-    // Ejecución
     ModelAndView modelAndView = controlador.mostrarDetalle(1L);
 
-    // Validación
     assertEquals(50, modelAndView.getModel().get("capacidad"));
     assertEquals(List.of(fechaOcupada.toString()), modelAndView.getModel().get("fechasOcupadas"));
     assertArrayEquals(
@@ -92,7 +82,6 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
 
   @Test
   public void muestraElErrorYConservaLaSeleccionCuandoLaValidacionFalla() {
-    // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
     Paquete paqueteBasico = crearPaqueteBasico(salon);
@@ -103,16 +92,13 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
       .when(servicioValidacion)
       .validar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20);
 
-    // Ejecución
-    ModelAndView modelAndView = controlador.reservar(
-      1L,
-      TipoPaquete.CUMPLEANIOS,
-      fecha,
-      20,
-      session
-    );
+    DatosReservaPaquete datos = new DatosReservaPaquete();
+    datos.setTipoEvento(TipoPaquete.CUMPLEANIOS);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(20);
 
-    // Validación
+    ModelAndView modelAndView = controlador.reservar(1L, datos, session);
+
     assertEquals("paquete-detalle", modelAndView.getViewName());
     assertEquals("Esa fecha está ocupada, seleccioná otra.", modelAndView.getModel().get("error"));
     assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
@@ -122,28 +108,8 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertNull(session.getAttribute(ControladorReservas.EVENTO));
   }
 
-  //  @Test
-  //  public void muestraMensajeDeExitoCuandoLaSeleccionEsValida() {
-  //    // Preparación
-  //    Salon salon = new Salon("Salón Los Álamos", 50000.0);
-  //    salon.setCapacidad(50);
-  //    Paquete paqueteBasico = crearPaqueteBasico(salon);
-  //    LocalDate fecha = LocalDate.now().plusDays(10);
-  //
-  //    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
-  //
-  //    // Ejecución
-  //    ModelAndView modelAndView = controlador.reservar(1L, TipoPaquete.CUMPLEANIOS, fecha, 20, session);
-  //
-  //    // Validación
-  //    assertEquals("paquete-detalle", modelAndView.getViewName());
-  //    assertNull(modelAndView.getModel().get("error"));
-  //    assertNotNull(modelAndView.getModel().get("mensajeExito"));
-  //  }
-
   @Test
   public void guardaElEventoEnLaSesionYRedirigeAReservarCuandoLaSeleccionEsValida() {
-    // Preparación
     Salon salon = new Salon("Salón Los Álamos", 50000.0);
     salon.setCapacidad(50);
     Paquete paqueteBasico = crearPaqueteBasico(salon);
@@ -155,23 +121,19 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
     when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
 
-    // Ejecución
-    ModelAndView modelAndView = controlador.reservar(
-      1L,
-      TipoPaquete.CUMPLEANIOS,
-      fecha,
-      20,
-      session
-    );
+    DatosReservaPaquete datos = new DatosReservaPaquete();
+    datos.setTipoEvento(TipoPaquete.CUMPLEANIOS);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(20);
 
-    // Validación
+    ModelAndView modelAndView = controlador.reservar(1L, datos, session);
+
     assertEquals("redirect:/reservar", modelAndView.getViewName());
 
     Evento eventoEnSesion = (Evento) session.getAttribute(ControladorReservas.EVENTO);
     assertEquals(salon, eventoEnSesion.getSalon());
     assertEquals(paqueteBasico.getCatering(), eventoEnSesion.getCatering());
     assertEquals(1, eventoEnSesion.getServiciosAdicionales().size());
-    assertEquals("redirect:/reservar", modelAndView.getViewName());
   }
 
   @Test
@@ -185,13 +147,12 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
     when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
 
-    ModelAndView modelAndView = controlador.reservar(
-      1L,
-      TipoPaquete.CUMPLEANIOS,
-      fecha,
-      20,
-      session
-    );
+    DatosReservaPaquete datos = new DatosReservaPaquete();
+    datos.setTipoEvento(TipoPaquete.CUMPLEANIOS);
+    datos.setFecha(fecha);
+    datos.setCantidadInvitados(20);
+
+    ModelAndView modelAndView = controlador.reservar(1L, datos, session);
 
     assertEquals("redirect:/login", modelAndView.getViewName());
     assertEquals("/reservar", session.getAttribute(ControladorLogin.DESTINO_POST_LOGIN));

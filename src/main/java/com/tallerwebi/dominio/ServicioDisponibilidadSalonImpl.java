@@ -15,8 +15,8 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
   private final RepositorioReserva repositorioReserva;
 
   public ServicioDisponibilidadSalonImpl(
-          RepositorioSalon repositorioSalon,
-          RepositorioReserva repositorioReserva
+    RepositorioSalon repositorioSalon,
+    RepositorioReserva repositorioReserva
   ) {
     this.repositorioSalon = repositorioSalon;
     this.repositorioReserva = repositorioReserva;
@@ -29,10 +29,10 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
     Set<Long> idsOcupados = obtenerIdsSalonesOcupados(desde, hasta);
 
     return repositorioSalon
-            .obtenerTodos()
-            .stream()
-            .filter(salon -> !idsOcupados.contains(salon.getId()))
-            .collect(Collectors.toList());
+      .obtenerTodos()
+      .stream()
+      .filter(salon -> !idsOcupados.contains(salon.getId()))
+      .collect(Collectors.toList());
   }
 
   private void validarFecha(LocalDate desde) {
@@ -43,11 +43,11 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
 
   private Set<Long> obtenerIdsSalonesOcupados(LocalDate desde, LocalDate hasta) {
     return repositorioReserva
-            .buscarEntreFechas(desde, hasta)
-            .stream()
-            .filter(this::bloqueaLaFecha)
-            .map(reserva -> salonDe(reserva).getId())
-            .collect(Collectors.toSet());
+      .buscarEntreFechas(desde, hasta)
+      .stream()
+      .filter(this::bloqueaLaFecha)
+      .map(reserva -> salonDe(reserva).getId())
+      .collect(Collectors.toSet());
   }
 
   private Salon salonDe(Reserva reserva) {
@@ -56,9 +56,9 @@ public class ServicioDisponibilidadSalonImpl implements ServicioDisponibilidadSa
 
   private boolean bloqueaLaFecha(Reserva reserva) {
     return (
-            salonDe(reserva) != null &&
-                    (reserva.getEstado() == EstadoReserva.SENIADA ||
-                            reserva.getEstado() == EstadoReserva.CONFIRMADA)
+      salonDe(reserva) != null &&
+      (reserva.getEstado() == EstadoReserva.SENIADA ||
+        reserva.getEstado() == EstadoReserva.CONFIRMADA)
     );
   }
 }
