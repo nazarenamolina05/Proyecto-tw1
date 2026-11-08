@@ -12,4 +12,10 @@ public interface RepositorioPaquete {
   List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados);
 
   void guardar(Paquete paquete);
+
+  // [REFACTOR PAQUETE] Reemplazan al @ManyToMany: la relación se guarda y se consulta
+  // a través de la clase intermedia PaqueteServicio.
+  void guardarServicio(PaqueteServicio paqueteServicio);
+
+  List<ServicioAdicional> obtenerServiciosDe(Long idPaquete);
 }

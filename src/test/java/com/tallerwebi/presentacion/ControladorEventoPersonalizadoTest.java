@@ -196,8 +196,9 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(LocalDate.now().plusDays(10));
     when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(evento.calcularPrecioBase()).thenReturn(165000.0);
-    when(evento.calcularAdicional()).thenReturn(30000.0);
+    // [REFACTOR PAQUETE -> EVENTO] ahora reciben los servicios del paquete por parámetro
+    when(evento.calcularPrecioBase(any())).thenReturn(165000.0);
+    when(evento.calcularAdicional(any())).thenReturn(30000.0);
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
@@ -402,15 +403,7 @@ public class ControladorEventoPersonalizadoTest {
     Salon salon = new Salon("Salon Los Alamos", 50000.0);
     salon.setCapacidad(50);
     Catering catering = new Catering("Catering Basico", 1500.0);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      catering,
-      new ArrayList<>(),
-      165000.0
-    );
+    Paquete paquete = new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, salon, catering, 165000.0);
     when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
 
     DatosEventoForm datos = new DatosEventoForm();

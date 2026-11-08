@@ -30,7 +30,8 @@
         </p>
 
         <div class="pack-chips">
-            <span class="pack-chip" th:each="servicio : ${paquete.serviciosAdicionales}"
+            <!-- [REFACTOR PAQUETE] Paquete ya no tiene la lista: los servicios vienen en el mapa serviciosPorPaquete -->
+            <span class="pack-chip" th:each="servicio : ${serviciosPorPaquete != null ? serviciosPorPaquete.get(paquete.id) : null}"
                   th:text="${servicio.nombre}">Servicio</span>
         </div>
 

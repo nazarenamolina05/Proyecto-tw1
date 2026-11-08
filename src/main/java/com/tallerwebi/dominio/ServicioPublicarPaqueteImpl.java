@@ -35,7 +35,16 @@ public class ServicioPublicarPaqueteImpl implements ServicioPublicarPaquete {
 
     Paquete paquete = Paquete.desdeEvento(reserva.getEvento(), nombre, usuario);
     repositorioPaquete.guardar(paquete);
+    guardarServiciosDelEvento(paquete, reserva.getEvento());
     return paquete;
+  }
+
+  // [REFACTOR PAQUETE] Antes los servicios viajaban dentro del Paquete (@ManyToMany).
+  // Ahora se guarda una fila de PaqueteServicio por cada servicio del evento.
+  private void guardarServiciosDelEvento(Paquete paquete, Evento evento) {
+    for (ServicioAdicional servicio : evento.getServiciosAdicionales()) {
+      repositorioPaquete.guardarServicio(new PaqueteServicio(paquete, servicio));
+    }
   }
 
   private void validarQuePertenece(Reserva reserva, Usuario usuario) {

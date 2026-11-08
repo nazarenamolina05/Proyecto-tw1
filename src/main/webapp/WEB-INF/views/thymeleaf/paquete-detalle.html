@@ -39,7 +39,8 @@
                     <ul class="detalle-lista mb-4">
                         <li th:text="${paquete.salon.nombre}">Salón</li>
                         <li th:text="${paquete.catering.nombre}">Catering</li>
-                        <li th:each="servicio : ${paquete.serviciosAdicionales}" th:text="${servicio.nombre}">Servicio</li>
+                        <!-- [REFACTOR PAQUETE] Los servicios vienen aparte en ${servicios} -->
+                        <li th:each="servicio : ${servicios}" th:text="${servicio.nombre}">Servicio</li>
                     </ul>
 
                     <div class="detalle-precio">

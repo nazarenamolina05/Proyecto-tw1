@@ -38,6 +38,9 @@ public class Evento {
   @ManyToOne
   private Catering catering;
 
+  // TODO [equipo Evento] Este @ManyToMany también hay que sacarlo (regla del profe).
+  // Mismo esquema que PaqueteServicio: una clase intermedia EventoServicio con
+  // @ManyToOne Evento y @ManyToOne ServicioAdicional, y Evento sin la lista.
   @ManyToMany
   @JoinTable(
     name = "evento_servicio",
@@ -81,26 +84,32 @@ public class Evento {
     return total;
   }
 
-  public Double calcularPrecioBase() {
+  // [REFACTOR PAQUETE -> EVENTO] Paquete ya no tiene la lista de servicios, así que
+  // estos tres métodos reciben los servicios del paquete de origen por parámetro.
+  // Se obtienen con servicioConsultarPaquetesPredeterminados.consultarServiciosDe(paqueteOrigen).
+  // Antes: calcularPrecioBase(), calcularAdicional() y esServicioIncluido(servicio).
+  public Double calcularPrecioBase(List<ServicioAdicional> serviciosDelPaquete) {
     if (paqueteOrigen == null) {
       return 0.0;
     }
-    return paqueteOrigen.calcularPrecio(cantidadInvitados);
+    return paqueteOrigen.calcularPrecio(cantidadInvitados, serviciosDelPaquete);
   }
 
-  public Double calcularAdicional() {
+  public Double calcularAdicional(List<ServicioAdicional> serviciosDelPaquete) {
     if (paqueteOrigen == null) {
       return 0.0;
     }
-    return Math.max(0.0, calcularPresupuesto() - calcularPrecioBase());
+    return Math.max(0.0, calcularPresupuesto() - calcularPrecioBase(serviciosDelPaquete));
   }
 
-  public boolean esServicioIncluido(ServicioAdicional servicio) {
+  public boolean esServicioIncluido(
+    ServicioAdicional servicio,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
     if (paqueteOrigen == null) {
       return false;
     }
-    return paqueteOrigen
-      .getServiciosAdicionales()
+    return serviciosDelPaquete
       .stream()
       .anyMatch(incluido ->
         incluido.equals(servicio) ||

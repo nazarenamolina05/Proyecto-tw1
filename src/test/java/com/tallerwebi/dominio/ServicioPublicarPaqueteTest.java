@@ -41,6 +41,20 @@ public class ServicioPublicarPaqueteTest {
     assertThat(paquete.isPublicado(), is(true));
   }
 
+  // [REFACTOR PAQUETE] Los servicios del evento se guardan como filas de PaqueteServicio
+  @Test
+  void deberiaGuardarUnPaqueteServicioPorCadaServicioDelEvento() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    Reserva reserva = this.dadoQueExisteUnaReservaDe(usuario, LocalDate.now().minusDays(10));
+    reserva.getEvento().agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
+    reserva.getEvento().agregarServicio(new ServicioAdicional("Fotografia", 30000.0, false));
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
+
+    servicioPublicarPaquete.publicar(10L, usuario, "Mi cumple de 30");
+
+    verify(repositorioPaqueteMock, times(2)).guardarServicio(any(PaqueteServicio.class));
+  }
+
   @Test
   void noDeberiaPublicarUnaReservaQueNoExiste() {
     Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);

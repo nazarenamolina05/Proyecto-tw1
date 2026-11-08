@@ -52,8 +52,10 @@ public class ControladorReservas {
     Map<String, Object> modelo = new ModelMap();
     modelo.put("evento", evento);
     modelo.put("presupuesto", presupuesto);
-    modelo.put("precioBase", evento.calcularPrecioBase());
-    modelo.put("adicional", evento.calcularAdicional());
+    // [REFACTOR PAQUETE -> RESERVA] Se sacaron "precioBase" y "adicional" del modelo:
+    // reservar.html no los usa, y ahora calcularlos requiere los servicios del paquete
+    // (Evento.calcularPrecioBase(serviciosDelPaquete)). Si se necesitan en la vista,
+    // hay que inyectar ServicioConsultarPaquetesPredeterminados y usar consultarServiciosDe.
     modelo.put("montoSenia", Reserva.calcularSenia(presupuesto));
     modelo.put("porcentajeSenia", (int) (Reserva.PORCENTAJE_SENIA * 100));
     return new ModelAndView("reservar", modelo);

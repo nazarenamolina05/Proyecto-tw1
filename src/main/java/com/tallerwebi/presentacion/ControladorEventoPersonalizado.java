@@ -55,7 +55,10 @@ public class ControladorEventoPersonalizado {
   ) {
     Map<String, Object> modelo = new ModelMap();
     modelo.put(MODO, modo);
-    modelo.put("paquetes", servicioPaquetes.consultarTodos());
+    List<Paquete> paquetes = servicioPaquetes.consultarTodos();
+    modelo.put("paquetes", paquetes);
+    // [REFACTOR PAQUETE -> EVENTO] paquete-card.html lee los servicios de este mapa.
+    modelo.put("serviciosPorPaquete", servicioPaquetes.consultarServiciosPorPaquete(paquetes));
     Evento evento = obtenerEvento(session);
     Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
     if (evento == null && pendiente != null) {
@@ -76,8 +79,13 @@ public class ControladorEventoPersonalizado {
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
       modelo.put("presupuesto", evento.calcularPresupuesto());
-      modelo.put("precioBase", evento.calcularPrecioBase());
-      modelo.put("adicional", evento.calcularAdicional());
+      // [REFACTOR PAQUETE -> EVENTO] Los servicios del paquete de origen se consultan
+      // aparte y se pasan a Evento (antes Evento los sacaba de paqueteOrigen).
+      List<ServicioAdicional> serviciosDelPaquete = servicioPaquetes.consultarServiciosDe(
+        evento.getPaqueteOrigen()
+      );
+      modelo.put("precioBase", evento.calcularPrecioBase(serviciosDelPaquete));
+      modelo.put("adicional", evento.calcularAdicional(serviciosDelPaquete));
       modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
       modelo.put(
         "cateringElegidoId",
@@ -139,9 +147,15 @@ public class ControladorEventoPersonalizado {
         datos.getCantidadInvitados()
       );
       Paquete paquete = servicioPaquetes.consultarPorId(datos.getPaqueteId());
+      // [REFACTOR PAQUETE -> EVENTO] crearEvento ahora recibe los servicios del paquete.
       session.setAttribute(
         EVENTO,
-        paquete.crearEvento(datos.getTipo(), datos.getFecha(), datos.getCantidadInvitados())
+        paquete.crearEvento(
+          datos.getTipo(),
+          datos.getFecha(),
+          datos.getCantidadInvitados(),
+          servicioPaquetes.consultarServiciosDe(paquete)
+        )
       );
       session.removeAttribute(PAQUETE_PENDIENTE);
     } catch (SeleccionInvalida e) {

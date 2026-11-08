@@ -64,8 +64,8 @@ public class ControladorConsultarPaquetesPredeterminados {
       evento.setSalon(paquete.getSalon());
       evento.setCatering(paquete.getCatering());
 
-      // CORREGIDO: Usamos getServiciosAdicionalesComoCatalogo() para obtener los ServicioAdicional planos
-      paquete.getServiciosAdicionales().forEach(evento::agregarServicio);
+      // [REFACTOR PAQUETE] Los servicios ya no se sacan del Paquete, se consultan aparte.
+      servicio.consultarServiciosDe(paquete).forEach(evento::agregarServicio);
 
       session.setAttribute(ControladorReservas.EVENTO, evento);
       if (session.getAttribute(ControladorReservas.USUARIO) == null) {
@@ -88,6 +88,8 @@ public class ControladorConsultarPaquetesPredeterminados {
     try {
       Paquete paquete = servicio.consultarPorId(id);
       modelo.put("paquete", paquete);
+      // [REFACTOR PAQUETE] La vista paquete-detalle.html usa ${servicios}.
+      modelo.put("servicios", servicio.consultarServiciosDe(paquete));
       modelo.put("capacidad", paquete.getSalon().getCapacidad());
       modelo.put("fechasOcupadas", obtenerFechasOcupadasComoTexto(id));
       modelo.put("tiposEvento", TipoPaquete.values());

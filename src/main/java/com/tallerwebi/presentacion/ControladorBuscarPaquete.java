@@ -35,6 +35,11 @@ public class ControladorBuscarPaquete {
     );
 
     modelo.put("paquetes", paquetesBuscados);
+    // [REFACTOR PAQUETE] paquete-card.html lee los servicios de este mapa.
+    modelo.put(
+      "serviciosPorPaquete",
+      servicioBuscarPaquete.consultarServiciosPorPaquete(paquetesBuscados)
+    );
 
     return new ModelAndView("paquetes", modelo);
   }

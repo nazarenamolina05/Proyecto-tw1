@@ -49,6 +49,21 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     assertEquals(paqueteBasico, modelAndView.getModel().get("paquete"));
   }
 
+  // [REFACTOR PAQUETE] paquete-detalle.html recibe los servicios aparte, en "servicios"
+  @Test
+  public void elDetalleIncluyeLosServiciosDelPaquete() {
+    Salon salon = new Salon("Salón Los Álamos", 50000.0);
+    Paquete paqueteBasico = crearPaqueteBasico(salon);
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("DJ", 40000.0, false));
+
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    when(servicio.consultarServiciosDe(paqueteBasico)).thenReturn(servicios);
+
+    ModelAndView modelAndView = controlador.mostrarDetalle(1L);
+
+    assertEquals(servicios, modelAndView.getModel().get("servicios"));
+  }
+
   @Test
   public void muestraLaVistaSinPaqueteCuandoElIdNoExiste() {
     when(servicio.consultarPorId(99L)).thenThrow(new PaqueteNoEncontrado());
@@ -119,6 +134,9 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     session.setAttribute(ControladorReservas.USUARIO, new Usuario());
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    // [REFACTOR PAQUETE] los servicios del paquete se consultan aparte
+    when(servicio.consultarServiciosDe(paqueteBasico))
+      .thenReturn(List.of(new ServicioAdicional("DJ", 40000.0, false)));
     when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
 
     DatosReservaPaquete datos = new DatosReservaPaquete();
@@ -166,7 +184,6 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
       TipoPaquete.CUMPLEANIOS,
       salon,
       new Catering("Catering Basico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       80000.0
     );
   }

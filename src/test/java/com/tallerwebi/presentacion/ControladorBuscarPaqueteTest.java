@@ -78,7 +78,6 @@ public class ControladorBuscarPaqueteTest {
       TipoPaquete.CUMPLEANIOS,
       salon,
       new Catering("Catering básico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       200000.0
     );
 
@@ -108,7 +107,6 @@ public class ControladorBuscarPaqueteTest {
       tipo,
       new Salon("Salón de prueba", 50000.0),
       new Catering("Catering de prueba", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       100000.0
     );
   }

@@ -1,7 +1,9 @@
 package com.tallerwebi.infraestructura;
 
 import com.tallerwebi.dominio.Paquete;
+import com.tallerwebi.dominio.PaqueteServicio;
 import com.tallerwebi.dominio.RepositorioPaquete;
+import com.tallerwebi.dominio.ServicioAdicional;
 import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
 import org.hibernate.SessionFactory;
@@ -64,5 +66,26 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
   @Override
   public void guardar(Paquete paquete) {
     sessionFactory.getCurrentSession().persist(paquete);
+  }
+
+  // [REFACTOR PAQUETE] Guarda una fila de la clase intermedia (paquete + servicio).
+  @Override
+  public void guardarServicio(PaqueteServicio paqueteServicio) {
+    sessionFactory.getCurrentSession().persist(paqueteServicio);
+  }
+
+  // [REFACTOR PAQUETE] Los servicios de un paquete se consultan desde la clase intermedia,
+  // igual que en la clase del profe (Paquete no tiene la lista).
+  @Override
+  public List<ServicioAdicional> obtenerServiciosDe(Long idPaquete) {
+    return sessionFactory
+      .getCurrentSession()
+      .createQuery(
+        "SELECT ps.servicio FROM PaqueteServicio ps " +
+        "WHERE ps.paquete.id = :idPaquete ORDER BY ps.id",
+        ServicioAdicional.class
+      )
+      .setParameter("idPaquete", idPaquete)
+      .getResultList();
   }
 }
