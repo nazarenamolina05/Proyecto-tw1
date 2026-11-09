@@ -38,7 +38,6 @@ public class Evento {
   @ManyToOne
   private Catering catering;
 
-  // TODO [equipo Evento] Este @ManyToMany también hay que sacarlo (regla del profe).
   // Mismo esquema que PaqueteServicio: una clase intermedia EventoServicio con
   // @ManyToOne Evento y @ManyToOne ServicioAdicional, y Evento sin la lista.
   @ManyToMany
