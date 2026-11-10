@@ -108,6 +108,13 @@
             <version>${playwright.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- API de Mercado Pago -->
+        <dependency>
+            <groupId>com.mercadopago</groupId>
+            <artifactId>sdk-java</artifactId>
+            <version>2.1.7</version>
+        </dependency>
+
     </dependencies>
 
     <build>
