@@ -145,7 +145,7 @@ public class ServicioPagoTest {
   private Pago dadoQueExisteUnPagoPendienteDeSenia(Long pagoId) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
-    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.SENIA);
+    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.SENIA, List.of());
 
     Pago pago = new Pago();
     pago.setId(pagoId);
