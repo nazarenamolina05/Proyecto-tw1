@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
+import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,30 @@ public class ServicioPagoImpl implements ServicioPago {
     repositorioPago.guardar(pago);
 
     return pasarela.crearPago(pago.getId(), this.describir(reserva), pago.getMonto());
+  }
+
+  @Override
+  public void confirmarPago(Long pagoId, Long mpPaymentId) {
+    Pago pago = repositorioPago.buscarPorId(pagoId);
+    if (pago == null) {
+      throw new PagoNoEncontrado();
+    }
+    if (pago.getEstado() == EstadoPago.APROBADO) {
+      return;
+    }
+
+    DatosPagoExterno datos = pasarela.consultarPago(mpPaymentId);
+    if (!String.valueOf(pagoId).equals(datos.getReferencia())) {
+      throw new PagoNoCoincide();
+    }
+
+    if (datos.getEstado() == EstadoPago.APROBADO) {
+      pago.setEstado(EstadoPago.APROBADO);
+      pago.setMpPaymentId(mpPaymentId);
+      pago.getReserva().confirmarPago();
+    } else if (datos.getEstado() == EstadoPago.RECHAZADO) {
+      pago.setEstado(EstadoPago.RECHAZADO);
+    }
   }
 
   private String describir(Reserva reserva) {

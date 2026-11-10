@@ -1,13 +1,17 @@
 package com.tallerwebi.infraestructura;
 
 import com.mercadopago.MercadoPagoConfig;
+import com.mercadopago.client.payment.PaymentClient;
 import com.mercadopago.client.preference.PreferenceBackUrlsRequest;
 import com.mercadopago.client.preference.PreferenceClient;
 import com.mercadopago.client.preference.PreferenceItemRequest;
 import com.mercadopago.client.preference.PreferenceRequest;
 import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
+import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
+import com.tallerwebi.dominio.DatosPagoExterno;
+import com.tallerwebi.dominio.EstadoPago;
 import com.tallerwebi.dominio.PasarelaDePago;
 import com.tallerwebi.dominio.excepcion.PasarelaNoDisponible;
 import java.math.BigDecimal;
@@ -20,6 +24,9 @@ public class PasarelaMercadoPago implements PasarelaDePago {
 
   // El proyecto corre en Jetty con contexto "/spring"
   private static final String URL_BASE = "http://localhost:8080/spring";
+  private static final String ESTADO_APROBADO = "approved";
+  private static final String ESTADO_RECHAZADO = "rejected";
+  private static final String ESTADO_CANCELADO = "cancelled";
 
   @Override
   public String crearPago(Long pagoId, String descripcion, Double monto) {
@@ -58,6 +65,36 @@ public class PasarelaMercadoPago implements PasarelaDePago {
     } catch (MPException e) {
       throw new PasarelaNoDisponible("No se pudo conectar con Mercado Pago", e);
     }
+  }
+
+  @Override
+  public DatosPagoExterno consultarPago(Long mpPaymentId) {
+    MercadoPagoConfig.setAccessToken(this.obtenerToken());
+
+    try {
+      Payment pago = new PaymentClient().get(mpPaymentId);
+      return new DatosPagoExterno(
+        this.traducirEstado(pago.getStatus()),
+        pago.getExternalReference()
+      );
+    } catch (MPApiException e) {
+      throw new PasarelaNoDisponible(
+        "Mercado Pago rechazó la consulta: " + e.getApiResponse().getContent(),
+        e
+      );
+    } catch (MPException e) {
+      throw new PasarelaNoDisponible("No se pudo conectar con Mercado Pago", e);
+    }
+  }
+
+  private EstadoPago traducirEstado(String estadoMercadoPago) {
+    if (ESTADO_APROBADO.equals(estadoMercadoPago)) {
+      return EstadoPago.APROBADO;
+    }
+    if (ESTADO_RECHAZADO.equals(estadoMercadoPago) || ESTADO_CANCELADO.equals(estadoMercadoPago)) {
+      return EstadoPago.RECHAZADO;
+    }
+    return EstadoPago.PENDIENTE;
   }
 
   private String obtenerToken() {
