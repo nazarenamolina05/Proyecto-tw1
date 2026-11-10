@@ -64,6 +64,8 @@ public class RepositorioPagoTest {
     this.sessionFactory.getCurrentSession().persist(usuario);
 
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 50);
+    // [REFACTOR EVENTO] Reserva ya no guarda el evento en cascada: se guarda antes.
+    this.sessionFactory.getCurrentSession().persist(evento);
 
     Reserva reserva = new Reserva();
     reserva.setUsuario(usuario);

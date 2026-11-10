@@ -33,15 +33,6 @@ public class Reserva {
     this.evento = evento;
     this.tipoPago = tipoPago;
     this.presupuesto = evento.calcularPresupuesto(serviciosDelEvento);
-
-    if (tipoPago == TipoPago.SENIA) {
-      this.estado = EstadoReserva.SENIADA;
-      this.montoAbonado = calcularSenia(presupuesto);
-    } else {
-      this.estado = EstadoReserva.CONFIRMADA;
-      this.montoAbonado = presupuesto;
-    }
-    this.presupuesto = evento.calcularPresupuesto();
     this.estado = EstadoReserva.PENDIENTE_PAGO;
     this.montoAbonado = 0.0;
   }

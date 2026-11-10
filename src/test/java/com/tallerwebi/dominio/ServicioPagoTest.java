@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -81,7 +82,7 @@ public class ServicioPagoTest {
   private Reserva dadoQueExisteUnaReservaPendiente(Usuario usuario, TipoPago tipoPago) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
-    Reserva reserva = new Reserva(usuario, evento, tipoPago);
+    Reserva reserva = new Reserva(usuario, evento, tipoPago, List.of());
 
     when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenReturn(reserva);
     when(pasarelaMock.crearPago(any(), anyString(), anyDouble()))

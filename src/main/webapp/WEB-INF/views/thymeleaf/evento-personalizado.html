@@ -255,51 +255,6 @@
                                 <span th:text="${evento.fecha}">2026-11-15</span>
                             </p>
 
-                        <!-- RESUMEN -->
-                        <aside class="col-12 col-lg-4">
-                            <div class="sidebar-sticky">
-                                <div class="resumen como-funciona rounded-4 p-4">
-                                    <h2 class="h5 fw-bold">Tu evento</h2>
-                                    <p class="small mb-3">
-                                        <span th:text="${evento.cantidadInvitados}">30</span> invitados ·
-                                        <span th:text="${evento.fecha}">2026-11-15</span>
-                                    </p>
-
-                                    <ul class="list-unstyled resumen-lista mb-3">
-                                        <li class="d-flex justify-content-between">
-                                            <span th:text="${evento.salon != null} ? ${evento.salon.nombre} : 'Salón'">Salón</span>
-                                            <span th:if="${evento.salon != null}"
-                                                  th:text="'$ ' + ${#numbers.formatDecimal(evento.salon.precio, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                            <span th:unless="${evento.salon != null}">-</span>
-                                        </li>
-                                        <li class="d-flex justify-content-between">
-                                            <span th:text="${evento.catering != null} ? ${evento.catering.nombre} : 'Catering'">Catering</span>
-                                            <span th:if="${evento.catering != null}"
-                                                  th:text="'$ ' + ${#numbers.formatDecimal(evento.catering.precioPorPersona * evento.cantidadInvitados, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                            <span th:unless="${evento.catering != null}">-</span>
-                                        </li>
-                                        <li class="d-flex justify-content-between"
-                                            th:each="servicio : ${serviciosDelEvento}">
-                                            <span th:text="${servicio.nombre}">Servicio</span>
-                                            <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                        </li>
-                                    </ul>
-                                    <div th:if="${evento.paqueteOrigen != null}" class="mb-3">
-                                        <hr class="my-2"/>
-                                        <div class="d-flex justify-content-between small">
-                                            <span>Paquete <span th:text="${evento.nombre}">Básico</span></span>
-                                            <span th:text="'$ ' + ${#numbers.formatDecimal(precioBase, 0, 'POINT', 0, 'COMMA')}">$ 0</span>
-                                        </div>
-                                        <div class="d-flex justify-content-between small">
-                                            <span>Adicional</span>
-                                            <span th:text="'+ $ ' + ${#numbers.formatDecimal(adicional, 0, 'POINT', 0, 'COMMA')}">+ $ 0</span>
-                                        </div>
-                                    </div>
-
-                                    <small class="text-uppercase">Presupuesto total</small>
-                                    <div class="resumen-total">$ <span
-                                            th:text="${#numbers.formatDecimal(presupuesto, 0, 'POINT', 0, 'COMMA')}">0</span>
-                                    </div>
                             <ul class="list-unstyled resumen-lista mb-3">
                                 <li class="d-flex justify-content-between">
                                     <span th:text="${evento.salon != null} ? ${evento.salon.nombre} : 'Salón'">Salón</span>
@@ -314,7 +269,7 @@
                                     <span th:unless="${evento.catering != null}">-</span>
                                 </li>
                                 <li class="d-flex justify-content-between"
-                                    th:each="servicio : ${evento.serviciosAdicionales}">
+                                    th:each="servicio : ${serviciosDelEvento}">
                                     <span th:text="${servicio.nombre}">Servicio</span>
                                     <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
                                 </li>

@@ -57,51 +57,6 @@ public class ControladorEventoPersonalizado {
   ) {
     Map<String, Object> modelo = new ModelMap();
     modelo.put(MODO, modo);
-    List<Paquete> paquetes = servicioPaquetes.consultarTodos();
-    modelo.put("paquetes", paquetes);
-    // [REFACTOR PAQUETE -> EVENTO] paquete-card.html lee los servicios de este mapa.
-    modelo.put("serviciosPorPaquete", servicioPaquetes.consultarServiciosPorPaquete(paquetes));
-    Evento evento = obtenerEvento(session);
-    Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
-    if (evento == null && pendiente != null) {
-      modelo.put("paqueteSeleccionadoId", pendiente);
-    }
-    Object errorPaquete = session.getAttribute(ERROR_PAQUETE);
-    if (errorPaquete != null) {
-      modelo.put("errorPaquete", errorPaquete);
-      session.removeAttribute(ERROR_PAQUETE);
-    }
-    if (evento != null) {
-      modelo.put("evento", evento);
-
-      modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
-      modelo.put("caterings", servicioEvento.obtenerCaterings());
-
-      ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
-      modelo.put("serviciosSugeridos", clasificados.getSugeridos());
-      modelo.put("serviciosRestantes", clasificados.getRestantes());
-      // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
-      // evento-personalizado.html los lee de ${serviciosDelEvento}.
-      List<ServicioAdicional> serviciosDelEvento = servicioEvento.obtenerServiciosDe(evento);
-      modelo.put("serviciosDelEvento", serviciosDelEvento);
-      modelo.put("presupuesto", evento.calcularPresupuesto(serviciosDelEvento));
-      // [REFACTOR PAQUETE -> EVENTO] Los servicios del paquete de origen se consultan
-      // aparte y se pasan a Evento (antes Evento los sacaba de paqueteOrigen).
-      List<ServicioAdicional> serviciosDelPaquete = servicioPaquetes.consultarServiciosDe(
-        evento.getPaqueteOrigen()
-      );
-      modelo.put("precioBase", evento.calcularPrecioBase(serviciosDelPaquete));
-      modelo.put("adicional", evento.calcularAdicional(serviciosDelEvento, serviciosDelPaquete));
-      modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
-      modelo.put(
-        "cateringElegidoId",
-        evento.getCatering() == null ? null : evento.getCatering().getId()
-      );
-
-      modelo.put(
-        "serviciosElegidosIds",
-        serviciosDelEvento.stream().map(ServicioAdicional::getId).toList()
-      );
     pasarErrorDePaquete(modelo, session);
 
     Evento evento = obtenerEvento(session);
@@ -263,6 +218,8 @@ public class ControladorEventoPersonalizado {
     }
     List<Paquete> paquetes = servicioPaquetes.consultarTodos();
     modelo.put("paquetes", paquetes);
+    // [REFACTOR PAQUETE -> EVENTO] paquete-card.html lee los servicios de este mapa.
+    modelo.put("serviciosPorPaquete", servicioPaquetes.consultarServiciosPorPaquete(paquetes));
 
     Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
     if (pendiente != null) {
@@ -283,9 +240,18 @@ public class ControladorEventoPersonalizado {
     ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
     modelo.put("serviciosSugeridos", clasificados.getSugeridos());
     modelo.put("serviciosRestantes", clasificados.getRestantes());
-    modelo.put("presupuesto", evento.calcularPresupuesto());
-    modelo.put("precioBase", evento.calcularPrecioBase());
-    modelo.put("adicional", evento.calcularAdicional());
+    // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
+    // evento-personalizado.html los lee de ${serviciosDelEvento}.
+    List<ServicioAdicional> serviciosDelEvento = servicioEvento.obtenerServiciosDe(evento);
+    modelo.put("serviciosDelEvento", serviciosDelEvento);
+    modelo.put("presupuesto", evento.calcularPresupuesto(serviciosDelEvento));
+    // [REFACTOR PAQUETE -> EVENTO] Los servicios del paquete de origen se consultan
+    // aparte y se pasan a Evento (antes Evento los sacaba de paqueteOrigen).
+    List<ServicioAdicional> serviciosDelPaquete = servicioPaquetes.consultarServiciosDe(
+      evento.getPaqueteOrigen()
+    );
+    modelo.put("precioBase", evento.calcularPrecioBase(serviciosDelPaquete));
+    modelo.put("adicional", evento.calcularAdicional(serviciosDelEvento, serviciosDelPaquete));
     modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
     modelo.put(
       "cateringElegidoId",
@@ -293,7 +259,7 @@ public class ControladorEventoPersonalizado {
     );
     modelo.put(
       "serviciosElegidosIds",
-      evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
+      serviciosDelEvento.stream().map(ServicioAdicional::getId).toList()
     );
   }
 
