@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Header común: cambia según haya o no un usuario logueado -->
+<header class="encabezado py-3" th:fragment="encabezado">
+    <div class="container">
+        <nav class="d-flex justify-content-between align-items-center">
+            <a th:href="@{/home-eventos}" class="text-light text-decoration-none">
+                <i class="bi bi-stars"></i>
+                <span>Eventos</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <a th:href="@{/home-eventos}" class="text-light text-decoration-none">Inicio</a>
+
+                <!-- Sin loguear -->
+                <a th:if="${session.USUARIO == null}" th:href="@{/login}"
+                   class="btn btn-outline-light rounded-pill px-4">
+                    <i class="bi bi-person me-1"></i>Ingresar
+                </a>
+
+                <!-- Logueado -->
+                <a th:if="${session.USUARIO != null}" th:href="@{/mis-reservas}"
+                   class="btn btn-outline-light rounded-pill px-4">
+                    <i class="bi bi-calendar-check me-1"></i>Mis reservas
+                </a>
+                <a th:if="${session.USUARIO != null}" href="#"
+                   class="btn btn-outline-light rounded-pill px-4">
+                    <i class="bi bi-person-circle me-1"></i>Mi perfil
+                </a>
+                <form th:if="${session.USUARIO != null}" th:action="@{/cerrar-sesion}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-light rounded-pill px-4">
+                        <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión
+                    </button>
+                </form>
+            </div>
+        </nav>
+    </div>
+</header>
+
+</body>
+</html>
