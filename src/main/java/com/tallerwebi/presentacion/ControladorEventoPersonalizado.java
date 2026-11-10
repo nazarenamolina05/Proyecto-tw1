@@ -5,7 +5,6 @@ import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
 import jakarta.servlet.http.HttpSession;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +22,7 @@ public class ControladorEventoPersonalizado {
 
   private static final String EVENTO = "eventoPersonalizado";
   private static final String MODO = "modo";
+  private static final String MODO_PREDEFINIDOS = "predefinidos";
   private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
   private static final String ERROR_PAQUETE = "errorPaquete";
   private static final String DATOS = "datos";
@@ -48,46 +48,22 @@ public class ControladorEventoPersonalizado {
     this.servicioValidacion = servicioValidacion;
   }
 
+  // Sin evento en sesión muestra la pantalla inicial (según el modo);
+  // con evento muestra la vista de armado.
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.GET)
   public ModelAndView verEventoPersonalizado(
-    @RequestParam(value = MODO, defaultValue = "predefinidos") String modo,
+    @RequestParam(value = MODO, defaultValue = MODO_PREDEFINIDOS) String modo,
     HttpSession session
   ) {
     Map<String, Object> modelo = new ModelMap();
     modelo.put(MODO, modo);
-    modelo.put("paquetes", servicioPaquetes.consultarTodos());
+    pasarErrorDePaquete(modelo, session);
+
     Evento evento = obtenerEvento(session);
-    Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
-    if (evento == null && pendiente != null) {
-      modelo.put("paqueteSeleccionadoId", pendiente);
-    }
-    Object errorPaquete = session.getAttribute(ERROR_PAQUETE);
-    if (errorPaquete != null) {
-      modelo.put("errorPaquete", errorPaquete);
-      session.removeAttribute(ERROR_PAQUETE);
-    }
-    if (evento != null) {
-      modelo.put("evento", evento);
-
-      modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
-      modelo.put("caterings", servicioEvento.obtenerCaterings());
-
-      ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
-      modelo.put("serviciosSugeridos", clasificados.getSugeridos());
-      modelo.put("serviciosRestantes", clasificados.getRestantes());
-      modelo.put("presupuesto", evento.calcularPresupuesto());
-      modelo.put("precioBase", evento.calcularPrecioBase());
-      modelo.put("adicional", evento.calcularAdicional());
-      modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
-      modelo.put(
-        "cateringElegidoId",
-        evento.getCatering() == null ? null : evento.getCatering().getId()
-      );
-
-      modelo.put(
-        "serviciosElegidosIds",
-        evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
-      );
+    if (evento == null) {
+      cargarPantallaInicial(modelo, modo, session);
+    } else {
+      cargarArmadoDelEvento(modelo, evento);
     }
 
     return new ModelAndView("evento-personalizado", modelo);
@@ -199,18 +175,8 @@ public class ControladorEventoPersonalizado {
     return volverAlEvento("quitarServicio", datos.getId());
   }
 
-  private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
-    try {
-      return servicioDisponibilidadSalon.obtenerSalonesDisponibles(
-        evento.getFecha(),
-        evento.getFecha()
-      );
-    } catch (FechaInvalida excepcion) {
-      modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
-      return evento.getSalon() == null ? List.of() : List.of(evento.getSalon());
-    }
-  }
-
+  // Paso 1 de "predefinidos": deja anotado qué paquete eligió y vuelve a la pantalla,
+  // que ahora muestra el formulario con los datos del evento.
   @RequestMapping(value = "/evento-personalizado/paquete/{id}", method = RequestMethod.GET)
   public ModelAndView modificarPaquete(@PathVariable("id") Long id, HttpSession session) {
     try {
@@ -221,6 +187,70 @@ public class ControladorEventoPersonalizado {
     session.removeAttribute(EVENTO);
     session.setAttribute(PAQUETE_PENDIENTE, id);
     return volverAlEvento();
+  }
+
+  // ---------- Armado del modelo para la vista ----------
+
+  private void pasarErrorDePaquete(Map<String, Object> modelo, HttpSession session) {
+    Object errorPaquete = session.getAttribute(ERROR_PAQUETE);
+    if (errorPaquete != null) {
+      modelo.put(ERROR_PAQUETE, errorPaquete);
+      session.removeAttribute(ERROR_PAQUETE);
+    }
+  }
+
+  // Todavía no hay evento. Solo "predefinidos" necesita los paquetes y el paquete elegido;
+  // "desde-cero" muestra directamente el formulario.
+  private void cargarPantallaInicial(Map<String, Object> modelo, String modo, HttpSession session) {
+    if (!MODO_PREDEFINIDOS.equals(modo)) {
+      return;
+    }
+    List<Paquete> paquetes = servicioPaquetes.consultarTodos();
+    modelo.put("paquetes", paquetes);
+
+    Long pendiente = (Long) session.getAttribute(PAQUETE_PENDIENTE);
+    if (pendiente != null) {
+      modelo.put("paqueteSeleccionadoId", pendiente);
+      paquetes
+        .stream()
+        .filter(paquete -> pendiente.equals(paquete.getId()))
+        .findFirst()
+        .ifPresent(paquete -> modelo.put("paqueteSeleccionado", paquete));
+    }
+  }
+
+  private void cargarArmadoDelEvento(Map<String, Object> modelo, Evento evento) {
+    modelo.put("evento", evento);
+    modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
+    modelo.put("caterings", servicioEvento.obtenerCaterings());
+
+    ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
+    modelo.put("serviciosSugeridos", clasificados.getSugeridos());
+    modelo.put("serviciosRestantes", clasificados.getRestantes());
+    modelo.put("presupuesto", evento.calcularPresupuesto());
+    modelo.put("precioBase", evento.calcularPrecioBase());
+    modelo.put("adicional", evento.calcularAdicional());
+    modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
+    modelo.put(
+      "cateringElegidoId",
+      evento.getCatering() == null ? null : evento.getCatering().getId()
+    );
+    modelo.put(
+      "serviciosElegidosIds",
+      evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
+    );
+  }
+
+  private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
+    try {
+      return servicioDisponibilidadSalon.obtenerSalonesDisponibles(
+        evento.getFecha(),
+        evento.getFecha()
+      );
+    } catch (FechaInvalida excepcion) {
+      modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
+      return evento.getSalon() == null ? List.of() : List.of(evento.getSalon());
+    }
   }
 
   private Evento obtenerEvento(HttpSession sesion) {
