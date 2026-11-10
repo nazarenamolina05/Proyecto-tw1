@@ -12,6 +12,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
+import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
 import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -76,6 +78,91 @@ public class ServicioPagoTest {
 
     assertThrows(ReservaNoEncontrada.class, () -> servicioPago.iniciarPago(10L, usuario));
     verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+  }
+
+  @Test
+  void deberiaAprobarElPagoYConfirmarLaReservaSiMercadoPagoLoAprobo() {
+    Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
+    this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.APROBADO, "5");
+
+    servicioPago.confirmarPago(5L, 777L);
+
+    assertThat(pago.getEstado(), equalTo(EstadoPago.APROBADO));
+    assertThat(pago.getMpPaymentId(), equalTo(777L));
+    assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.SENIADA));
+    assertThat(pago.getReserva().getMontoAbonado(), closeTo(30000.0, 0.01));
+  }
+
+  @Test
+  void deberiaMarcarElPagoComoRechazadoYNoConfirmarLaReserva() {
+    Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
+    this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.RECHAZADO, "5");
+
+    servicioPago.confirmarPago(5L, 777L);
+
+    assertThat(pago.getEstado(), equalTo(EstadoPago.RECHAZADO));
+    assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.PENDIENTE_PAGO));
+  }
+
+  @Test
+  void noDeberiaCambiarNadaSiElPagoSigueEnProceso() {
+    Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
+    this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.PENDIENTE, "5");
+
+    servicioPago.confirmarPago(5L, 777L);
+
+    assertThat(pago.getEstado(), equalTo(EstadoPago.PENDIENTE));
+    assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.PENDIENTE_PAGO));
+  }
+
+  @Test
+  void noDeberiaConfirmarDosVecesElMismoPago() {
+    Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
+    pago.setEstado(EstadoPago.APROBADO);
+
+    servicioPago.confirmarPago(5L, 777L);
+
+    verify(pasarelaMock, never()).consultarPago(any());
+  }
+
+  @Test
+  void noDeberiaConfirmarUnPagoQueNoExiste() {
+    when(repositorioPagoMock.buscarPorId(5L)).thenReturn(null);
+
+    assertThrows(PagoNoEncontrado.class, () -> servicioPago.confirmarPago(5L, 777L));
+  }
+
+  @Test
+  void noDeberiaConfirmarSiElPagoDeMercadoPagoCorrespondeAOtroPago() {
+    Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
+    this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.APROBADO, "99");
+
+    assertThrows(PagoNoCoincide.class, () -> servicioPago.confirmarPago(5L, 777L));
+    assertThat(pago.getEstado(), equalTo(EstadoPago.PENDIENTE));
+  }
+
+  private Pago dadoQueExisteUnPagoPendienteDeSenia(Long pagoId) {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
+    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.SENIA);
+
+    Pago pago = new Pago();
+    pago.setId(pagoId);
+    pago.setReserva(reserva);
+    pago.setTipo(TipoPago.SENIA);
+    pago.setMonto(30000.0);
+    pago.setEstado(EstadoPago.PENDIENTE);
+    when(repositorioPagoMock.buscarPorId(pagoId)).thenReturn(pago);
+    return pago;
+  }
+
+  private void dadoQueMercadoPagoRespondeQueElPago(
+    Long mpPaymentId,
+    EstadoPago estado,
+    String referencia
+  ) {
+    when(pasarelaMock.consultarPago(mpPaymentId))
+      .thenReturn(new DatosPagoExterno(estado, referencia));
   }
 
   private Reserva dadoQueExisteUnaReservaPendiente(Usuario usuario, TipoPago tipoPago) {
