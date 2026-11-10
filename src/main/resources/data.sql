@@ -93,7 +93,7 @@ VALUES ('2026-09-12', 'CUMPLEANIOS', 40,
         (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
         (SELECT id FROM Catering WHERE nombre = 'Catering Basico'));
 
-INSERT INTO evento_servicio(evento_id, servicio_id)
+INSERT INTO EventoServicio(evento_id, servicio_id)
 SELECT e.id, s.id FROM Evento e, ServicioAdicional s
 WHERE e.fecha = '2026-09-12' AND s.nombre IN ('DJ', 'Fotografia');
 

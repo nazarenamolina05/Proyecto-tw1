@@ -56,8 +56,6 @@ public class RepositorioPaqueteTest {
     assertEquals(TipoPaquete.CUMPLEANIOS, paquetesObtenidos.get(0).getTipo());
     assertEquals("Salón Los Álamos", paquetesObtenidos.get(0).getSalon().getNombre());
     assertEquals("Catering Basico", paquetesObtenidos.get(0).getCatering().getNombre());
-    assertEquals(1, paquetesObtenidos.get(0).getServiciosAdicionales().size());
-    assertEquals("DJ", paquetesObtenidos.get(0).getServiciosAdicionales().get(0).getNombre());
     assertEquals(100000.0, paquetesObtenidos.get(0).getPrecioEstimado());
   }
 
@@ -332,7 +330,6 @@ public class RepositorioPaqueteTest {
       TipoPaquete.CUMPLEANIOS,
       salon,
       catering,
-      List.of(),
       400000.0
     );
     paquete.setPublicador(publicador);
@@ -349,6 +346,81 @@ public class RepositorioPaqueteTest {
     assertEquals("Mi cumple de 30", obtenido.getNombre());
     assertEquals(publicador.getId(), obtenido.getPublicador().getId());
     assertTrue(obtenido.isPublicado());
+  }
+
+  // [REFACTOR PAQUETE] Tests de la relación Paquete - ServicioAdicional (PaqueteServicio)
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaObtenerLosServiciosDeUnPaquete() {
+    // Preparación
+    Salon salon = guardarSalon("Salón Los Álamos", 50000.0, 100);
+    Paquete paquete = guardarPaquete("Básico", TipoPaquete.CUMPLEANIOS, salon, 80000.0, true);
+    session().flush();
+    session().clear();
+
+    // Ejecución
+    List<ServicioAdicional> servicios = repositorioPaquete.obtenerServiciosDe(paquete.getId());
+
+    // Validación
+    assertEquals(1, servicios.size());
+    assertEquals("DJ", servicios.get(0).getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void deberiaGuardarLosServiciosDeUnPaqueteEnLaClaseIntermedia() {
+    // Preparación
+    Salon salon = guardarSalon("Salón Los Álamos", 50000.0, 100);
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    ServicioAdicional fotografia = new ServicioAdicional("Fotografia", 30000.0, false);
+    ServicioAdicional video = new ServicioAdicional("Video", 45000.0, false);
+    session().persist(catering);
+    session().persist(fotografia);
+    session().persist(video);
+    Paquete paquete = new Paquete(null, "Premium", TipoPaquete.CASAMIENTO, salon, catering, 1.0);
+    repositorioPaquete.guardar(paquete);
+
+    // Ejecución
+    repositorioPaquete.guardarServicio(new PaqueteServicio(paquete, fotografia));
+    repositorioPaquete.guardarServicio(new PaqueteServicio(paquete, video));
+    session().flush();
+    session().clear();
+
+    // Validación
+    List<ServicioAdicional> servicios = repositorioPaquete.obtenerServiciosDe(paquete.getId());
+    assertEquals(2, servicios.size());
+    assertEquals("Fotografia", servicios.get(0).getNombre());
+    assertEquals("Video", servicios.get(1).getNombre());
+  }
+
+  @Test
+  @Transactional
+  @Rollback
+  public void unPaqueteSinServiciosDeberiaDevolverUnaListaVacia() {
+    // Preparación
+    Salon salon = guardarSalon("Salón Los Álamos", 50000.0, 100);
+    Catering catering = new Catering("Catering Basico", 1500.0);
+    session().persist(catering);
+    Paquete paquete = new Paquete(
+      null,
+      "Solo salón",
+      TipoPaquete.CUMPLEANIOS,
+      salon,
+      catering,
+      1.0
+    );
+    repositorioPaquete.guardar(paquete);
+    session().flush();
+    session().clear();
+
+    // Ejecución
+    List<ServicioAdicional> servicios = repositorioPaquete.obtenerServiciosDe(paquete.getId());
+
+    // Validación
+    assertTrue(servicios.isEmpty());
   }
 
   // ---------- Métodos auxiliares ----------
@@ -377,9 +449,11 @@ public class RepositorioPaqueteTest {
     session().persist(catering);
     session().persist(dj);
 
-    Paquete paquete = new Paquete(null, nombre, tipo, salon, catering, List.of(dj), precio);
+    Paquete paquete = new Paquete(null, nombre, tipo, salon, catering, precio);
     paquete.setPredeterminado(predeterminado);
     session().persist(paquete);
+    // [REFACTOR PAQUETE] El servicio se asocia con la clase intermedia PaqueteServicio.
+    session().persist(new PaqueteServicio(paquete, dj));
     return paquete;
   }
 }

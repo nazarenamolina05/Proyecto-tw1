@@ -16,10 +16,15 @@ import org.springframework.stereotype.Service;
 public class ServicioReservaImpl implements ServicioReserva {
 
   private RepositorioReserva repositorioReserva;
+  private RepositorioEvento repositorioEvento;
 
   @Autowired
-  public ServicioReservaImpl(RepositorioReserva repositorioReserva) {
+  public ServicioReservaImpl(
+    RepositorioReserva repositorioReserva,
+    RepositorioEvento repositorioEvento
+  ) {
     this.repositorioReserva = repositorioReserva;
+    this.repositorioEvento = repositorioEvento;
   }
 
   @Override
@@ -32,7 +37,9 @@ public class ServicioReservaImpl implements ServicioReserva {
     validarFecha(evento);
     validarSalonLibre(evento);
 
-    Reserva reserva = new Reserva(usuario, evento, tipoPago);
+    // [REFACTOR EVENTO] Los servicios del evento se consultan en EventoServicio.
+    List<ServicioAdicional> serviciosDelEvento = repositorioEvento.buscarServicio(evento.getId());
+    Reserva reserva = new Reserva(usuario, evento, tipoPago, serviciosDelEvento);
     repositorioReserva.guardar(reserva);
     return reserva;
   }

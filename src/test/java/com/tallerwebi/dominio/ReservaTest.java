@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class ReservaTest {
@@ -60,7 +61,7 @@ public class ReservaTest {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
     Usuario usuario = new Usuario();
 
-    Reserva reserva = new Reserva(usuario, evento, TipoPago.SENIA);
+    Reserva reserva = new Reserva(usuario, evento, TipoPago.SENIA, List.of());
 
     assertThat(reserva.getUsuario(), is(equalTo(usuario)));
     assertThat(reserva.getEvento(), is(equalTo(evento)));
@@ -78,7 +79,18 @@ public class ReservaTest {
   }
 
   private Reserva cuandoReservoCon(Evento evento, TipoPago tipoPago) {
-    return new Reserva(new Usuario(), evento, tipoPago);
+    return new Reserva(new Usuario(), evento, tipoPago, List.of());
+  }
+
+  // [REFACTOR EVENTO] Reserva recibe los servicios del evento para calcular el presupuesto.
+  @Test
+  public void elPresupuestoDeLaReservaDebeIncluirLosServiciosDelEvento() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("DJ", 40000.0, false));
+
+    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.TOTAL, servicios);
+
+    assertThat(reserva.getPresupuesto(), is(closeTo(140000.0, 0.01)));
   }
 
   private Reserva cuandoReservoYPago(Evento evento, TipoPago tipoPago) {

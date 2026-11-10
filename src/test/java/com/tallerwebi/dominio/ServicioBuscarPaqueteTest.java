@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,7 +65,6 @@ public class ServicioBuscarPaqueteTest {
       TipoPaquete.CUMPLEANIOS,
       salon,
       new Catering("Catering Basico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       80000.0
     );
 
@@ -101,6 +101,29 @@ public class ServicioBuscarPaqueteTest {
     assertThat(obtenidos, equalTo(List.of()));
   }
 
+  // [REFACTOR PAQUETE] Las cards de /paquetes reciben los servicios en un mapa aparte
+  @Test
+  public void deberiaArmarUnMapaConLosServiciosDeCadaPaquete() {
+    // Preparación
+    Paquete basico = new Paquete(
+      1L,
+      "Básico",
+      TipoPaquete.CUMPLEANIOS,
+      new Salon("Salón de prueba", 50000.0),
+      new Catering("Catering Basico", 1500.0),
+      80000.0
+    );
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("DJ", 40000.0, false));
+    when(repositorioPaqueteMock.obtenerServiciosDe(1L)).thenReturn(servicios);
+
+    // Ejecución
+    Map<Long, List<ServicioAdicional>> serviciosPorPaquete =
+      servicioBuscarPaquete.consultarServiciosPorPaquete(List.of(basico));
+
+    // Validación
+    assertThat(serviciosPorPaquete.get(1L), equalTo(servicios));
+  }
+
   private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
     return new Paquete(
       null,
@@ -108,7 +131,6 @@ public class ServicioBuscarPaqueteTest {
       tipo,
       new Salon("Salón de prueba", 50000.0),
       new Catering("Catering Basico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       80000.0
     );
   }

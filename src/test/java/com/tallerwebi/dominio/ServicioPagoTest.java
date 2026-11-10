@@ -16,6 +16,7 @@ import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
 import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
 import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -144,7 +145,7 @@ public class ServicioPagoTest {
   private Pago dadoQueExisteUnPagoPendienteDeSenia(Long pagoId) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
-    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.SENIA);
+    Reserva reserva = new Reserva(new Usuario(), evento, TipoPago.SENIA, List.of());
 
     Pago pago = new Pago();
     pago.setId(pagoId);
@@ -168,7 +169,7 @@ public class ServicioPagoTest {
   private Reserva dadoQueExisteUnaReservaPendiente(Usuario usuario, TipoPago tipoPago) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
-    Reserva reserva = new Reserva(usuario, evento, tipoPago);
+    Reserva reserva = new Reserva(usuario, evento, tipoPago, List.of());
 
     when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenReturn(reserva);
     when(pasarelaMock.crearPago(any(), anyString(), anyDouble()))

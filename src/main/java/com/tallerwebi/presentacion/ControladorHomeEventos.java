@@ -25,6 +25,8 @@ public class ControladorHomeEventos {
     List<Paquete> paquetes = servicio.consultarTodos();
 
     modelo.put("paquetes", paquetes);
+    // [REFACTOR PAQUETE] paquete-card.html lee los servicios de este mapa.
+    modelo.put("serviciosPorPaquete", servicio.consultarServiciosPorPaquete(paquetes));
     return new ModelAndView("home-eventos", modelo);
   }
 }

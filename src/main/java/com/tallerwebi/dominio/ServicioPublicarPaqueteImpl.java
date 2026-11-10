@@ -5,6 +5,7 @@ import com.tallerwebi.dominio.excepcion.NombrePaqueteInvalido;
 import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +16,17 @@ public class ServicioPublicarPaqueteImpl implements ServicioPublicarPaquete {
 
   private RepositorioReserva repositorioReserva;
   private RepositorioPaquete repositorioPaquete;
+  private RepositorioEvento repositorioEvento;
 
   @Autowired
   public ServicioPublicarPaqueteImpl(
     RepositorioReserva repositorioReserva,
-    RepositorioPaquete repositorioPaquete
+    RepositorioPaquete repositorioPaquete,
+    RepositorioEvento repositorioEvento
   ) {
     this.repositorioReserva = repositorioReserva;
     this.repositorioPaquete = repositorioPaquete;
+    this.repositorioEvento = repositorioEvento;
   }
 
   @Override
@@ -33,9 +37,25 @@ public class ServicioPublicarPaqueteImpl implements ServicioPublicarPaquete {
     validarQueYaOcurrio(reserva.getEvento());
     validarNombre(nombre);
 
-    Paquete paquete = Paquete.desdeEvento(reserva.getEvento(), nombre, usuario);
+    // [REFACTOR EVENTO] Los servicios del evento se consultan en EventoServicio.
+    List<ServicioAdicional> serviciosDelEvento = repositorioEvento.buscarServicio(
+      reserva.getEvento().getId()
+    );
+    Paquete paquete = Paquete.desdeEvento(reserva.getEvento(), nombre, usuario, serviciosDelEvento);
     repositorioPaquete.guardar(paquete);
+    guardarServiciosDelEvento(paquete, serviciosDelEvento);
     return paquete;
+  }
+
+  // [REFACTOR PAQUETE] Antes los servicios viajaban dentro del Paquete (@ManyToMany).
+  // Ahora se guarda una fila de PaqueteServicio por cada servicio del evento.
+  private void guardarServiciosDelEvento(
+    Paquete paquete,
+    List<ServicioAdicional> serviciosDelEvento
+  ) {
+    for (ServicioAdicional servicio : serviciosDelEvento) {
+      repositorioPaquete.guardarServicio(new PaqueteServicio(paquete, servicio));
+    }
   }
 
   private void validarQuePertenece(Reserva reserva, Usuario usuario) {

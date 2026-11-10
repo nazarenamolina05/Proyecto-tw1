@@ -88,7 +88,7 @@ public class ControladorEventoPersonalizadoTest {
     when(evento.getFecha()).thenReturn(fecha);
     when(evento.getSalon()).thenReturn(null);
     when(evento.getCatering()).thenReturn(null);
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
 
     ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
@@ -111,7 +111,7 @@ public class ControladorEventoPersonalizadoTest {
     ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(fecha);
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
     when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(fecha, fecha))
       .thenReturn(List.of(salonDisponible));
 
@@ -132,7 +132,7 @@ public class ControladorEventoPersonalizadoTest {
 
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(ayer);
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
     when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(ayer, ayer))
       .thenThrow(new FechaInvalida());
 
@@ -154,7 +154,7 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(null);
     when(evento.getSalon()).thenReturn(salonDelPaquete);
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
     when(servicioDisponibilidadSalon.obtenerSalonesDisponibles(null, null))
       .thenThrow(new FechaInvalida());
 
@@ -177,7 +177,7 @@ public class ControladorEventoPersonalizadoTest {
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getSalon()).thenReturn(salon);
     when(evento.getCatering()).thenReturn(catering);
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
 
     ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
@@ -195,9 +195,10 @@ public class ControladorEventoPersonalizadoTest {
     ServiciosClasificados clasificadosMock = mock(ServiciosClasificados.class);
     when(sesion.getAttribute(EVENTO)).thenReturn(evento);
     when(evento.getFecha()).thenReturn(LocalDate.now().plusDays(10));
-    when(evento.getServiciosAdicionales()).thenReturn(new ArrayList<>());
-    when(evento.calcularPrecioBase()).thenReturn(165000.0);
-    when(evento.calcularAdicional()).thenReturn(30000.0);
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
+    // [REFACTOR PAQUETE -> EVENTO] ahora reciben los servicios del paquete por parámetro
+    when(evento.calcularPrecioBase(any())).thenReturn(165000.0);
+    when(evento.calcularAdicional(any(), any())).thenReturn(30000.0);
 
     when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificadosMock);
     when(clasificadosMock.getSugeridos()).thenReturn(new ArrayList<>());
@@ -256,9 +257,8 @@ public class ControladorEventoPersonalizadoTest {
 
     controlador.guardarDatosDelEvento(datos, sesion);
 
-    verify(evento).setTipoPaquete(TipoPaquete.CASAMIENTO);
-    verify(evento).setFecha(fecha);
-    verify(evento).setCantidadInvitados(50);
+    // [REFACTOR EVENTO] Ahora el servicio actualiza los datos y los guarda en la base.
+    verify(servicio).actualizarDatos(evento, TipoPaquete.CASAMIENTO, fecha, 50);
     verify(sesion, never()).setAttribute(eq(EVENTO), any());
   }
 
@@ -402,16 +402,12 @@ public class ControladorEventoPersonalizadoTest {
     Salon salon = new Salon("Salon Los Alamos", 50000.0);
     salon.setCapacidad(50);
     Catering catering = new Catering("Catering Basico", 1500.0);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      catering,
-      new ArrayList<>(),
-      165000.0
-    );
+    Paquete paquete = new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, salon, catering, 165000.0);
     when(servicioPaquetes.consultarPorId(1L)).thenReturn(paquete);
+    // [REFACTOR EVENTO] El servicio crea el evento desde el paquete, lo guarda y copia sus
+    // servicios (eso se prueba en ServicioEventoTest). Acá devuelve lo que armaría el paquete.
+    when(servicio.crearEventoDesdePaquete(paquete, TipoPaquete.CUMPLEANIOS, fecha, 40))
+      .thenReturn(paquete.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 40));
 
     DatosEventoForm datos = new DatosEventoForm();
     datos.setPaqueteId(1L);

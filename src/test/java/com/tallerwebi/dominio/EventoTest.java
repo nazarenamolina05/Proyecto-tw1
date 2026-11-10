@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +17,7 @@ public class EventoTest {
   public void elPresupuestoDebeSerCeroSiNoHayNadaSeleccionado() {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, List.of());
 
     assertThat(presupuesto, is(equalTo(0.0)));
   }
@@ -27,7 +27,7 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
     evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
 
-    double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    double presupuesto = this.cuandoCalculoElPresupuesto(evento, List.of());
 
     assertThat(presupuesto, is(equalTo(50000.0)));
   }
@@ -37,7 +37,7 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
     evento.setCatering(new Catering("Catering Basico", 1500.0));
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, List.of());
 
     assertThat(presupuesto, is(equalTo(45000.0)));
   }
@@ -45,9 +45,9 @@ public class EventoTest {
   @Test
   public void ElPresupuestoConServicioDePrecioFijoConSoloDJ() {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
-    evento.agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("DJ", 40000.0, false));
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     assertThat(presupuesto, is(equalTo(40000.0)));
   }
@@ -55,9 +55,9 @@ public class EventoTest {
   @Test
   public void elPresupuestoConServicioAdicionalDeCotillonYElPrecioCuentaPorInvitado() {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
-    evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("Cotillon", 500.0, true));
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     assertThat(presupuesto, is(equalTo(15000.0)));
   }
@@ -65,10 +65,12 @@ public class EventoTest {
   @Test
   public void elPresupuestoconVariosServiciosAdicionalesYCalcularElPrecioAlFinal() {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
-    evento.agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
-    evento.agregarServicio(new ServicioAdicional("Fotografia", 30000.0, false));
+    List<ServicioAdicional> servicios = List.of(
+      new ServicioAdicional("DJ", 40000.0, false),
+      new ServicioAdicional("Fotografia", 30000.0, false)
+    );
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     assertThat(presupuesto, is(equalTo(70000.0)));
   }
@@ -78,10 +80,12 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
     evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
     evento.setCatering(new Catering("Catering Basico", 1500.0));
-    evento.agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
-    evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
+    List<ServicioAdicional> servicios = List.of(
+      new ServicioAdicional("DJ", 40000.0, false),
+      new ServicioAdicional("Cotillon", 500.0, true)
+    );
 
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuesto = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     assertThat(presupuesto, is(equalTo(150000.0)));
   }
@@ -93,13 +97,13 @@ public class EventoTest {
     ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
     ServicioAdicional cotillon = new ServicioAdicional("Cotillon", 500.0, true);
 
-    evento.agregarServicio(dj);
-    evento.agregarServicio(cotillon);
+    // [REFACTOR EVENTO] Quitar el servicio lo hace ServicioEvento en EventoServicio;
+    // acá se compara el presupuesto con y sin el DJ en la lista de servicios.
+    Double presupuestoConDj = this.cuandoCalculoElPresupuesto(evento, List.of(dj, cotillon));
+    Double presupuestoSinDj = this.cuandoCalculoElPresupuesto(evento, List.of(cotillon));
 
-    evento.quitarServicio(dj);
-    Double presupuesto = this.cuandoCalculoElPresupuesto(evento);
-
-    assertThat(presupuesto, is(equalTo(15000.0)));
+    assertThat(presupuestoConDj, is(equalTo(55000.0)));
+    assertThat(presupuestoSinDj, is(equalTo(15000.0)));
   }
 
   @Test
@@ -111,11 +115,11 @@ public class EventoTest {
 
     evento.setSalon(salon1);
 
-    Double presupuestoConSalon1 = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuestoConSalon1 = this.cuandoCalculoElPresupuesto(evento, List.of());
 
     evento.setSalon(salon2);
 
-    Double presupuestoConSalon2 = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuestoConSalon2 = this.cuandoCalculoElPresupuesto(evento, List.of());
 
     assertThat(presupuestoConSalon1, is(equalTo(50000.0)));
     assertThat(presupuestoConSalon2, is(equalTo(150000.0)));
@@ -126,13 +130,13 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoConInvitados(30);
 
     evento.setCatering(new Catering("Catering Completo", 5000.0));
-    evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("Cotillon", 500.0, true));
 
-    Double presupuestoConInvitados = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuestoConInvitados = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     evento.setCantidadInvitados(50);
 
-    Double presupuestoConMasInvitados = this.cuandoCalculoElPresupuesto(evento);
+    Double presupuestoConMasInvitados = this.cuandoCalculoElPresupuesto(evento, servicios);
 
     assertThat(presupuestoConInvitados, is(equalTo(165000.0)));
     assertThat(presupuestoConMasInvitados, is(equalTo(275000.0)));
@@ -142,7 +146,7 @@ public class EventoTest {
   public void elAdicionalDebeSerCeroSiElEventoTieneLoMismoQueElPaquete() {
     Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
 
-    Double adicional = evento.calcularAdicional();
+    Double adicional = evento.calcularAdicional(serviciosDelEvento, serviciosDelPaqueteBasico);
 
     assertThat(adicional, is(equalTo(0.0)));
   }
@@ -150,9 +154,9 @@ public class EventoTest {
   @Test
   public void elAdicionalDebeSerElCostoDeUnServicioExtraAgregado() {
     Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
-    evento.agregarServicio(new ServicioAdicional("Video", 45000.0, false));
+    serviciosDelEvento.add(new ServicioAdicional("Video", 45000.0, false));
 
-    Double adicional = evento.calcularAdicional();
+    Double adicional = evento.calcularAdicional(serviciosDelEvento, serviciosDelPaqueteBasico);
 
     assertThat(adicional, is(equalTo(45000.0)));
   }
@@ -162,7 +166,7 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
     evento.setCatering(new Catering("Catering Chico", 1000.0));
 
-    Double adicional = evento.calcularAdicional();
+    Double adicional = evento.calcularAdicional(serviciosDelEvento, serviciosDelPaqueteBasico);
 
     assertThat(adicional, is(equalTo(0.0)));
   }
@@ -172,7 +176,7 @@ public class EventoTest {
     Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
     evento.setCantidadInvitados(30);
 
-    Double adicional = evento.calcularAdicional();
+    Double adicional = evento.calcularAdicional(serviciosDelEvento, serviciosDelPaqueteBasico);
 
     assertThat(adicional, is(equalTo(0.0)));
   }
@@ -180,10 +184,15 @@ public class EventoTest {
   @Test
   public void elServicioDelPaqueteDebeEstarIncluidoYUnoExtraNo() {
     Evento evento = this.dadoQueTengoUnEventoDesdeElPaqueteBasico();
-    ServicioAdicional dj = evento.getServiciosAdicionales().get(0);
+    ServicioAdicional dj = serviciosDelEvento.get(0);
 
-    assertTrue(evento.esServicioIncluido(dj));
-    assertFalse(evento.esServicioIncluido(new ServicioAdicional("Video", 45000.0, false)));
+    assertTrue(evento.esServicioIncluido(dj, serviciosDelPaqueteBasico));
+    assertFalse(
+      evento.esServicioIncluido(
+        new ServicioAdicional("Video", 45000.0, false),
+        serviciosDelPaqueteBasico
+      )
+    );
   }
 
   private Evento dadoQueTengoUnEventoConInvitados(Integer invitados) {
@@ -221,24 +230,30 @@ public class EventoTest {
     assertFalse(evento.isCompleto());
   }
 
+  // [REFACTOR PAQUETE -> EVENTO] Paquete ya no tiene la lista de servicios: se guardan acá
+  // (como si vinieran de RepositorioPaquete.obtenerServiciosDe) y se pasan por parámetro
+  // a calcularAdicional, esServicioIncluido y crearEvento.
+  private List<ServicioAdicional> serviciosDelPaqueteBasico;
+
+  // [REFACTOR EVENTO] Evento tampoco tiene la lista: los servicios del evento arrancan
+  // como una copia de los del paquete (como hace ServicioEvento.crearEventoDesdePaquete).
+  private List<ServicioAdicional> serviciosDelEvento;
+
   private Evento dadoQueTengoUnEventoDesdeElPaqueteBasico() {
     Salon salon = new Salon("Salon Los Alamos", 50000.0);
     Catering catering = new Catering("Catering Basico", 1500.0);
     ServicioAdicional dj = new ServicioAdicional("DJ", 40000.0, false);
-    Paquete paquete = new Paquete(
-      1L,
-      "Básico",
-      TipoPaquete.CUMPLEANIOS,
-      salon,
-      catering,
-      List.of(dj),
-      165000.0
-    );
+    serviciosDelPaqueteBasico = List.of(dj);
+    serviciosDelEvento = new ArrayList<>(serviciosDelPaqueteBasico);
+    Paquete paquete = new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, salon, catering, 165000.0);
 
     return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 50);
   }
 
-  private Double cuandoCalculoElPresupuesto(Evento evento) {
-    return evento.calcularPresupuesto();
+  private Double cuandoCalculoElPresupuesto(
+    Evento evento,
+    List<ServicioAdicional> serviciosDelEvento
+  ) {
+    return evento.calcularPresupuesto(serviciosDelEvento);
   }
 }

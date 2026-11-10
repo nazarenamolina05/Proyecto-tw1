@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.*;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.servlet.ModelAndView;
@@ -32,15 +33,20 @@ public class ControladorHomeEventosTest {
       TipoPaquete.CUMPLEANIOS,
       salon,
       new Catering("Catering Basico", 1500.0),
-      List.of(new ServicioAdicional("DJ", 40000.0, false)),
       80000.0
     );
 
     paqueteBasico.setPredeterminado(true);
 
     List<Paquete> paquetesEsperados = List.of(paqueteBasico);
+    // [REFACTOR PAQUETE] los servicios de las cards vienen en un mapa aparte
+    Map<Long, List<ServicioAdicional>> serviciosPorPaquete = Map.of(
+      1L,
+      List.of(new ServicioAdicional("DJ", 40000.0, false))
+    );
 
     when(servicio.consultarTodos()).thenReturn(paquetesEsperados);
+    when(servicio.consultarServiciosPorPaquete(paquetesEsperados)).thenReturn(serviciosPorPaquete);
 
     // Ejecución
     ModelAndView modelAndView = controlador.inicioPagina();
@@ -48,6 +54,7 @@ public class ControladorHomeEventosTest {
     // Validación
     assertEquals("home-eventos", modelAndView.getViewName());
     assertEquals(paquetesEsperados, modelAndView.getModel().get("paquetes"));
+    assertEquals(serviciosPorPaquete, modelAndView.getModel().get("serviciosPorPaquete"));
   }
 
   @Test
