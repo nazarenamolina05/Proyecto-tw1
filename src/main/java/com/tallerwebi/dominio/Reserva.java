@@ -41,6 +41,9 @@ public class Reserva {
       this.estado = EstadoReserva.CONFIRMADA;
       this.montoAbonado = presupuesto;
     }
+    this.presupuesto = evento.calcularPresupuesto();
+    this.estado = EstadoReserva.PENDIENTE_PAGO;
+    this.montoAbonado = 0.0;
   }
 
   @Id
@@ -72,6 +75,15 @@ public class Reserva {
       return 0.0;
     }
     return Math.max(0.0, presupuesto - montoAbonado);
+  }
+
+  public Double calcularMontoAPagar() {
+    return tipoPago == TipoPago.SENIA ? calcularSenia(presupuesto) : presupuesto;
+  }
+
+  public void confirmarPago() {
+    this.estado = tipoPago == TipoPago.SENIA ? EstadoReserva.SENIADA : EstadoReserva.CONFIRMADA;
+    this.montoAbonado = calcularMontoAPagar();
   }
 
   public Long getId() {

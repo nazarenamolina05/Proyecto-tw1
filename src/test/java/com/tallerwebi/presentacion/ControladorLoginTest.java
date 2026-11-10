@@ -1,6 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.mockito.Mockito.*;
@@ -164,5 +165,17 @@ public class ControladorLoginTest {
 
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/evento-personalizado"));
     verify(sessionMock).removeAttribute(ControladorLogin.DESTINO_POST_LOGIN);
+  }
+
+  @Test
+  public void alCerrarSesionInvalidaLaSesionYVuelveAlHome() {
+    HttpServletRequest request = mock(HttpServletRequest.class);
+    HttpSession session = mock(HttpSession.class);
+    when(request.getSession()).thenReturn(session);
+
+    ModelAndView mav = controladorLogin.cerrarSesion(request);
+
+    verify(session).invalidate();
+    assertThat(mav.getViewName(), equalTo("redirect:/home-eventos"));
   }
 }

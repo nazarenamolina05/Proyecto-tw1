@@ -51,14 +51,15 @@ public class ServicioReservaTest {
   }
 
   @Test
-  void deberiaGuardarLaReservaSiElSalonEstaLibre() {
+  void deberiaGuardarLaReservaComoPendienteDePagoSiElSalonEstaLibre() {
     Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, LocalDate.now().plusDays(30));
     when(repositorioReservaMock.obtenerFechasOcupadasPorSalon(1L)).thenReturn(List.of());
 
     Reserva reserva = servicioReserva.reservar(new Usuario(), evento, TipoPago.SENIA);
 
     verify(repositorioReservaMock).guardar(reserva);
-    assertThat(reserva.getEstado(), equalTo(EstadoReserva.SENIADA));
+    assertThat(reserva.getEstado(), equalTo(EstadoReserva.PENDIENTE_PAGO));
+    assertThat(reserva.getMontoAbonado(), equalTo(0.0));
   }
 
   // [REFACTOR EVENTO] Los servicios del evento se consultan en RepositorioEvento.

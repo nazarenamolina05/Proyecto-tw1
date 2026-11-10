@@ -94,4 +94,10 @@ public class ControladorLogin {
     session.removeAttribute(DESTINO_POST_LOGIN);
     return destino instanceof String ruta ? ruta : HOME;
   }
+
+  @RequestMapping(path = "/cerrar-sesion", method = RequestMethod.POST)
+  public ModelAndView cerrarSesion(HttpServletRequest request) {
+    request.getSession().invalidate();
+    return new ModelAndView("redirect:" + HOME);
+  }
 }

@@ -58,6 +58,13 @@
                 <a th:if="${session.USUARIO != null}" href="#" class="btn btn-outline-light rounded-pill px-4"
                 ><i class="bi bi-person-circle me-1"></i>Mi perfil</a
                 >
+
+                <form th:if="${session.USUARIO != null}" th:action="@{/cerrar-sesion}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-outline-light rounded-pill px-4">
+                        <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión
+                    </button>
+                </form>
+
             </div>
         </nav>
     </div>

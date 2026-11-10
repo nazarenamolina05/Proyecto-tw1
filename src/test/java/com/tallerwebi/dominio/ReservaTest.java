@@ -15,7 +15,7 @@ public class ReservaTest {
   public void unaReservaConSeniaDebeQuedarSeniada() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
 
     assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.SENIADA)));
   }
@@ -24,7 +24,7 @@ public class ReservaTest {
   public void laSeniaDebeSerElPorcentajeDelPresupuesto() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
 
     assertThat(reserva.getMontoAbonado(), is(closeTo(30000.0, 0.01)));
   }
@@ -33,7 +33,7 @@ public class ReservaTest {
   public void unaReservaConPagoTotalDebeQuedarConfirmada() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.TOTAL);
 
     assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.CONFIRMADA)));
   }
@@ -42,7 +42,7 @@ public class ReservaTest {
   public void elPagoTotalDebeAbonarTodoElPresupuesto() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.TOTAL);
 
     assertThat(reserva.getMontoAbonado(), is(closeTo(100000.0, 0.01)));
   }
@@ -51,7 +51,7 @@ public class ReservaTest {
   public void laReservaDebeGuardarElPresupuestoDelEvento() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
 
     assertThat(reserva.getPresupuesto(), is(closeTo(100000.0, 0.01)));
   }
@@ -93,11 +93,17 @@ public class ReservaTest {
     assertThat(reserva.getPresupuesto(), is(closeTo(140000.0, 0.01)));
   }
 
+  private Reserva cuandoReservoYPago(Evento evento, TipoPago tipoPago) {
+    Reserva reserva = this.cuandoReservoCon(evento, tipoPago);
+    reserva.confirmarPago();
+    return reserva;
+  }
+
   @Test
   public void elSaldoPendienteDeUnaReservaSeniadaDebeSerLoQueFaltaAbonar() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
 
     assertThat(reserva.calcularSaldoPendiente(), is(closeTo(70000.0, 0.01)));
   }
@@ -106,8 +112,44 @@ public class ReservaTest {
   public void elSaldoPendienteDeUnaReservaPagadaPorCompletoDebeSerCero() {
     Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
 
-    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.TOTAL);
 
     assertThat(reserva.calcularSaldoPendiente(), is(closeTo(0.0, 0.01)));
+  }
+
+  @Test
+  public void unaReservaRecienCreadaDebeQuedarPendienteDePago() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.PENDIENTE_PAGO)));
+  }
+
+  @Test
+  public void unaReservaRecienCreadaNoDebeTenerNadaAbonado() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+
+    assertThat(reserva.getMontoAbonado(), is(closeTo(0.0, 0.01)));
+  }
+
+  @Test
+  public void elMontoAPagarDeUnaReservaConSeniaDebeSerLaSenia() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+
+    assertThat(reserva.calcularMontoAPagar(), is(closeTo(30000.0, 0.01)));
+  }
+
+  @Test
+  public void elMontoAPagarDeUnaReservaConPagoTotalDebeSerElPresupuesto() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
+
+    assertThat(reserva.calcularMontoAPagar(), is(closeTo(100000.0, 0.01)));
   }
 }

@@ -46,6 +46,15 @@
                th:href="@{/paquetes-predeterminados/{id}(id=${paquete.id})}"
                class="btn btn-pack w-100 rounded-pill"><i class="bi bi-eye me-1"></i>Ver más</a>
 
+            <!-- Pantalla inicial de /evento-personalizado: un solo botón, elige el paquete -->
+            <a th:case="'elegir'"
+               th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
+               class="btn btn-pack w-100 rounded-pill">
+                <i class="bi bi-hand-index me-1"></i>
+                <th:block th:if="${paquete.id == paqueteSeleccionadoId}">Paquete elegido</th:block>
+                <th:block th:unless="${paquete.id == paqueteSeleccionadoId}">Elegir este paquete</th:block>
+            </a>
+
             <div th:case="'acciones'" class="d-flex gap-2">
                 <button type="button" class="btn btn-pack flex-fill rounded-pill"
                         data-bs-toggle="modal" data-bs-target="#modalReservar"
@@ -57,9 +66,6 @@
                 <a th:href="@{/evento-personalizado/paquete/{id}(id=${paquete.id})}"
                    class="btn btn-pack flex-fill rounded-pill"><i class="bi bi-pencil-square me-1"></i>Modificar</a>
             </div>
-
-
-
 
             <p th:case="'sin-detalle'" class="small text-secondary text-center mb-0 py-2">
                 Detalle no disponible por el momento
