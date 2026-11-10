@@ -56,16 +56,14 @@ public class ControladorConsultarPaquetesPredeterminados {
       );
 
       Paquete paquete = servicio.consultarPorId(id);
-      Evento evento = servicioEvento.crearEvento(
+      // [REFACTOR EVENTO] El servicio crea el evento a partir del paquete (salón, catering
+      // y servicios), lo guarda y copia los servicios en EventoServicio.
+      Evento evento = servicioEvento.crearEventoDesdePaquete(
+        paquete,
         datos.getTipoEvento(),
         datos.getFecha(),
         datos.getCantidadInvitados()
       );
-      evento.setSalon(paquete.getSalon());
-      evento.setCatering(paquete.getCatering());
-
-      // [REFACTOR PAQUETE] Los servicios ya no se sacan del Paquete, se consultan aparte.
-      servicio.consultarServiciosDe(paquete).forEach(evento::agregarServicio);
 
       session.setAttribute(ControladorReservas.EVENTO, evento);
       if (session.getAttribute(ControladorReservas.USUARIO) == null) {

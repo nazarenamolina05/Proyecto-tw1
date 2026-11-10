@@ -273,7 +273,7 @@
                                             <span th:unless="${evento.catering != null}">-</span>
                                         </li>
                                         <li class="d-flex justify-content-between"
-                                            th:each="servicio : ${evento.serviciosAdicionales}">
+                                            th:each="servicio : ${serviciosDelEvento}">
                                             <span th:text="${servicio.nombre}">Servicio</span>
                                             <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}">$ 0</span>
                                         </li>

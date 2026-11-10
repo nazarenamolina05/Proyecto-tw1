@@ -27,10 +27,12 @@ public class ControladorReservas {
   private static final String VOLVER_AL_EVENTO = "redirect:" + RUTA_EVENTO;
 
   private ServicioReserva servicioReserva;
+  private ServicioEvento servicioEvento;
 
   @Autowired
-  public ControladorReservas(ServicioReserva servicioReserva) {
+  public ControladorReservas(ServicioReserva servicioReserva, ServicioEvento servicioEvento) {
     this.servicioReserva = servicioReserva;
+    this.servicioEvento = servicioEvento;
   }
 
   // muestra el formulario de datos + el ticket con el resumen
@@ -48,9 +50,13 @@ public class ControladorReservas {
       return new ModelAndView(VOLVER_AL_EVENTO + "?error=incompleto");
     }
 
-    Double presupuesto = evento.calcularPresupuesto();
+    // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
+    // reservar.html los lee de ${serviciosDelEvento}.
+    List<ServicioAdicional> serviciosDelEvento = servicioEvento.obtenerServiciosDe(evento);
+    Double presupuesto = evento.calcularPresupuesto(serviciosDelEvento);
     Map<String, Object> modelo = new ModelMap();
     modelo.put("evento", evento);
+    modelo.put("serviciosDelEvento", serviciosDelEvento);
     modelo.put("presupuesto", presupuesto);
     // [REFACTOR PAQUETE -> RESERVA] Se sacaron "precioBase" y "adicional" del modelo:
     // reservar.html no los usa, y ahora calcularlos requiere los servicios del paquete
@@ -123,6 +129,8 @@ public class ControladorReservas {
       Reserva reserva = servicioReserva.obtenerReservaDe(id, usuarioLogueado);
       Map<String, Object> modelo = new ModelMap();
       modelo.put("reserva", reserva);
+      // [REFACTOR EVENTO] detalle-reserva.html lee los servicios de ${serviciosDelEvento}.
+      modelo.put("serviciosDelEvento", servicioEvento.obtenerServiciosDe(reserva.getEvento()));
       return new ModelAndView("detalle-reserva", modelo);
     } catch (ReservaNoEncontrada e) {
       return new ModelAndView("redirect:/mis-reservas");

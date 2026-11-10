@@ -10,6 +10,7 @@ import com.tallerwebi.dominio.excepcion.EventoNoFinalizado;
 import com.tallerwebi.dominio.excepcion.NombrePaqueteInvalido;
 import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
 import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,14 +18,20 @@ public class ServicioPublicarPaqueteTest {
 
   private RepositorioReserva repositorioReservaMock;
   private RepositorioPaquete repositorioPaqueteMock;
+  private RepositorioEvento repositorioEventoMock;
   private ServicioPublicarPaquete servicioPublicarPaquete;
 
   @BeforeEach
   public void init() {
     repositorioReservaMock = mock(RepositorioReserva.class);
     repositorioPaqueteMock = mock(RepositorioPaquete.class);
+    repositorioEventoMock = mock(RepositorioEvento.class);
     servicioPublicarPaquete =
-      new ServicioPublicarPaqueteImpl(repositorioReservaMock, repositorioPaqueteMock);
+      new ServicioPublicarPaqueteImpl(
+        repositorioReservaMock,
+        repositorioPaqueteMock,
+        repositorioEventoMock
+      );
   }
 
   @Test
@@ -46,8 +53,14 @@ public class ServicioPublicarPaqueteTest {
   void deberiaGuardarUnPaqueteServicioPorCadaServicioDelEvento() {
     Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
     Reserva reserva = this.dadoQueExisteUnaReservaDe(usuario, LocalDate.now().minusDays(10));
-    reserva.getEvento().agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
-    reserva.getEvento().agregarServicio(new ServicioAdicional("Fotografia", 30000.0, false));
+    // [REFACTOR EVENTO] Los servicios del evento se consultan en RepositorioEvento.
+    when(repositorioEventoMock.buscarServicio(reserva.getEvento().getId()))
+      .thenReturn(
+        List.of(
+          new ServicioAdicional("DJ", 40000.0, false),
+          new ServicioAdicional("Fotografia", 30000.0, false)
+        )
+      );
     when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
 
     servicioPublicarPaquete.publicar(10L, usuario, "Mi cumple de 30");
@@ -115,6 +128,7 @@ public class ServicioPublicarPaqueteTest {
 
   private Reserva dadoQueExisteUnaReservaDe(Usuario usuario, LocalDate fechaEvento) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, fechaEvento, 40);
+    evento.setId(20L);
     evento.setSalon(new Salon("Salón los Alamos", 50000.0));
     evento.setCatering(new Catering("Catering Basico", 1500.0));
     Reserva reserva = new Reserva();

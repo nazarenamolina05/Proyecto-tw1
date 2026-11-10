@@ -6,12 +6,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -38,15 +34,9 @@ public class Evento {
   @ManyToOne
   private Catering catering;
 
-  // Mismo esquema que PaqueteServicio: una clase intermedia EventoServicio con
-  // @ManyToOne Evento y @ManyToOne ServicioAdicional, y Evento sin la lista.
-  @ManyToMany
-  @JoinTable(
-    name = "evento_servicio",
-    joinColumns = @JoinColumn(name = "evento_id"),
-    inverseJoinColumns = @JoinColumn(name = "servicio_id")
-  )
-  private List<ServicioAdicional> servicioAdicionalesList = new ArrayList<>();
+  // [REFACTOR EVENTO] Se eliminó el @ManyToMany con ServicioAdicional, igual que en Paquete.
+  // Ahora la relación vive en EventoServicio (dos @ManyToOne) y los servicios de un
+  // evento se consultan con RepositorioEvento.buscarServicio(eventoId).
 
   public Evento() {}
 
@@ -57,17 +47,9 @@ public class Evento {
   }
 
   // Logica
-  public void agregarServicio(ServicioAdicional servicio) {
-    if (!servicioAdicionalesList.contains(servicio)) {
-      servicioAdicionalesList.add(servicio);
-    }
-  }
-
-  public void quitarServicio(ServicioAdicional servicio) {
-    servicioAdicionalesList.remove(servicio);
-  }
-
-  public Double calcularPresupuesto() {
+  // [REFACTOR EVENTO] Evento ya no tiene la lista: los servicios llegan por parámetro.
+  // Se obtienen con servicioEvento.obtenerServiciosDe(evento).
+  public Double calcularPresupuesto(List<ServicioAdicional> serviciosDelEvento) {
     Double total = 0.0;
 
     if (salon != null) {
@@ -77,7 +59,7 @@ public class Evento {
       total += catering.getPrecioPorPersona() * cantidadInvitados;
     }
 
-    for (ServicioAdicional servicio : servicioAdicionalesList) {
+    for (ServicioAdicional servicio : serviciosDelEvento) {
       total += servicio.calcularCosto(cantidadInvitados);
     }
     return total;
@@ -94,11 +76,18 @@ public class Evento {
     return paqueteOrigen.calcularPrecio(cantidadInvitados, serviciosDelPaquete);
   }
 
-  public Double calcularAdicional(List<ServicioAdicional> serviciosDelPaquete) {
+  // [REFACTOR EVENTO] Ahora también recibe los servicios del evento (para el presupuesto).
+  public Double calcularAdicional(
+    List<ServicioAdicional> serviciosDelEvento,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
     if (paqueteOrigen == null) {
       return 0.0;
     }
-    return Math.max(0.0, calcularPresupuesto() - calcularPrecioBase(serviciosDelPaquete));
+    return Math.max(
+      0.0,
+      calcularPresupuesto(serviciosDelEvento) - calcularPrecioBase(serviciosDelPaquete)
+    );
   }
 
   public boolean esServicioIncluido(
@@ -185,13 +174,5 @@ public class Evento {
 
   public void setCatering(Catering catering) {
     this.catering = catering;
-  }
-
-  public List<ServicioAdicional> getServiciosAdicionales() {
-    return servicioAdicionalesList;
-  }
-
-  public void setServiciosAdicionales(List<ServicioAdicional> serviciosAdicionales) {
-    this.servicioAdicionalesList = serviciosAdicionales;
   }
 }

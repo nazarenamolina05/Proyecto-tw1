@@ -1,6 +1,5 @@
 package com.tallerwebi.dominio;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -9,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import java.util.List;
 
 @Entity
 public class Reserva {
@@ -21,11 +21,18 @@ public class Reserva {
     return presupuesto * PORCENTAJE_SENIA;
   }
 
-  public Reserva(Usuario usuario, Evento evento, TipoPago tipoPago) {
+  // [REFACTOR EVENTO] Recibe los servicios del evento para calcular el presupuesto,
+  // porque Evento ya no tiene la lista.
+  public Reserva(
+    Usuario usuario,
+    Evento evento,
+    TipoPago tipoPago,
+    List<ServicioAdicional> serviciosDelEvento
+  ) {
     this.usuario = usuario;
     this.evento = evento;
     this.tipoPago = tipoPago;
-    this.presupuesto = evento.calcularPresupuesto();
+    this.presupuesto = evento.calcularPresupuesto(serviciosDelEvento);
 
     if (tipoPago == TipoPago.SENIA) {
       this.estado = EstadoReserva.SENIADA;
@@ -43,7 +50,9 @@ public class Reserva {
   @ManyToOne
   private Usuario usuario;
 
-  @OneToOne(optional = false, cascade = CascadeType.PERSIST)
+  // [REFACTOR EVENTO] Sin cascade: el evento ya se guarda al crearlo (ServicioEvento),
+  // así que cuando se reserva ya existe en la base.
+  @OneToOne(optional = false)
   private Evento evento;
 
   private Double presupuesto;

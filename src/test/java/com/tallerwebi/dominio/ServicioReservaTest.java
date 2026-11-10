@@ -17,12 +17,14 @@ import org.junit.jupiter.api.Test;
 public class ServicioReservaTest {
 
   private RepositorioReserva repositorioReservaMock;
+  private RepositorioEvento repositorioEventoMock;
   private ServicioReserva servicioReserva;
 
   @BeforeEach
   public void init() {
     repositorioReservaMock = mock(RepositorioReserva.class);
-    servicioReserva = new ServicioReservaImpl(repositorioReservaMock);
+    repositorioEventoMock = mock(RepositorioEvento.class);
+    servicioReserva = new ServicioReservaImpl(repositorioReservaMock, repositorioEventoMock);
   }
 
   @Test
@@ -57,6 +59,21 @@ public class ServicioReservaTest {
 
     verify(repositorioReservaMock).guardar(reserva);
     assertThat(reserva.getEstado(), equalTo(EstadoReserva.SENIADA));
+  }
+
+  // [REFACTOR EVENTO] Los servicios del evento se consultan en RepositorioEvento.
+  @Test
+  void elPresupuestoDeLaReservaDeberiaIncluirLosServiciosDelEvento() {
+    Evento evento = this.dadoQueTengoUnEventoConSalonParaElDia(1L, LocalDate.now().plusDays(30));
+    evento.setId(10L);
+    when(repositorioReservaMock.obtenerFechasOcupadasPorSalon(1L)).thenReturn(List.of());
+    when(repositorioEventoMock.buscarServicio(10L))
+      .thenReturn(List.of(new ServicioAdicional("DJ", 40000.0, false)));
+
+    Reserva reserva = servicioReserva.reservar(new Usuario(), evento, TipoPago.TOTAL);
+
+    // 50000 (salón) + 40000 (DJ)
+    assertThat(reserva.getPresupuesto(), equalTo(90000.0));
   }
 
   @Test

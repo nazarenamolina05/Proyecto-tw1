@@ -4,8 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.tallerwebi.dominio.*;
@@ -129,15 +131,15 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     salon.setCapacidad(50);
     Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fecha = LocalDate.now().plusDays(10);
-    Evento eventoCreado = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 20);
+    Evento eventoCreado = paqueteBasico.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20);
 
     session.setAttribute(ControladorReservas.USUARIO, new Usuario());
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
-    // [REFACTOR PAQUETE] los servicios del paquete se consultan aparte
-    when(servicio.consultarServiciosDe(paqueteBasico))
-      .thenReturn(List.of(new ServicioAdicional("DJ", 40000.0, false)));
-    when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
+    // [REFACTOR EVENTO] El servicio crea el evento desde el paquete y copia sus servicios
+    // (eso se prueba en ServicioEventoTest).
+    when(servicioEvento.crearEventoDesdePaquete(paqueteBasico, TipoPaquete.CUMPLEANIOS, fecha, 20))
+      .thenReturn(eventoCreado);
 
     DatosReservaPaquete datos = new DatosReservaPaquete();
     datos.setTipoEvento(TipoPaquete.CUMPLEANIOS);
@@ -148,10 +150,12 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
 
     assertEquals("redirect:/reservar", modelAndView.getViewName());
 
+    verify(servicioEvento)
+      .crearEventoDesdePaquete(paqueteBasico, TipoPaquete.CUMPLEANIOS, fecha, 20);
     Evento eventoEnSesion = (Evento) session.getAttribute(ControladorReservas.EVENTO);
+    assertSame(eventoCreado, eventoEnSesion);
     assertEquals(salon, eventoEnSesion.getSalon());
     assertEquals(paqueteBasico.getCatering(), eventoEnSesion.getCatering());
-    assertEquals(1, eventoEnSesion.getServiciosAdicionales().size());
   }
 
   @Test
@@ -160,10 +164,11 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     salon.setCapacidad(50);
     Paquete paqueteBasico = crearPaqueteBasico(salon);
     LocalDate fecha = LocalDate.now().plusDays(10);
-    Evento eventoCreado = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 20);
+    Evento eventoCreado = paqueteBasico.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20);
 
     when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
-    when(servicioEvento.crearEvento(TipoPaquete.CUMPLEANIOS, fecha, 20)).thenReturn(eventoCreado);
+    when(servicioEvento.crearEventoDesdePaquete(paqueteBasico, TipoPaquete.CUMPLEANIOS, fecha, 20))
+      .thenReturn(eventoCreado);
 
     DatosReservaPaquete datos = new DatosReservaPaquete();
     datos.setTipoEvento(TipoPaquete.CUMPLEANIOS);

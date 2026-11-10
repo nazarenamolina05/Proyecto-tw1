@@ -78,14 +78,18 @@ public class ControladorEventoPersonalizado {
       ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
       modelo.put("serviciosSugeridos", clasificados.getSugeridos());
       modelo.put("serviciosRestantes", clasificados.getRestantes());
-      modelo.put("presupuesto", evento.calcularPresupuesto());
+      // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
+      // evento-personalizado.html los lee de ${serviciosDelEvento}.
+      List<ServicioAdicional> serviciosDelEvento = servicioEvento.obtenerServiciosDe(evento);
+      modelo.put("serviciosDelEvento", serviciosDelEvento);
+      modelo.put("presupuesto", evento.calcularPresupuesto(serviciosDelEvento));
       // [REFACTOR PAQUETE -> EVENTO] Los servicios del paquete de origen se consultan
       // aparte y se pasan a Evento (antes Evento los sacaba de paqueteOrigen).
       List<ServicioAdicional> serviciosDelPaquete = servicioPaquetes.consultarServiciosDe(
         evento.getPaqueteOrigen()
       );
       modelo.put("precioBase", evento.calcularPrecioBase(serviciosDelPaquete));
-      modelo.put("adicional", evento.calcularAdicional(serviciosDelPaquete));
+      modelo.put("adicional", evento.calcularAdicional(serviciosDelEvento, serviciosDelPaquete));
       modelo.put("salonElegidoId", evento.getSalon() == null ? null : evento.getSalon().getId());
       modelo.put(
         "cateringElegidoId",
@@ -94,7 +98,7 @@ public class ControladorEventoPersonalizado {
 
       modelo.put(
         "serviciosElegidosIds",
-        evento.getServiciosAdicionales().stream().map(ServicioAdicional::getId).toList()
+        serviciosDelEvento.stream().map(ServicioAdicional::getId).toList()
       );
     }
 
@@ -123,9 +127,13 @@ public class ControladorEventoPersonalizado {
         servicioEvento.crearEvento(datos.getTipo(), datos.getFecha(), datos.getCantidadInvitados())
       );
     } else {
-      evento.setTipoPaquete(datos.getTipo());
-      evento.setFecha(datos.getFecha());
-      evento.setCantidadInvitados(datos.getCantidadInvitados());
+      // [REFACTOR EVENTO] El servicio actualiza los datos y los guarda en la base.
+      servicioEvento.actualizarDatos(
+        evento,
+        datos.getTipo(),
+        datos.getFecha(),
+        datos.getCantidadInvitados()
+      );
     }
     return volverAlEvento();
   }
@@ -147,14 +155,15 @@ public class ControladorEventoPersonalizado {
         datos.getCantidadInvitados()
       );
       Paquete paquete = servicioPaquetes.consultarPorId(datos.getPaqueteId());
-      // [REFACTOR PAQUETE -> EVENTO] crearEvento ahora recibe los servicios del paquete.
+      // [REFACTOR EVENTO] El servicio crea el evento, lo guarda y le copia los servicios
+      // del paquete (antes lo hacía paquete.crearEvento en memoria).
       session.setAttribute(
         EVENTO,
-        paquete.crearEvento(
+        servicioEvento.crearEventoDesdePaquete(
+          paquete,
           datos.getTipo(),
           datos.getFecha(),
-          datos.getCantidadInvitados(),
-          servicioPaquetes.consultarServiciosDe(paquete)
+          datos.getCantidadInvitados()
         )
       );
       session.removeAttribute(PAQUETE_PENDIENTE);

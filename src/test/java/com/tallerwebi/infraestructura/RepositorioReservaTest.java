@@ -8,7 +8,6 @@ import com.tallerwebi.infraestructura.config.HibernateInfraestructuraTestConfig;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import org.hibernate.Hibernate;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -183,23 +182,9 @@ public class RepositorioReservaTest {
     assertThat(repositorioReserva.buscarPorId(999999L), is(nullValue()));
   }
 
-  @Test
-  @Transactional
-  @Rollback
-  public void deberiaTraerLosServiciosAdicionalesDelEventoYaInicializados() {
-    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
-    ServicioAdicional dj = new ServicioAdicional("DJ", 20000.0, false);
-    this.sessionFactory.getCurrentSession().persist(dj);
-    Evento evento = this.dadoQueTengoUnEvento(null, LocalDate.now().plusDays(30));
-    evento.agregarServicio(dj);
-    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, evento, EstadoReserva.CONFIRMADA);
-    repositorioReserva.guardar(reserva);
-
-    Reserva obtenida = this.cuandoBuscoLaReservaPorId(reserva.getId());
-
-    assertThat(Hibernate.isInitialized(obtenida.getEvento().getServiciosAdicionales()), is(true));
-    assertThat(obtenida.getEvento().getServiciosAdicionales().size(), is(equalTo(1)));
-  }
+  // [REFACTOR EVENTO] Se quitó deberiaTraerLosServiciosAdicionalesDelEventoYaInicializados:
+  // Evento ya no tiene la lista, así que buscarPorId no la trae. Los servicios del evento
+  // se consultan con RepositorioEvento.buscarServicio (probado en RepositorioEventoTest).
 
   // ---------- dado ----------
 
@@ -218,9 +203,12 @@ public class RepositorioReservaTest {
     return salon;
   }
 
+  // [REFACTOR EVENTO] Reserva ya no guarda el evento en cascada (el evento se guarda al
+  // crearlo, en ServicioEvento), así que acá se guarda antes que la reserva.
   private Evento dadoQueTengoUnEvento(Salon salon, LocalDate fecha) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, fecha, 50);
     evento.setSalon(salon);
+    this.sessionFactory.getCurrentSession().persist(evento);
     return evento;
   }
 

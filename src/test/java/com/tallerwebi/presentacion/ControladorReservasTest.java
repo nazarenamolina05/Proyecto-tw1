@@ -26,6 +26,7 @@ public class ControladorReservasTest {
   private static final String USUARIO = "USUARIO";
 
   private ServicioReserva servicioReservaMock;
+  private ServicioEvento servicioEventoMock;
   private ControladorReservas controlador;
   private HttpServletRequest requestMock;
   private HttpSession sessionMock;
@@ -33,7 +34,8 @@ public class ControladorReservasTest {
   @BeforeEach
   void init() {
     servicioReservaMock = mock(ServicioReserva.class);
-    controlador = new ControladorReservas(servicioReservaMock);
+    servicioEventoMock = mock(ServicioEvento.class);
+    controlador = new ControladorReservas(servicioReservaMock, servicioEventoMock);
     requestMock = mock(HttpServletRequest.class);
     sessionMock = mock(HttpSession.class);
     when(requestMock.getSession()).thenReturn(sessionMock);
@@ -152,6 +154,23 @@ public class ControladorReservasTest {
     assertThat(mav.getModel().get("evento"), equalTo(evento));
     assertThat((Double) mav.getModel().get("presupuesto"), is(closeTo(200000.0, 0.01)));
     assertThat((Double) mav.getModel().get("montoSenia"), is(closeTo(60000.0, 0.01)));
+  }
+
+  // [REFACTOR EVENTO] Los servicios del evento se consultan con ServicioEvento.
+  @Test
+  void alVerLaReservaDeberiaSumarAlPresupuestoLosServiciosDelEvento() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 50000.0));
+    evento.setCatering(new Catering("Catering Basico", 5000.0));
+    List<ServicioAdicional> servicios = List.of(new ServicioAdicional("DJ", 40000.0, false));
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+    when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
+    when(servicioEventoMock.obtenerServiciosDe(evento)).thenReturn(servicios);
+
+    ModelAndView mav = controlador.verResumenDeReserva(requestMock);
+
+    assertThat(mav.getModel().get("serviciosDelEvento"), equalTo(servicios));
+    assertThat((Double) mav.getModel().get("presupuesto"), is(closeTo(240000.0, 0.01)));
   }
 
   @Test

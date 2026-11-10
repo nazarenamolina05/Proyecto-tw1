@@ -62,10 +62,9 @@ public class RepositorioReservaImpl implements RepositorioReserva {
     return sessionFactory
       .getCurrentSession()
       .createQuery(
-        "select distinct r from Reserva r " +
-        "join fetch r.evento e " +
-        "left join fetch e.servicioAdicionalesList " +
-        "where r.id = :id",
+        // [REFACTOR EVENTO] Se sacó el "left join fetch e.servicioAdicionalesList":
+        // Evento ya no tiene la lista (los servicios se consultan en EventoServicio).
+        "select r from Reserva r " + "join fetch r.evento " + "where r.id = :id",
         Reserva.class
       )
       .setParameter("id", id)

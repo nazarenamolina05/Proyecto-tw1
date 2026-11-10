@@ -51,11 +51,11 @@
                 </dl>
             </div>
 
-            <div class="detalle-card mb-4" th:if="${not reserva.evento.serviciosAdicionales.isEmpty()}">
+            <div class="detalle-card mb-4" th:if="${not serviciosDelEvento.isEmpty()}">
                 <h2 class="h5 fw-bold mb-3">Servicios adicionales</h2>
                 <ul class="list-unstyled mb-0">
                     <li class="d-flex justify-content-between py-1"
-                        th:each="servicio : ${reserva.evento.serviciosAdicionales}">
+                        th:each="servicio : ${serviciosDelEvento}">
                         <span th:text="${servicio.nombre}"></span>
                         <span th:text="'$ ' + ${#numbers.formatDecimal(servicio.calcularCosto(reserva.evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}"></span>
                     </li>

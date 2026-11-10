@@ -56,36 +56,36 @@ public class Paquete {
     this.precioEstimado = precioEstimado;
   }
 
-  // [REFACTOR PAQUETE] Ya no recibe los servicios: ServicioPublicarPaquete guarda un
-  // PaqueteServicio por cada servicio del evento después de guardar el paquete.
-  public static Paquete desdeEvento(Evento evento, String nombre, Usuario publicador) {
+  // [REFACTOR PAQUETE] ServicioPublicarPaquete guarda un PaqueteServicio por cada
+  // servicio del evento después de guardar el paquete.
+  // [REFACTOR EVENTO] Recibe los servicios del evento solo para calcular el precio.
+  public static Paquete desdeEvento(
+    Evento evento,
+    String nombre,
+    Usuario publicador,
+    List<ServicioAdicional> serviciosDelEvento
+  ) {
     Paquete nuevo = new Paquete(
       null,
       nombre,
       evento.getTipoPaquete(),
       evento.getSalon(),
       evento.getCatering(),
-      evento.calcularPresupuesto()
+      evento.calcularPresupuesto(serviciosDelEvento)
     );
     nuevo.setPublicador(publicador);
     return nuevo;
   }
 
-  // El paquete es el molde: el evento parte de su salón, catering y servicios,
-  // pero con su propia lista, para que modificarlo no altere el paquete.
-  // [REFACTOR PAQUETE] Los servicios del paquete se reciben por parámetro porque
-  // Paquete ya no tiene la lista (se obtienen con obtenerServiciosDe del repositorio).
-  public Evento crearEvento(
-    TipoPaquete tipoEvento,
-    LocalDate fecha,
-    Integer cantidadInvitados,
-    List<ServicioAdicional> serviciosDelPaquete
-  ) {
+  // El paquete es el molde: el evento parte de su salón y catering.
+  // [REFACTOR EVENTO] Los servicios ya no se copian acá: Evento no tiene la lista.
+  // ServicioEvento.crearEventoDesdePaquete guarda una fila de EventoServicio por cada
+  // servicio del paquete, así modificar el evento no altera el paquete.
+  public Evento crearEvento(TipoPaquete tipoEvento, LocalDate fecha, Integer cantidadInvitados) {
     Evento evento = new Evento(tipoEvento, fecha, cantidadInvitados);
     evento.setPaqueteOrigen(this);
     evento.setSalon(salon);
     evento.setCatering(catering);
-    serviciosDelPaquete.forEach(evento::agregarServicio);
     return evento;
   }
 

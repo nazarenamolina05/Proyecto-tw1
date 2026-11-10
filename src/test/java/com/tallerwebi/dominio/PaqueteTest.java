@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -46,16 +45,17 @@ public class PaqueteTest {
   // [REFACTOR PAQUETE] Paquete ya no tiene la lista de servicios: en los tests se arma
   // aparte (como si viniera de RepositorioPaquete.obtenerServiciosDe) y se pasa por parámetro.
 
+  // [REFACTOR EVENTO] Paquete.crearEvento ya no copia los servicios (Evento no tiene la
+  // lista). Que se guarde un EventoServicio por cada servicio del paquete se prueba en
+  // ServicioEventoTest (crearEventoDesdePaquete).
   @Test
-  public void alCrearUnEventoSeCopianSalonCateringYServiciosDelPaquete() {
+  public void alCrearUnEventoSeCopianSalonYCateringDelPaquete() {
     Paquete paquete = this.dadoQueTengoUnPaqueteBasico();
-    List<ServicioAdicional> serviciosDelPaquete = this.dadoQueElPaqueteTieneDosServicios();
 
-    Evento evento = this.cuandoCreoUnEventoDesde(paquete, serviciosDelPaquete);
+    Evento evento = this.cuandoCreoUnEventoDesde(paquete);
 
     assertSame(paquete.getSalon(), evento.getSalon());
     assertSame(paquete.getCatering(), evento.getCatering());
-    assertEquals(serviciosDelPaquete, evento.getServiciosAdicionales());
   }
 
   @Test
@@ -63,12 +63,7 @@ public class PaqueteTest {
     Paquete paquete = this.dadoQueTengoUnPaqueteBasico();
     LocalDate fecha = LocalDate.now().plusDays(30);
 
-    Evento evento = paquete.crearEvento(
-      TipoPaquete.FIESTA_DE_15,
-      fecha,
-      40,
-      this.dadoQueElPaqueteTieneDosServicios()
-    );
+    Evento evento = paquete.crearEvento(TipoPaquete.FIESTA_DE_15, fecha, 40);
 
     assertEquals(TipoPaquete.FIESTA_DE_15, evento.getTipoPaquete());
     assertEquals(fecha, evento.getFecha());
@@ -79,24 +74,14 @@ public class PaqueteTest {
   public void elEventoRecuerdaElPaqueteDelQueSalio() {
     Paquete paquete = this.dadoQueTengoUnPaqueteBasico();
 
-    Evento evento = this.cuandoCreoUnEventoDesde(paquete, this.dadoQueElPaqueteTieneDosServicios());
+    Evento evento = this.cuandoCreoUnEventoDesde(paquete);
 
     assertSame(paquete, evento.getPaqueteOrigen());
   }
 
-  @Test
-  public void modificarElEventoNoModificaLosServiciosDelPaquete() {
-    Paquete paquete = this.dadoQueTengoUnPaqueteBasico();
-    List<ServicioAdicional> serviciosDelPaquete = new ArrayList<>(
-      this.dadoQueElPaqueteTieneDosServicios()
-    );
-    Evento evento = this.cuandoCreoUnEventoDesde(paquete, serviciosDelPaquete);
-
-    evento.agregarServicio(new ServicioAdicional("Cotillon", 500.0, true));
-
-    assertEquals(2, serviciosDelPaquete.size());
-    assertEquals(3, evento.getServiciosAdicionales().size());
-  }
+  // [REFACTOR EVENTO] Se quitó modificarElEventoNoModificaLosServiciosDelPaquete: el evento
+  // ya no tiene una lista propia. Sus servicios viven en EventoServicio y los del paquete
+  // en PaqueteServicio, así que modificar uno no puede alterar al otro.
 
   @Test
   public void elPrecioDelPaqueteSumaSalonCateringPorInvitadoYServicios() {
@@ -128,7 +113,12 @@ public class PaqueteTest {
     Usuario publicador = new Usuario();
     Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
 
-    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", publicador);
+    Paquete paquete = Paquete.desdeEvento(
+      evento,
+      "Mi cumple de 30",
+      publicador,
+      serviciosDelEvento
+    );
 
     assertEquals("Mi cumple de 30", paquete.getNombre());
     assertEquals(evento.getTipoPaquete(), paquete.getTipo());
@@ -145,16 +135,26 @@ public class PaqueteTest {
   void elPrecioEstimadoDelPaquetePublicadoDeberiaSerElPresupuestoDelEvento() {
     Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
 
-    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", new Usuario());
+    Paquete paquete = Paquete.desdeEvento(
+      evento,
+      "Mi cumple de 30",
+      new Usuario(),
+      serviciosDelEvento
+    );
 
-    assertEquals(evento.calcularPresupuesto(), paquete.getPrecioEstimado());
+    assertEquals(evento.calcularPresupuesto(serviciosDelEvento), paquete.getPrecioEstimado());
   }
 
   @Test
   void elPaquetePublicadoNoDeberiaSerPredeterminado() {
     Evento evento = this.dadoQueTengoUnEventoConSalonCateringYServicios();
 
-    Paquete paquete = Paquete.desdeEvento(evento, "Mi cumple de 30", new Usuario());
+    Paquete paquete = Paquete.desdeEvento(
+      evento,
+      "Mi cumple de 30",
+      new Usuario(),
+      serviciosDelEvento
+    );
 
     assertFalse(paquete.isPredeterminado());
   }
@@ -177,23 +177,19 @@ public class PaqueteTest {
     );
   }
 
-  private Evento cuandoCreoUnEventoDesde(
-    Paquete paquete,
-    List<ServicioAdicional> serviciosDelPaquete
-  ) {
-    return paquete.crearEvento(
-      TipoPaquete.CUMPLEANIOS,
-      LocalDate.now().plusDays(30),
-      30,
-      serviciosDelPaquete
-    );
+  private Evento cuandoCreoUnEventoDesde(Paquete paquete) {
+    return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
   }
+
+  // [REFACTOR EVENTO] Evento ya no tiene la lista: los servicios se arman aparte (como si
+  // vinieran de RepositorioEvento.buscarServicio) y se pasan por parámetro a desdeEvento.
+  private List<ServicioAdicional> serviciosDelEvento;
 
   private Evento dadoQueTengoUnEventoConSalonCateringYServicios() {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().minusDays(10), 40);
     evento.setSalon(new Salon("Salón los Alamos", 50000.0));
     evento.setCatering(new Catering("Catering Basico", 1500.0));
-    evento.agregarServicio(new ServicioAdicional("DJ", 40000.0, false));
+    serviciosDelEvento = List.of(new ServicioAdicional("DJ", 40000.0, false));
     return evento;
   }
 }
