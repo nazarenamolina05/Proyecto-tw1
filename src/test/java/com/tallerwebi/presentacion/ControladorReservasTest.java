@@ -60,17 +60,20 @@ public class ControladorReservasTest {
   }
 
   @Test
-  void deberiaReservarYRedirigirAMisReservas() {
+  void deberiaReservarYRedirigirAlPagoDeLaReserva() {
     Usuario usuario = new Usuario();
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    Reserva reservaCreada = new Reserva();
+    reservaCreada.setId(10L);
     when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
     when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
+    when(servicioReservaMock.reservar(usuario, evento, TipoPago.TOTAL)).thenReturn(reservaCreada);
 
     ModelAndView mav = controlador.reservar(TipoPago.TOTAL, requestMock);
 
     verify(servicioReservaMock).reservar(usuario, evento, TipoPago.TOTAL);
     verify(sessionMock).removeAttribute(EVENTO);
-    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
+    assertThat(mav.getViewName(), equalTo("redirect:/pago/iniciar/10"));
   }
 
   @Test

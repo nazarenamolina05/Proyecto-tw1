@@ -86,12 +86,13 @@ public class ServicioPagoTest {
     Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
     this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.APROBADO, "5");
 
-    servicioPago.confirmarPago(5L, 777L);
+    EstadoPago resultado = servicioPago.confirmarPago(5L, 777L);
 
     assertThat(pago.getEstado(), equalTo(EstadoPago.APROBADO));
     assertThat(pago.getMpPaymentId(), equalTo(777L));
     assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.SENIADA));
     assertThat(pago.getReserva().getMontoAbonado(), closeTo(30000.0, 0.01));
+    assertThat(resultado, equalTo(EstadoPago.APROBADO));
   }
 
   @Test
@@ -99,10 +100,11 @@ public class ServicioPagoTest {
     Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
     this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.RECHAZADO, "5");
 
-    servicioPago.confirmarPago(5L, 777L);
+    EstadoPago resultado = servicioPago.confirmarPago(5L, 777L);
 
     assertThat(pago.getEstado(), equalTo(EstadoPago.RECHAZADO));
     assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.PENDIENTE_PAGO));
+    assertThat(resultado, equalTo(EstadoPago.RECHAZADO));
   }
 
   @Test
@@ -110,10 +112,11 @@ public class ServicioPagoTest {
     Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
     this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.PENDIENTE, "5");
 
-    servicioPago.confirmarPago(5L, 777L);
+    EstadoPago resultado = servicioPago.confirmarPago(5L, 777L);
 
     assertThat(pago.getEstado(), equalTo(EstadoPago.PENDIENTE));
     assertThat(pago.getReserva().getEstado(), equalTo(EstadoReserva.PENDIENTE_PAGO));
+    assertThat(resultado, equalTo(EstadoPago.PENDIENTE));
   }
 
   @Test
@@ -121,9 +124,10 @@ public class ServicioPagoTest {
     Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
     pago.setEstado(EstadoPago.APROBADO);
 
-    servicioPago.confirmarPago(5L, 777L);
+    EstadoPago resultado = servicioPago.confirmarPago(5L, 777L);
 
     verify(pasarelaMock, never()).consultarPago(any());
+    assertThat(resultado, equalTo(EstadoPago.APROBADO));
   }
 
   @Test

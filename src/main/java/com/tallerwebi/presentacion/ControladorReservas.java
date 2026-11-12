@@ -82,8 +82,9 @@ public class ControladorReservas {
       return new ModelAndView(VOLVER_AL_EVENTO);
     }
 
+    Reserva reserva;
     try {
-      servicioReserva.reservar(usuario, evento, tipoPago);
+      reserva = servicioReserva.reservar(usuario, evento, tipoPago);
     } catch (SalonNoDisponible e) {
       return new ModelAndView(VOLVER_AL_EVENTO + "?error=salonNoDisponible");
     } catch (FechaInvalida e) {
@@ -93,7 +94,7 @@ public class ControladorReservas {
     }
 
     session.removeAttribute(EVENTO);
-    return new ModelAndView("redirect:/mis-reservas");
+    return new ModelAndView("redirect:/pago/iniciar/" + reserva.getId());
   }
 
   @RequestMapping(path = "/mis-reservas", method = RequestMethod.GET)

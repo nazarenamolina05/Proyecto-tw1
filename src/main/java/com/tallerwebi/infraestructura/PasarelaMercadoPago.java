@@ -22,8 +22,7 @@ import org.springframework.stereotype.Component;
 @Component("pasarelaMercadoPago")
 public class PasarelaMercadoPago implements PasarelaDePago {
 
-  // El proyecto corre en Jetty con contexto "/spring"
-  private static final String URL_BASE = "http://localhost:8080/spring";
+  private static final String URL_BASE_POR_DEFECTO = "http://localhost:8080/spring";
   private static final String ESTADO_APROBADO = "approved";
   private static final String ESTADO_RECHAZADO = "rejected";
   private static final String ESTADO_CANCELADO = "cancelled";
@@ -31,6 +30,7 @@ public class PasarelaMercadoPago implements PasarelaDePago {
   @Override
   public String crearPago(Long pagoId, String descripcion, Double monto) {
     MercadoPagoConfig.setAccessToken(this.obtenerToken());
+    String urlBase = this.obtenerUrlBase();
 
     PreferenceItemRequest item = PreferenceItemRequest
       .builder()
@@ -42,15 +42,16 @@ public class PasarelaMercadoPago implements PasarelaDePago {
 
     PreferenceBackUrlsRequest urlsDeRetorno = PreferenceBackUrlsRequest
       .builder()
-      .success(URL_BASE + "/pago/exito")
-      .failure(URL_BASE + "/pago/fallo")
-      .pending(URL_BASE + "/pago/pendiente")
+      .success(urlBase + "/pago/exito")
+      .failure(urlBase + "/pago/fallo")
+      .pending(urlBase + "/pago/pendiente")
       .build();
 
     PreferenceRequest pedido = PreferenceRequest
       .builder()
       .items(List.of(item))
       .backUrls(urlsDeRetorno)
+      .autoReturn("approved")
       .externalReference(String.valueOf(pagoId))
       .build();
 
@@ -95,6 +96,11 @@ public class PasarelaMercadoPago implements PasarelaDePago {
       return EstadoPago.RECHAZADO;
     }
     return EstadoPago.PENDIENTE;
+  }
+
+  private String obtenerUrlBase() {
+    String urlBase = System.getenv("APP_BASE_URL");
+    return urlBase == null || urlBase.isBlank() ? URL_BASE_POR_DEFECTO : urlBase;
   }
 
   private String obtenerToken() {

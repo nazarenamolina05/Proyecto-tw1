@@ -42,13 +42,13 @@ public class ServicioPagoImpl implements ServicioPago {
   }
 
   @Override
-  public void confirmarPago(Long pagoId, Long mpPaymentId) {
+  public EstadoPago confirmarPago(Long pagoId, Long mpPaymentId) {
     Pago pago = repositorioPago.buscarPorId(pagoId);
     if (pago == null) {
       throw new PagoNoEncontrado();
     }
     if (pago.getEstado() == EstadoPago.APROBADO) {
-      return;
+      return pago.getEstado();
     }
 
     DatosPagoExterno datos = pasarela.consultarPago(mpPaymentId);
@@ -63,6 +63,7 @@ public class ServicioPagoImpl implements ServicioPago {
     } else if (datos.getEstado() == EstadoPago.RECHAZADO) {
       pago.setEstado(EstadoPago.RECHAZADO);
     }
+    return pago.getEstado();
   }
 
   private String describir(Reserva reserva) {
