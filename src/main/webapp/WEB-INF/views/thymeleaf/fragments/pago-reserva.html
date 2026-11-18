@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Estado de la reserva: mismas etiquetas en el listado y en el detalle -->
+<span th:fragment="badgeEstado(reserva)" class="badge-estado"
+      th:classappend="${'estado-' + reserva.estado}"
+      th:switch="${reserva.estado.name()}">
+    <span th:case="'PENDIENTE_PAGO'">Pendiente de pago</span>
+    <span th:case="'SENIADA'">Señada</span>
+    <span th:case="'CONFIRMADA'">Confirmada</span>
+    <span th:case="'CANCELADA'">Cancelada</span>
+    <span th:case="'FINALIZADA'">Finalizada</span>
+</span>
+
+<!-- Avance del pago: barra con el porcentaje abonado -->
+<div th:fragment="progresoDePago(reserva)">
+    <div class="small mb-1">
+        Abonaste el <strong th:text="${reserva.calcularPorcentajeAbonado()}">0</strong>% del total
+    </div>
+    <div class="progress" style="height: 8px;" role="progressbar"
+         aria-valuemin="0" aria-valuemax="100"
+         th:attr="aria-valuenow=${reserva.calcularPorcentajeAbonado()}">
+        <div class="progress-bar bg-success"
+             th:style="'width: ' + ${reserva.calcularPorcentajeAbonado()} + '%'"></div>
+    </div>
+</div>
+
+<!-- Abonar cualquier monto: solo aparece si la reserva lo admite -->
+<form th:fragment="formularioAbono(reserva)" class="mt-3" method="post"
+      th:if="${reserva.permiteAbonos()}"
+      th:action="@{/pago/abonar/{id}(id=${reserva.id})}">
+    <label class="form-label small mb-1" th:for="${'monto-' + reserva.id}">
+        Abonar el monto que quieras
+    </label>
+    <div class="input-group input-group-sm">
+        <span class="input-group-text">$</span>
+        <input type="number" name="monto" class="form-control"
+               th:id="${'monto-' + reserva.id}"
+               min="1" step="any" required
+               th:max="${reserva.calcularSaldoPendiente()}"
+               placeholder="Monto" />
+        <button type="submit" class="btn btn-success">
+            <i class="bi bi-cash-coin me-1"></i>Abonar
+        </button>
+    </div>
+    <small class="d-block mt-1 opacity-75">Podés abonar cuando quieras, hasta el día de tu evento.</small>
+</form>
+
+</body>
+</html>

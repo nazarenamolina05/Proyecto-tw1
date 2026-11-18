@@ -18,8 +18,7 @@
     <div class="linea-titulo mb-2"></div>
     <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
         <h1 class="mb-0" th:text="${reserva.evento.nombre}">Nombre del evento</h1>
-        <span class="badge-estado" th:classappend="${'estado-' + reserva.estado}"
-              th:text="${reserva.estado}"></span>
+        <th:block th:replace="~{fragments/pago-reserva :: badgeEstado(${reserva})}"></th:block>
     </div>
 
     <div class="row g-4">
@@ -81,13 +80,17 @@
             <div class="detalle-pago rounded-4 p-4">
                 <h2 class="h5 fw-bold mb-3">Resumen de pago</h2>
 
+                <div class="mb-3">
+                    <th:block th:replace="~{fragments/pago-reserva :: progresoDePago(${reserva})}"></th:block>
+                </div>
+
                 <div class="d-flex justify-content-between mb-2">
                     <span>Presupuesto</span>
                     <span th:text="'$ ' + ${#numbers.formatDecimal(reserva.presupuesto, 0, 'POINT', 0, 'COMMA')}"></span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                     <span>Abonado</span>
-                    <span th:text="'$ ' + ${#numbers.formatDecimal(reserva.montoAbonado, 0, 'POINT', 0, 'COMMA')}"></span>
+                    <span th:text="'$ ' + ${#numbers.formatDecimal(reserva.montoAbonado ?: 0.0, 0, 'POINT', 0, 'COMMA')}"></span>
                 </div>
 
                 <hr class="detalle-corte"/>
@@ -96,7 +99,19 @@
                 <div class="detalle-saldo"
                      th:text="'$ ' + ${#numbers.formatDecimal(reserva.calcularSaldoPendiente(), 0, 'POINT', 0, 'COMMA')}"></div>
 
-                <!-- PAGO: aca se engancha el botón de pagar el saldo (mercado pago) -->
+                <!-- Reserva creada pero sin pagar: permite pagar (o reintentar) -->
+                <div class="mt-3" th:if="${reserva.estado.name() == 'PENDIENTE_PAGO'}">
+                    <a th:href="@{/pago/iniciar/{id}(id=${reserva.id})}" class="btn btn-primary rounded-pill btn-sm">
+                        <i class="bi bi-credit-card me-1"></i>Pagar ahora
+                    </a>
+                </div>
+
+                <!-- Reserva señada: abonar cualquier monto hasta la fecha del evento -->
+                <th:block th:replace="~{fragments/pago-reserva :: formularioAbono(${reserva})}"></th:block>
+
+                <p class="small mt-3 mb-0" th:if="${reserva.estado.name() == 'CONFIRMADA'}">
+                    <i class="bi bi-check-circle-fill me-1"></i>Tu reserva está pagada en su totalidad.
+                </p>
             </div>
         </aside>
     </div>

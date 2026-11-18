@@ -11,9 +11,7 @@ import static org.mockito.Mockito.when;
 import com.tallerwebi.dominio.EstadoPago;
 import com.tallerwebi.dominio.ServicioPago;
 import com.tallerwebi.dominio.Usuario;
-import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
-import com.tallerwebi.dominio.excepcion.PasarelaNoDisponible;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
@@ -131,5 +129,70 @@ public class ControladorPagoTest {
       controlador.pagoPendiente().getViewName(),
       equalTo("redirect:/mis-reservas?pago=pendiente")
     );
+  }
+
+  @Test
+  void siNoHayUsuarioAlAbonarDeberiaRedirigirAlLogin() {
+    ModelAndView mav = controlador.abonar(10L, 20000.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/login"));
+    verify(servicioPagoMock, never()).iniciarAbono(any(), any(), any());
+  }
+
+  @Test
+  void alAbonarDeberiaRedirigirALaUrlDePagoDeMercadoPago() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioPagoMock.iniciarAbono(10L, usuario, 20000.0))
+      .thenReturn("https://mercadopago.test/pagar");
+
+    ModelAndView mav = controlador.abonar(10L, 20000.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:https://mercadopago.test/pagar"));
+  }
+
+  @Test
+  void siElMontoDelAbonoEsInvalidoDeberiaVolverAMisReservasConErrorDeMonto() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioPagoMock.iniciarAbono(10L, usuario, 0.0)).thenThrow(new MontoDeAbonoInvalido());
+
+    ModelAndView mav = controlador.abonar(10L, 0.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas?error=monto"));
+  }
+
+  @Test
+  void siLaReservaNoAdmiteAbonosDeberiaVolverAMisReservasConErrorDeAbono() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioPagoMock.iniciarAbono(10L, usuario, 20000.0)).thenThrow(new AbonoNoPermitido());
+
+    ModelAndView mav = controlador.abonar(10L, 20000.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas?error=abono"));
+  }
+
+  @Test
+  void siLaReservaDelAbonoNoEsDelUsuarioDeberiaVolverAMisReservas() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioPagoMock.iniciarAbono(10L, usuario, 20000.0)).thenThrow(new ReservaNoEncontrada());
+
+    ModelAndView mav = controlador.abonar(10L, 20000.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
+  }
+
+  @Test
+  void siMercadoPagoNoRespondeAlAbonarDeberiaVolverAMisReservasConError() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioPagoMock.iniciarAbono(10L, usuario, 20000.0))
+      .thenThrow(new PasarelaNoDisponible("sin conexion"));
+
+    ModelAndView mav = controlador.abonar(10L, 20000.0, requestMock);
+
+    assertThat(mav.getViewName(), equalTo(MIS_RESERVAS_CON_ERROR));
   }
 }

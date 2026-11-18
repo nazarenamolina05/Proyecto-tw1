@@ -8,12 +8,15 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 public class Reserva {
 
   public static final double PORCENTAJE_SENIA = 0.30;
+  private static final double TOLERANCIA = 0.01;
+  private static final int CIEN_POR_CIENTO = 100;
 
   public Reserva() {}
 
@@ -72,9 +75,27 @@ public class Reserva {
     return tipoPago == TipoPago.SENIA ? calcularSenia(presupuesto) : presupuesto;
   }
 
-  public void confirmarPago() {
-    this.estado = tipoPago == TipoPago.SENIA ? EstadoReserva.SENIADA : EstadoReserva.CONFIRMADA;
-    this.montoAbonado = calcularMontoAPagar();
+  public void registrarPago(Double monto) {
+    double abonadoHastaAhora = montoAbonado == null ? 0.0 : montoAbonado;
+    this.montoAbonado = abonadoHastaAhora + monto;
+    this.estado =
+      calcularSaldoPendiente() < TOLERANCIA ? EstadoReserva.CONFIRMADA : EstadoReserva.SENIADA;
+  }
+
+  public boolean permiteAbonos() {
+    return estado == EstadoReserva.SENIADA && !evento.getFecha().isBefore(LocalDate.now());
+  }
+
+  public boolean admiteAbonoDe(Double monto) {
+    return monto != null && monto > 0 && monto <= calcularSaldoPendiente() + TOLERANCIA;
+  }
+
+  public int calcularPorcentajeAbonado() {
+    if (presupuesto == null || presupuesto <= 0) {
+      return 0;
+    }
+    double abonado = montoAbonado == null ? 0.0 : montoAbonado;
+    return (int) Math.min(CIEN_POR_CIENTO, Math.round((abonado * CIEN_POR_CIENTO) / presupuesto));
   }
 
   public Long getId() {

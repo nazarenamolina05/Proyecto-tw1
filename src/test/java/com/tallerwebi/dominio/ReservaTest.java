@@ -95,7 +95,7 @@ public class ReservaTest {
 
   private Reserva cuandoReservoYPago(Evento evento, TipoPago tipoPago) {
     Reserva reserva = this.cuandoReservoCon(evento, tipoPago);
-    reserva.confirmarPago();
+    reserva.registrarPago(reserva.calcularMontoAPagar());
     return reserva;
   }
 
@@ -151,5 +151,136 @@ public class ReservaTest {
     Reserva reserva = this.cuandoReservoCon(evento, TipoPago.TOTAL);
 
     assertThat(reserva.calcularMontoAPagar(), is(closeTo(100000.0, 0.01)));
+  }
+
+  @Test
+  public void unAbonoDespuesDeLaSeniaDebeSumarseAlMontoAbonado() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    reserva.registrarPago(20000.0);
+
+    assertThat(reserva.getMontoAbonado(), is(closeTo(50000.0, 0.01)));
+    assertThat(reserva.calcularSaldoPendiente(), is(closeTo(50000.0, 0.01)));
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.SENIADA)));
+  }
+
+  @Test
+  public void alAbonarElSaldoCompletoLaReservaDebeQuedarConfirmada() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    reserva.registrarPago(70000.0);
+
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.CONFIRMADA)));
+    assertThat(reserva.calcularSaldoPendiente(), is(closeTo(0.0, 0.01)));
+  }
+
+  @Test
+  public void unaReservaSeniadaConEventoFuturoDebePermitirAbonos() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.permiteAbonos(), is(true));
+  }
+
+  @Test
+  public void unaReservaPendienteDePagoNoDebePermitirAbonos() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+
+    assertThat(reserva.permiteAbonos(), is(false));
+  }
+
+  @Test
+  public void unaReservaConfirmadaNoDebePermitirAbonos() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.TOTAL);
+
+    assertThat(reserva.permiteAbonos(), is(false));
+  }
+
+  @Test
+  public void unaReservaSeniadaConEventoYaPasadoNoDebePermitirAbonos() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().minusDays(1), 30);
+    evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
+
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.permiteAbonos(), is(false));
+  }
+
+  @Test
+  public void deberiaAdmitirUnAbonoMenorAlSaldoPendiente() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.admiteAbonoDe(10000.0), is(true));
+  }
+
+  @Test
+  public void deberiaAdmitirUnAbonoIgualAlSaldoPendiente() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.admiteAbonoDe(70000.0), is(true));
+  }
+
+  @Test
+  public void noDeberiaAdmitirUnAbonoMayorAlSaldoPendiente() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.admiteAbonoDe(70001.0), is(false));
+  }
+
+  @Test
+  public void noDeberiaAdmitirUnAbonoSinMontoPositivo() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.admiteAbonoDe(0.0), is(false));
+    assertThat(reserva.admiteAbonoDe(-5.0), is(false));
+    assertThat(reserva.admiteAbonoDe(null), is(false));
+  }
+
+  @Test
+  public void elPorcentajeAbonadoDeUnaReservaPendienteDebeSerCero() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoCon(evento, TipoPago.SENIA);
+
+    assertThat(reserva.calcularPorcentajeAbonado(), is(0));
+  }
+
+  @Test
+  public void elPorcentajeAbonadoDeUnaReservaSeniadaDebeSerElDeLaSenia() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    assertThat(reserva.calcularPorcentajeAbonado(), is(30));
+  }
+
+  @Test
+  public void elPorcentajeAbonadoDeUnaReservaPagadaPorCompletoDebeSerCien() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.TOTAL);
+
+    assertThat(reserva.calcularPorcentajeAbonado(), is(100));
+  }
+
+  @Test
+  public void elPorcentajeAbonadoDebeRedondearseAlEnteroMasCercano() {
+    Evento evento = this.dadoQueTengoUnEventoQueCuesta(100000.0);
+    Reserva reserva = this.cuandoReservoYPago(evento, TipoPago.SENIA);
+
+    reserva.registrarPago(3333.0);
+
+    assertThat(reserva.calcularPorcentajeAbonado(), is(33));
   }
 }
