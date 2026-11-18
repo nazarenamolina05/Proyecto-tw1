@@ -90,6 +90,18 @@ public class Reserva {
     return monto != null && monto > 0 && monto <= calcularSaldoPendiente() + TOLERANCIA;
   }
 
+  // Se puede reseñar cuando el evento ya ocurrió y la reserva llegó a pagarse
+  // (una reserva pendiente de pago o cancelada nunca se realizó).
+  public boolean admiteResenia() {
+    return (
+      evento != null &&
+      evento.yaOcurrio() &&
+      (estado == EstadoReserva.SENIADA ||
+        estado == EstadoReserva.CONFIRMADA ||
+        estado == EstadoReserva.FINALIZADA)
+    );
+  }
+
   public int calcularPorcentajeAbonado() {
     if (presupuesto == null || presupuesto <= 0) {
       return 0;

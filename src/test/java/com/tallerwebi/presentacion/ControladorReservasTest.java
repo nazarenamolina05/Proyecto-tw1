@@ -27,6 +27,7 @@ public class ControladorReservasTest {
 
   private ServicioReserva servicioReservaMock;
   private ServicioEvento servicioEventoMock;
+  private ServicioResenia servicioReseniaMock;
   private ControladorReservas controlador;
   private HttpServletRequest requestMock;
   private HttpSession sessionMock;
@@ -35,7 +36,9 @@ public class ControladorReservasTest {
   void init() {
     servicioReservaMock = mock(ServicioReserva.class);
     servicioEventoMock = mock(ServicioEvento.class);
-    controlador = new ControladorReservas(servicioReservaMock, servicioEventoMock);
+    servicioReseniaMock = mock(ServicioResenia.class);
+    controlador =
+      new ControladorReservas(servicioReservaMock, servicioEventoMock, servicioReseniaMock);
     requestMock = mock(HttpServletRequest.class);
     sessionMock = mock(HttpSession.class);
     when(requestMock.getSession()).thenReturn(sessionMock);
@@ -209,6 +212,20 @@ public class ControladorReservasTest {
 
     assertThat(mav.getViewName(), equalTo("detalle-reserva"));
     assertThat(mav.getModel().get("reserva"), equalTo(reserva));
+  }
+
+  @Test
+  void alVerElDetalleDeberiaIncluirLaReseniaDeLaReserva() {
+    Usuario usuario = new Usuario();
+    Reserva reserva = new Reserva();
+    Resenia resenia = new Resenia(reserva, 5, "Excelente");
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenReturn(reserva);
+    when(servicioReseniaMock.obtenerReseniaDe(10L)).thenReturn(resenia);
+
+    ModelAndView mav = controlador.verDetalleDeReserva(10L, requestMock);
+
+    assertThat(mav.getModel().get("resenia"), equalTo(resenia));
   }
 
   @Test

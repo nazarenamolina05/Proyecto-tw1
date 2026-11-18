@@ -21,15 +21,18 @@ public class ControladorConsultarPaquetesPredeterminados {
   private ServicioConsultarPaquetesPredeterminados servicio;
   private ServicioValidarSeleccionPaquete servicioValidacion;
   private ServicioEvento servicioEvento;
+  private ServicioResenia servicioResenia;
 
   public ControladorConsultarPaquetesPredeterminados(
     ServicioConsultarPaquetesPredeterminados servicio,
     ServicioValidarSeleccionPaquete servicioValidacion,
-    ServicioEvento servicioEvento
+    ServicioEvento servicioEvento,
+    ServicioResenia servicioResenia
   ) {
     this.servicio = servicio;
     this.servicioValidacion = servicioValidacion;
     this.servicioEvento = servicioEvento;
+    this.servicioResenia = servicioResenia;
   }
 
   @GetMapping(path = "/paquetes-predeterminados/{id}")
@@ -91,6 +94,10 @@ public class ControladorConsultarPaquetesPredeterminados {
       modelo.put("capacidad", paquete.getSalon().getCapacidad());
       modelo.put("fechasOcupadas", obtenerFechasOcupadasComoTexto(id));
       modelo.put("tiposEvento", TipoPaquete.values());
+
+      List<Resenia> resenias = servicioResenia.obtenerReseniasDelPaquete(id);
+      modelo.put("resenias", resenias);
+      modelo.put("promedioResenias", servicioResenia.calcularPromedio(resenias));
     } catch (PaqueteNoEncontrado e) {
       modelo.put("paquete", null);
     }

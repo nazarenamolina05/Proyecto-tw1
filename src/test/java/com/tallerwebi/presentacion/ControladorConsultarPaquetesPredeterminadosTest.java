@@ -26,6 +26,7 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
   private ServicioValidarSeleccionPaquete servicioValidacion;
   private ControladorConsultarPaquetesPredeterminados controlador;
   private ServicioEvento servicioEvento;
+  private ServicioResenia servicioResenia;
   private MockHttpSession session;
 
   @BeforeEach
@@ -33,9 +34,30 @@ public class ControladorConsultarPaquetesPredeterminadosTest {
     servicio = mock(ServicioConsultarPaquetesPredeterminados.class);
     servicioValidacion = mock(ServicioValidarSeleccionPaquete.class);
     servicioEvento = mock(ServicioEvento.class);
+    servicioResenia = mock(ServicioResenia.class);
     session = new MockHttpSession();
     controlador =
-      new ControladorConsultarPaquetesPredeterminados(servicio, servicioValidacion, servicioEvento);
+      new ControladorConsultarPaquetesPredeterminados(
+        servicio,
+        servicioValidacion,
+        servicioEvento,
+        servicioResenia
+      );
+  }
+
+  @Test
+  public void elDetalleIncluyeLasReseniasDelPaqueteYSuPromedio() {
+    Paquete paqueteBasico = crearPaqueteBasico(new Salon("Salón Los Álamos", 50000.0));
+    List<Resenia> resenias = List.of(new Resenia(), new Resenia());
+
+    when(servicio.consultarPorId(1L)).thenReturn(paqueteBasico);
+    when(servicioResenia.obtenerReseniasDelPaquete(1L)).thenReturn(resenias);
+    when(servicioResenia.calcularPromedio(resenias)).thenReturn(4.5);
+
+    ModelAndView modelAndView = controlador.mostrarDetalle(1L);
+
+    assertEquals(resenias, modelAndView.getModel().get("resenias"));
+    assertEquals(4.5, modelAndView.getModel().get("promedioResenias"));
   }
 
   @Test

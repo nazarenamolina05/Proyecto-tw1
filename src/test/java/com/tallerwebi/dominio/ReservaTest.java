@@ -68,6 +68,87 @@ public class ReservaTest {
   }
 
   @Test
+  public void unaReservaConfirmadaDeUnEventoQueYaOcurrioDebeAdmitirResenia() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.CONFIRMADA
+        );
+
+    assertThat(reserva.admiteResenia(), is(true));
+  }
+
+  @Test
+  public void unaReservaSeniadaDeUnEventoQueYaOcurrioDebeAdmitirResenia() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.SENIADA
+        );
+
+    assertThat(reserva.admiteResenia(), is(true));
+  }
+
+  @Test
+  public void unaReservaFinalizadaDebeAdmitirResenia() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.FINALIZADA
+        );
+
+    assertThat(reserva.admiteResenia(), is(true));
+  }
+
+  @Test
+  public void unaReservaDeUnEventoFuturoNoDebeAdmitirResenia() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(1),
+          EstadoReserva.CONFIRMADA
+        );
+
+    assertThat(reserva.admiteResenia(), is(false));
+  }
+
+  @Test
+  public void unaReservaDeUnEventoDeHoyTodaviaNoDebeAdmitirResenia() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(LocalDate.now(), EstadoReserva.CONFIRMADA);
+
+    assertThat(reserva.admiteResenia(), is(false));
+  }
+
+  @Test
+  public void unaReservaPendienteDePagoNoDebeAdmitirReseniaAunqueElEventoHayaPasado() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.PENDIENTE_PAGO
+        );
+
+    assertThat(reserva.admiteResenia(), is(false));
+  }
+
+  @Test
+  public void unaReservaCanceladaNoDebeAdmitirReseniaAunqueElEventoHayaPasado() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.CANCELADA
+        );
+
+    assertThat(reserva.admiteResenia(), is(false));
+  }
+
+  private Reserva dadoQueTengoUnaReservaDeUnEventoDelDia(LocalDate fecha, EstadoReserva estado) {
+    Reserva reserva = new Reserva();
+    reserva.setEvento(new Evento(TipoPaquete.CUMPLEANIOS, fecha, 30));
+    reserva.setEstado(estado);
+    return reserva;
+  }
+
+  @Test
   void laSeniaDebeSerElTreintaPorCientoDelPresupuesto() {
     assertThat(Reserva.calcularSenia(100000.0), is(closeTo(30000.0, 0.01)));
   }
