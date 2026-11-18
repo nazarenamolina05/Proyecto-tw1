@@ -12,9 +12,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
-import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
+import com.tallerwebi.dominio.excepcion.*;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -146,6 +144,69 @@ public class ServicioPagoTest {
     assertThat(pago.getEstado(), equalTo(EstadoPago.PENDIENTE));
   }
 
+  @Test
+  void deberiaGuardarUnPagoPendienteDeAbonoPorElMontoIndicado() {
+    Usuario usuario = new Usuario();
+    Reserva reserva = this.dadoQueExisteUnaReservaSeniada(usuario);
+
+    servicioPago.iniciarAbono(10L, usuario, 20000.0);
+
+    Pago pagoGuardado = this.obtenerElPagoGuardado();
+    assertThat(pagoGuardado.getEstado(), equalTo(EstadoPago.PENDIENTE));
+    assertThat(pagoGuardado.getTipo(), equalTo(TipoPago.ABONO));
+    assertThat(pagoGuardado.getMonto(), closeTo(20000.0, 0.01));
+    assertThat(pagoGuardado.getReserva(), equalTo(reserva));
+  }
+
+  @Test
+  void deberiaDevolverLaUrlDePagoDelAbono() {
+    Usuario usuario = new Usuario();
+    this.dadoQueExisteUnaReservaSeniada(usuario);
+
+    String url = servicioPago.iniciarAbono(10L, usuario, 20000.0);
+
+    assertThat(url, equalTo("https://mercadopago.test/pagar"));
+  }
+
+  @Test
+  void noDeberiaIniciarUnAbonoSiLaReservaNoPermiteAbonos() {
+    Usuario usuario = new Usuario();
+    this.dadoQueExisteUnaReservaPendiente(usuario, TipoPago.SENIA);
+
+    assertThrows(AbonoNoPermitido.class, () -> servicioPago.iniciarAbono(10L, usuario, 20000.0));
+    verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+  }
+
+  @Test
+  void noDeberiaIniciarUnAbonoMayorAlSaldoPendiente() {
+    Usuario usuario = new Usuario();
+    this.dadoQueExisteUnaReservaSeniada(usuario);
+
+    assertThrows(
+      MontoDeAbonoInvalido.class,
+      () -> servicioPago.iniciarAbono(10L, usuario, 70001.0)
+    );
+    verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+  }
+
+  @Test
+  void noDeberiaIniciarUnAbonoEnCero() {
+    Usuario usuario = new Usuario();
+    this.dadoQueExisteUnaReservaSeniada(usuario);
+
+    assertThrows(MontoDeAbonoInvalido.class, () -> servicioPago.iniciarAbono(10L, usuario, 0.0));
+    verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+  }
+
+  @Test
+  void noDeberiaIniciarUnAbonoDeUnaReservaQueNoEsDelUsuario() {
+    Usuario usuario = new Usuario();
+    when(servicioReservaMock.obtenerReservaDe(10L, usuario)).thenThrow(ReservaNoEncontrada.class);
+
+    assertThrows(ReservaNoEncontrada.class, () -> servicioPago.iniciarAbono(10L, usuario, 20000.0));
+    verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+  }
+
   private Pago dadoQueExisteUnPagoPendienteDeSenia(Long pagoId) {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     evento.setSalon(new Salon("Salon Los Alamos", 100000.0));
@@ -185,5 +246,11 @@ public class ServicioPagoTest {
     ArgumentCaptor<Pago> captor = ArgumentCaptor.forClass(Pago.class);
     verify(repositorioPagoMock).guardar(captor.capture());
     return captor.getValue();
+  }
+
+  private Reserva dadoQueExisteUnaReservaSeniada(Usuario usuario) {
+    Reserva reserva = this.dadoQueExisteUnaReservaPendiente(usuario, TipoPago.SENIA);
+    reserva.registrarPago(reserva.calcularMontoAPagar());
+    return reserva;
   }
 }
