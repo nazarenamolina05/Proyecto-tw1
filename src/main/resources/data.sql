@@ -102,3 +102,29 @@ INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoA
 VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
         (SELECT id FROM Evento WHERE fecha = '2026-09-12'),
         180000.0, 'FINALIZADA', 'TOTAL', 180000.0);
+
+
+-- EVENTOS YA REALIZADOS DESDE EL PAQUETE "Básico" (para probar reseñas) --
+-- Dos ya reseñados (se ven en /paquetes-predeterminados/{id del Básico}) y uno sin reseñar
+-- (se puede reseñar desde Mis reservas).
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id, paqueteOrigen_id)
+SELECT '2026-06-20', 'CUMPLEANIOS', 40, p.salon_id, p.catering_id, p.id FROM Paquete p WHERE p.nombre = 'Básico';
+
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id, paqueteOrigen_id)
+SELECT '2026-07-05', 'CUMPLEANIOS', 40, p.salon_id, p.catering_id, p.id FROM Paquete p WHERE p.nombre = 'Básico';
+
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id, paqueteOrigen_id)
+SELECT '2026-08-15', 'CUMPLEANIOS', 40, p.salon_id, p.catering_id, p.id FROM Paquete p WHERE p.nombre = 'Básico';
+
+INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoAbonado)
+SELECT u.id, e.id, 165000.0, 'FINALIZADA', 'TOTAL', 165000.0
+FROM Usuario u, Evento e
+WHERE u.email = 'test@unlam.edu.ar' AND e.fecha IN ('2026-06-20', '2026-07-05', '2026-08-15');
+
+INSERT INTO Resenia(reserva_id, puntaje, comentario, fecha)
+SELECT r.id, 5, 'Excelente atención, el salón impecable y la comida muy rica.', '2026-07-07'
+FROM Reserva r JOIN Evento e ON r.evento_id = e.id WHERE e.fecha = '2026-07-05';
+
+INSERT INTO Resenia(reserva_id, puntaje, comentario, fecha)
+SELECT r.id, 4, 'Muy lindo todo. El DJ llegó un poco tarde.', '2026-06-22'
+FROM Reserva r JOIN Evento e ON r.evento_id = e.id WHERE e.fecha = '2026-06-20';

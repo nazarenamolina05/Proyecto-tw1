@@ -63,6 +63,37 @@
             </div>
         </div>
 
+        <!-- Opiniones: es pública, así que solo se usan puntaje, comentario y fecha
+             (nunca resenia.reserva.*, que tiene datos privados de otra persona). -->
+        <section th:if="${paquete != null}" class="card detalle-card mt-4 p-4 p-lg-5">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                <h2 class="h4 fw-bold mb-0">Opiniones</h2>
+                <div th:if="${promedioResenias != null}" class="d-flex align-items-center gap-2">
+                    <span class="fs-5 fw-bold" th:text="${#numbers.formatDecimal(promedioResenias, 1, 'POINT', 1, 'COMMA')}">4,5</span>
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span class="text-muted"
+                          th:text="'(' + ${#lists.size(resenias)} + (${#lists.size(resenias) == 1} ? ' reseña)' : ' reseñas)')">(2 reseñas)</span>
+                </div>
+            </div>
+
+            <p th:if="${#lists.isEmpty(resenias)}" class="text-muted mb-0">
+                Todavía no hay reseñas de este paquete.
+            </p>
+
+            <article th:each="resenia, iter : ${resenias}"
+                     th:class="${iter.last} ? 'py-3' : 'py-3 border-bottom'">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <div th:aria-label="${resenia.puntaje} + ' de 5 estrellas'">
+                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                           th:class="${i <= resenia.puntaje} ? 'bi bi-star-fill text-warning' : 'bi bi-star text-warning'"></i>
+                    </div>
+                    <small class="text-muted" th:text="${#temporals.format(resenia.fecha, 'dd/MM/yyyy')}">01/01/2026</small>
+                </div>
+                <p class="mb-1" th:if="${resenia.comentario != null}" th:text="${resenia.comentario}">Comentario</p>
+                <small class="text-muted"><i class="bi bi-patch-check me-1"></i>Cliente verificado</small>
+            </article>
+        </section>
+
         <div th:if="${paquete == null}" class="text-center py-5">
             <h2 class="fw-bold">No encontramos ese paquete</h2>
             <a th:href="@{/home-eventos#packs}" class="btn btn-pack rounded-pill px-4 mt-3">
@@ -123,12 +154,7 @@
 <!--                        <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal"><i class="bi bi-x-lg me-1"></i>Cancelar</button>-->
 <!--                        <button type="submit" class="btn btn-pack rounded-pill"><i class="bi bi-check2-circle me-1"></i>Confirmar reserva</button>-->
 <!--                    </div>-->
-                     <th:block th:replace="~{fragments/modal-reservar :: modal}"></th:block>
-
-                </form>
-            </div>
-        </div>
-    </div>
+    <th:block th:replace="~{fragments/modal-reservar :: modal}"></th:block>
 </main>
 
 <!--<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>-->

@@ -74,6 +74,53 @@
                     <button type="submit" class="btn btn-primary">Publicar</button>
                 </form>
             </div>
+
+            <!-- Reseña ya enviada: se muestra (solo el autor ve esta página) -->
+            <div class="detalle-card mb-4" th:if="${resenia != null}">
+                <h2 class="h5 fw-bold mb-3">Tu reseña</h2>
+                <div class="mb-2" th:aria-label="${resenia.puntaje} + ' de 5 estrellas'">
+                    <i th:each="i : ${#numbers.sequence(1, 5)}"
+                       th:class="${i <= resenia.puntaje} ? 'bi bi-star-fill text-warning' : 'bi bi-star text-warning'"></i>
+                </div>
+                <p class="mb-1" th:if="${resenia.comentario != null}" th:text="${resenia.comentario}"></p>
+                <small class="text-muted" th:text="'Publicada el ' + ${#temporals.format(resenia.fecha, 'dd/MM/yyyy')}"></small>
+            </div>
+
+            <!-- Evento terminado y sin reseña: formulario -->
+            <div class="detalle-card mb-4" th:if="${resenia == null and reserva.admiteResenia()}">
+                <h2 class="h5 fw-bold mb-3">¿Cómo estuvo tu evento?</h2>
+                <p class="mb-3">Tu opinión se va a mostrar en la página del paquete.</p>
+
+                <div class="alert alert-danger" th:if="${param.error != null and param.error[0] == 'puntaje'}">
+                    Elegí un puntaje entre 1 y 5.
+                </div>
+                <div class="alert alert-danger" th:if="${param.error != null and param.error[0] == 'reseniaNoDisponible'}">
+                    Solo podés reseñar eventos que ya se realizaron.
+                </div>
+                <div class="alert alert-danger" th:if="${param.error != null and param.error[0] == 'reseniaExistente'}">
+                    Ya dejaste una reseña para este evento.
+                </div>
+
+                <form th:action="@{/mis-reservas/{id}/resenia(id=${reserva.id})}" method="post">
+                    <div class="mb-3">
+                        <label for="puntaje" class="form-label fw-bold">Puntaje</label>
+                        <select id="puntaje" name="puntaje" class="form-select" required>
+                            <option value="">Elegí un puntaje</option>
+                            <option value="5">5 - Excelente</option>
+                            <option value="4">4 - Muy bueno</option>
+                            <option value="3">3 - Bueno</option>
+                            <option value="2">2 - Regular</option>
+                            <option value="1">1 - Malo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="comentario" class="form-label fw-bold">Comentario <span class="text-muted fw-normal">(opcional)</span></label>
+                        <textarea id="comentario" name="comentario" class="form-control" rows="3"
+                                  maxlength="1000" placeholder="Contanos qué te pareció"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar reseña</button>
+                </form>
+            </div>
         </section>
 
         <aside class="col-12 col-lg-5">

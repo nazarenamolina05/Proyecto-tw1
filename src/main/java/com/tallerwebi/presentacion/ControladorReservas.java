@@ -28,11 +28,17 @@ public class ControladorReservas {
 
   private ServicioReserva servicioReserva;
   private ServicioEvento servicioEvento;
+  private ServicioResenia servicioResenia;
 
   @Autowired
-  public ControladorReservas(ServicioReserva servicioReserva, ServicioEvento servicioEvento) {
+  public ControladorReservas(
+    ServicioReserva servicioReserva,
+    ServicioEvento servicioEvento,
+    ServicioResenia servicioResenia
+  ) {
     this.servicioReserva = servicioReserva;
     this.servicioEvento = servicioEvento;
+    this.servicioResenia = servicioResenia;
   }
 
   // muestra el formulario de datos + el ticket con el resumen
@@ -132,6 +138,8 @@ public class ControladorReservas {
       modelo.put("reserva", reserva);
       // [REFACTOR EVENTO] detalle-reserva.html lee los servicios de ${serviciosDelEvento}.
       modelo.put("serviciosDelEvento", servicioEvento.obtenerServiciosDe(reserva.getEvento()));
+      // null si todavía no la reseñó: la vista muestra el formulario o la reseña.
+      modelo.put("resenia", servicioResenia.obtenerReseniaDe(id));
       return new ModelAndView("detalle-reserva", modelo);
     } catch (ReservaNoEncontrada e) {
       return new ModelAndView("redirect:/mis-reservas");
