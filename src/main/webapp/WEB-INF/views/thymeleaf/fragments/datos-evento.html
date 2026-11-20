@@ -5,7 +5,7 @@
 -->
 <form xmlns:th="http://www.thymeleaf.org"
       th:fragment="datosEvento(evento, paquete)"
-      th:action="@{/evento-personalizado}" method="post"
+      th:action="@{/evento-personalizado}" method="post" accept-charset="UTF-8"
       class="row g-3 mt-3 bg-white text-dark p-3 rounded-4 hero-search">
 
     <input type="hidden" name="paqueteId" th:if="${paquete != null}" th:value="${paquete.id}"/>
