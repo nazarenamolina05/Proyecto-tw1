@@ -26,7 +26,7 @@ public class ServicioConsultarPaquetesPredeterminadosImpl
 
   @Override
   public Paquete consultarPorId(Long id) {
-    Paquete paquete = repositorioPaquete.obtenerPredeterminadoPorId(id);
+    Paquete paquete = repositorioPaquete.obtenerPorId(id);
 
     if (paquete == null) {
       throw new PaqueteNoEncontrado();

@@ -37,10 +37,10 @@ public class RepositorioPaqueteImpl implements RepositorioPaquete {
   }
 
   @Override
-  public Paquete obtenerPredeterminadoPorId(Long id) {
+  public Paquete obtenerPorId(Long id) {
     return sessionFactory
       .getCurrentSession()
-      .createQuery("from Paquete where id = :id and predeterminado = true", Paquete.class)
+      .createQuery("from Paquete where id = :id", Paquete.class)
       .setParameter("id", id)
       .uniqueResult();
   }
