@@ -74,7 +74,7 @@ public class ServicioValidarSeleccionPaqueteImpl implements ServicioValidarSelec
   }
 
   private Paquete buscarPaquete(Long id) {
-    Paquete paquete = repositorioPaquete.obtenerPredeterminadoPorId(id);
+    Paquete paquete = repositorioPaquete.obtenerPorId(id);
     if (paquete == null) {
       throw new PaqueteNoEncontrado();
     }

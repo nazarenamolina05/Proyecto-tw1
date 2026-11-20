@@ -10,7 +10,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
 
-            <form id="formReservar" method="post"
+            <form id="formReservar" method="post" accept-charset="UTF-8"
                   th:action="${paquete != null} ? @{/paquetes-predeterminados/{id}/reservar(id=${paquete.id})} : '#'">
                 <div class="modal-body">
 

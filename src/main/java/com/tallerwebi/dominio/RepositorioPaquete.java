@@ -7,7 +7,7 @@ public interface RepositorioPaquete {
 
   List<Paquete> obtenerPredeterminados();
 
-  Paquete obtenerPredeterminadoPorId(Long id);
+  Paquete obtenerPorId(Long id);
 
   List<Paquete> buscarPorFiltros(TipoPaquete tipo, Double precioMaximo, Integer invitados);
 

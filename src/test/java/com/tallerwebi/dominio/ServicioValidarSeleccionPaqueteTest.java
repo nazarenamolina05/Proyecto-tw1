@@ -41,7 +41,7 @@ public class ServicioValidarSeleccionPaqueteTest {
     );
     paquete.setPredeterminado(true);
 
-    when(repositorioPaquete.obtenerPredeterminadoPorId(1L)).thenReturn(paquete);
+    when(repositorioPaquete.obtenerPorId(1L)).thenReturn(paquete);
     when(repositorioReserva.obtenerFechasOcupadasPorSalon(1L)).thenReturn(List.of());
   }
 
@@ -126,7 +126,7 @@ public class ServicioValidarSeleccionPaqueteTest {
 
   @Test
   public void lanzaPaqueteNoEncontradoSiElPaqueteNoExiste() {
-    when(repositorioPaquete.obtenerPredeterminadoPorId(99L)).thenReturn(null);
+    when(repositorioPaquete.obtenerPorId(99L)).thenReturn(null);
 
     assertThrows(
       PaqueteNoEncontrado.class,

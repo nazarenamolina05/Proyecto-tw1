@@ -123,7 +123,7 @@ public class RepositorioPaqueteTest {
     session().clear();
 
     // Ejecución
-    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(basico.getId());
+    Paquete obtenido = repositorioPaquete.obtenerPorId(basico.getId());
 
     // Validación
     assertEquals("Básico", obtenido.getNombre());
@@ -132,7 +132,7 @@ public class RepositorioPaqueteTest {
   @Test
   @Transactional
   @Rollback
-  public void deberiaDevolverNullSiElPaqueteExistePeroNoEsPredeterminado() {
+  public void deberiaObtenerUnPaqueteNoPredeterminadoPorSuId() {
     // Preparación
     Salon salon = new Salon("Salón de prueba", 50000.0);
     session().persist(salon);
@@ -142,10 +142,10 @@ public class RepositorioPaqueteTest {
     session().clear();
 
     // Ejecución
-    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(premium.getId());
+    Paquete obtenido = repositorioPaquete.obtenerPorId(premium.getId());
 
     // Validación
-    assertNull(obtenido);
+    assertEquals("Premium", obtenido.getNombre());
   }
 
   @Test
@@ -153,7 +153,7 @@ public class RepositorioPaqueteTest {
   @Rollback
   public void deberiaDevolverNullSiElIdNoExiste() {
     // Ejecución
-    Paquete obtenido = repositorioPaquete.obtenerPredeterminadoPorId(9999L);
+    Paquete obtenido = repositorioPaquete.obtenerPorId(9999L);
 
     // Validación
     assertNull(obtenido);

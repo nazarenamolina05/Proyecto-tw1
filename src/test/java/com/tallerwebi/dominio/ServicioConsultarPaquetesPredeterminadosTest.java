@@ -40,11 +40,11 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
   }
 
   @Test
-  public void devuelveElPaquetePredeterminadoQueCoincideConElId() {
+  public void devuelveElPaqueteQueCoincideConElId() {
     // Preparación
     Paquete paqueteEstandar = crearPaquete(2L, "Estándar", TipoPaquete.FIESTA_DE_15, 150000.0);
 
-    when(repositorioPaquete.obtenerPredeterminadoPorId(2L)).thenReturn(paqueteEstandar);
+    when(repositorioPaquete.obtenerPorId(2L)).thenReturn(paqueteEstandar);
 
     // Ejecución
     Paquete paqueteEncontrado = servicio.consultarPorId(2L);
@@ -56,7 +56,7 @@ public class ServicioConsultarPaquetesPredeterminadosTest {
   @Test
   public void lanzaPaqueteNoEncontradoSiNoExisteElPaquete() {
     // Preparación
-    when(repositorioPaquete.obtenerPredeterminadoPorId(99L)).thenReturn(null);
+    when(repositorioPaquete.obtenerPorId(99L)).thenReturn(null);
 
     // Ejecución y validación
     assertThrows(PaqueteNoEncontrado.class, () -> servicio.consultarPorId(99L));

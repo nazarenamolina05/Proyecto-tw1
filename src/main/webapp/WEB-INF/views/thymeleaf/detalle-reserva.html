@@ -101,7 +101,7 @@
                     Ya dejaste una reseña para este evento.
                 </div>
 
-                <form th:action="@{/mis-reservas/{id}/resenia(id=${reserva.id})}" method="post">
+                <form th:action="@{/mis-reservas/{id}/resenia(id=${reserva.id})}" method="post" accept-charset="UTF-8">
                     <div class="mb-3">
                         <label for="puntaje" class="form-label fw-bold">Puntaje</label>
                         <select id="puntaje" name="puntaje" class="form-select" required>
