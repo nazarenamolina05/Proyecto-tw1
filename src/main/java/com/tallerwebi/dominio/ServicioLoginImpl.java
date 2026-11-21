@@ -23,10 +23,9 @@ public class ServicioLoginImpl implements ServicioLogin {
 
   @Override
   public void registrar(Usuario usuario) throws UsuarioExistente {
-    Usuario usuarioEncontrado = repositorioUsuario.buscarUsuario(
-      usuario.getEmail(),
-      usuario.getPassword()
-    );
+    // Se valida solo por email: no puede haber dos cuentas con el mismo email,
+    // aunque tengan distinta contraseña.
+    Usuario usuarioEncontrado = repositorioUsuario.buscar(usuario.getEmail());
     if (usuarioEncontrado != null) {
       throw new UsuarioExistente();
     }
