@@ -131,4 +131,26 @@ public class ServicioEventoImpl implements ServicioEvento {
     }
     repositorioEvento.quitarServicio(evento.getId(), idServicio);
   }
+
+  // Deshace los cambios de servicios: saca los que agregó el usuario
+  // y vuelve a poner los del paquete que había quitado.
+  @Override
+  public void restaurarServiciosDelPaquete(
+    Evento evento,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
+    List<ServicioAdicional> serviciosDelEvento = obtenerServiciosDe(evento);
+    for (ServicioAdicional agregado : evento.serviciosAgregados(
+      serviciosDelEvento,
+      serviciosDelPaquete
+    )) {
+      repositorioEvento.quitarServicio(evento.getId(), agregado.getId());
+    }
+    for (ServicioAdicional quitado : evento.serviciosQuitados(
+      serviciosDelEvento,
+      serviciosDelPaquete
+    )) {
+      repositorioEvento.agregarServicio(evento, quitado);
+    }
+  }
 }

@@ -210,6 +210,110 @@ public class ControladorEventoPersonalizadoTest {
     assertThat(mav.getModel().get("adicional"), equalTo(30000.0));
   }
 
+  // ---------- Servicios al editar un paquete ----------
+
+  @Test
+  public void conEventoDePaqueteSeparaLosServiciosIncluidosDeLosQueSePuedenSumar() {
+    // Preparación
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional fotografia = servicioConId(2L, "Fotografia");
+    ServicioAdicional cotillon = servicioConId(3L, "Cotillon");
+    Paquete paquete = mock(Paquete.class);
+    dadoQueHayUnEventoEnSesionConSugeridos(List.of(cotillon));
+    when(evento.getPaqueteOrigen()).thenReturn(paquete);
+    when(servicioPaquetes.consultarServiciosDe(paquete)).thenReturn(List.of(dj));
+    when(servicio.obtenerServiciosAdicionales()).thenReturn(List.of(dj, fotografia, cotillon));
+
+    // Ejecución
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
+
+    // Validación
+    assertThat(mav.getModel().get("hayPaquete"), equalTo(true));
+    assertThat(mav.getModel().get("serviciosIncluidos"), equalTo(List.of(dj)));
+    // el sugerido (cotillón) va primero y el DJ no aparece porque ya viene en el paquete
+    assertThat(mav.getModel().get("serviciosParaSumar"), equalTo(List.of(cotillon, fotografia)));
+    assertThat(mav.getModel().get("sugeridosIds"), equalTo(List.of(3L)));
+  }
+
+  @Test
+  public void conEventoDesdeCeroTodosLosServiciosSeOfrecenParaSumar() {
+    // Preparación
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional cotillon = servicioConId(3L, "Cotillon");
+    dadoQueHayUnEventoEnSesionConSugeridos(List.of(cotillon));
+    when(evento.getPaqueteOrigen()).thenReturn(null);
+    when(servicio.obtenerServiciosAdicionales()).thenReturn(List.of(dj, cotillon));
+
+    // Ejecución
+    ModelAndView mav = controlador.verEventoPersonalizado("desde-cero", sesion);
+
+    // Validación
+    assertThat(mav.getModel().get("hayPaquete"), equalTo(false));
+    assertThat(mav.getModel().get("serviciosParaSumar"), equalTo(List.of(cotillon, dj)));
+  }
+
+  @Test
+  public void pasaALaVistaLosServiciosAgregadosYQuitadosQueCalculaElEvento() {
+    // Preparación
+    ServicioAdicional agregado = servicioConId(3L, "Cotillon");
+    ServicioAdicional quitado = servicioConId(2L, "Fotografia");
+    dadoQueHayUnEventoEnSesionConSugeridos(new ArrayList<>());
+    when(evento.serviciosAgregados(any(), any())).thenReturn(List.of(agregado));
+    when(evento.serviciosQuitados(any(), any())).thenReturn(List.of(quitado));
+
+    // Ejecución
+    ModelAndView mav = controlador.verEventoPersonalizado("predefinidos", sesion);
+
+    // Validación
+    assertThat(mav.getModel().get("serviciosAgregados"), equalTo(List.of(agregado)));
+    assertThat(mav.getModel().get("serviciosQuitados"), equalTo(List.of(quitado)));
+  }
+
+  @Test
+  public void alRestaurarLosServiciosLePideAlServicioVolverALosDelPaquete() {
+    // Preparación
+    Paquete paquete = mock(Paquete.class);
+    List<ServicioAdicional> serviciosDelPaquete = List.of(servicioConId(1L, "DJ"));
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+    when(evento.getPaqueteOrigen()).thenReturn(paquete);
+    when(servicioPaquetes.consultarServiciosDe(paquete)).thenReturn(serviciosDelPaquete);
+
+    // Ejecución
+    ModelAndView mav = controlador.restaurarServicios(sesion);
+
+    // Validación
+    verify(servicio).restaurarServiciosDelPaquete(evento, serviciosDelPaquete);
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado#servicios"));
+  }
+
+  @Test
+  public void alRestaurarUnEventoSinPaqueteNoLlamaAlServicio() {
+    // Preparación
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+    when(evento.getPaqueteOrigen()).thenReturn(null);
+
+    // Ejecución
+    controlador.restaurarServicios(sesion);
+
+    // Validación
+    verify(servicio, never()).restaurarServiciosDelPaquete(any(), any());
+  }
+
+  private void dadoQueHayUnEventoEnSesionConSugeridos(List<ServicioAdicional> sugeridos) {
+    when(sesion.getAttribute(EVENTO)).thenReturn(evento);
+    when(evento.getFecha()).thenReturn(LocalDate.now().plusDays(10));
+    when(servicio.obtenerServiciosDe(evento)).thenReturn(new ArrayList<>());
+    ServiciosClasificados clasificados = mock(ServiciosClasificados.class);
+    when(servicioSugerenciaServicios.clasificar(evento)).thenReturn(clasificados);
+    when(clasificados.getSugeridos()).thenReturn(sugeridos);
+  }
+
+  private ServicioAdicional servicioConId(Long id, String nombre) {
+    ServicioAdicional servicioAdicional = new ServicioAdicional(nombre, 10000.0, false);
+    servicioAdicional.setId(id);
+    return servicioAdicional;
+  }
+
   @Test
   public void conPaquetePendienteYSinEventoPasaElPaqueteYElErrorALaVista() {
     when(sesion.getAttribute(EVENTO)).thenReturn(null);

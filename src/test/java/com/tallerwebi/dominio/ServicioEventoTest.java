@@ -241,6 +241,68 @@ public class ServicioEventoTest {
     assertThat(evento.getSalon(), equalTo(grande));
   }
 
+  // ---------- Volver al paquete original ----------
+
+  @Test
+  void alRestaurarElPaqueteDeberiaQuitarLosServiciosQueAgregoElUsuario() {
+    // Preparación
+    Evento evento = dadoQueExisteUnEventoDePaqueteConId(10L);
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional cotillon = servicioConId(2L, "Cotillon");
+    when(repositorioEventoMock.buscarServicio(10L)).thenReturn(List.of(dj, cotillon));
+
+    // Ejecución
+    servicioEvento.restaurarServiciosDelPaquete(evento, List.of(dj));
+
+    // Validación
+    verify(repositorioEventoMock).quitarServicio(10L, 2L);
+    verify(repositorioEventoMock, never()).quitarServicio(10L, 1L);
+    verify(repositorioEventoMock, never()).agregarServicio(any(), any());
+  }
+
+  @Test
+  void alRestaurarElPaqueteDeberiaVolverAAgregarLosServiciosQueQuitoElUsuario() {
+    // Preparación
+    Evento evento = dadoQueExisteUnEventoDePaqueteConId(10L);
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional fotografia = servicioConId(2L, "Fotografia");
+    when(repositorioEventoMock.buscarServicio(10L)).thenReturn(List.of(dj));
+
+    // Ejecución
+    servicioEvento.restaurarServiciosDelPaquete(evento, List.of(dj, fotografia));
+
+    // Validación
+    verify(repositorioEventoMock).agregarServicio(evento, fotografia);
+    verify(repositorioEventoMock, never()).quitarServicio(anyLong(), anyLong());
+  }
+
+  @Test
+  void alRestaurarSinCambiosNoDeberiaTocarLosServicios() {
+    // Preparación
+    Evento evento = dadoQueExisteUnEventoDePaqueteConId(10L);
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    when(repositorioEventoMock.buscarServicio(10L)).thenReturn(List.of(dj));
+
+    // Ejecución
+    servicioEvento.restaurarServiciosDelPaquete(evento, List.of(dj));
+
+    // Validación
+    verify(repositorioEventoMock, never()).agregarServicio(any(), any());
+    verify(repositorioEventoMock, never()).quitarServicio(anyLong(), anyLong());
+  }
+
+  private Evento dadoQueExisteUnEventoDePaqueteConId(Long id) {
+    Evento evento = dadoQueExisteUnEventoConId(id);
+    evento.setPaqueteOrigen(dadoQueExisteUnPaqueteConId(1L));
+    return evento;
+  }
+
+  private ServicioAdicional servicioConId(Long id, String nombre) {
+    ServicioAdicional servicio = new ServicioAdicional(nombre, 10000.0, false);
+    servicio.setId(id);
+    return servicio;
+  }
+
   // [REFACTOR EVENTO] Los servicios se guardan en EventoServicio, que necesita el id del
   // evento: por eso los eventos de estos tests tienen id (como si ya estuvieran guardados).
   private Evento dadoQueExisteUnEventoConId(Long id) {
