@@ -16,10 +16,6 @@ public class VistaNuevoUsuario extends VistaWeb {
     this.escribirEnElElemento("#password", clave);
   }
 
-  public void escribirConfirmacionClave(String clave) {
-    this.escribirEnElElemento("#confirmacionPassword", clave);
-  }
-
   public void darClickEnRegistrarme() {
     this.darClickEnElElemento("#btn-registrarme");
   }

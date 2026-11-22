@@ -52,7 +52,7 @@ public class ControladorLogin {
       return new ModelAndView("redirect:" + obtenerDestinoTrasLogin(session));
     } else {
       Map<String, Object> model = new ModelMap();
-      model.put("error", "Usuario o clave incorrecta");
+      model.put("error", "El email o la contraseña no son correctos");
       return new ModelAndView("login", model);
     }
   }
@@ -65,9 +65,12 @@ public class ControladorLogin {
     try {
       servicioLogin.registrar(crearUsuario(datosRegistro));
     } catch (UsuarioExistente e) {
-      return volverARegistro(datosRegistro, "El usuario ya existe");
+      return volverARegistro(datosRegistro, "Ya hay una cuenta con ese email");
     } catch (Exception e) {
-      return volverARegistro(datosRegistro, "Error al registrar el nuevo usuario");
+      return volverARegistro(
+        datosRegistro,
+        "No se pudo crear la cuenta. Probá de nuevo en unos minutos"
+      );
     }
     return new ModelAndView("redirect:/login");
   }
@@ -94,14 +97,10 @@ public class ControladorLogin {
     return new ModelAndView(VISTA_NUEVO_USUARIO, model);
   }
 
-  @RequestMapping(path = "/home", method = RequestMethod.GET)
-  public ModelAndView irAHome() {
-    return new ModelAndView("home");
-  }
-
+  // La raíz del sitio lleva al home de eventos, que se puede ver sin estar logueado.
   @RequestMapping(path = "/", method = RequestMethod.GET)
   public ModelAndView inicio() {
-    return new ModelAndView("redirect:/login");
+    return new ModelAndView("redirect:" + HOME);
   }
 
   // si alguien nos mandó al login desde otra pantalla, vuelve ahí; si no, al home
