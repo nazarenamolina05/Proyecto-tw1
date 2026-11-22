@@ -1,5 +1,6 @@
 package com.tallerwebi.presentacion;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -68,5 +69,18 @@ public class ControladorHomeEventosTest {
     // Validación
     assertEquals("home-eventos", modelAndView.getViewName());
     assertEquals(List.of(), modelAndView.getModel().get("paquetes"));
+  }
+
+  @Test
+  public void muestraElHomeConTodosLosTiposDeEventoParaElBuscador() {
+    // Preparación
+    when(servicio.consultarTodos()).thenReturn(List.of());
+
+    // Ejecución
+    ModelAndView modelAndView = controlador.inicioPagina();
+
+    // Validación
+    TipoPaquete[] tipos = (TipoPaquete[]) modelAndView.getModel().get("tiposDeEvento");
+    assertArrayEquals(TipoPaquete.values(), tipos);
   }
 }

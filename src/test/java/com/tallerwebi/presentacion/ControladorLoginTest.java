@@ -48,7 +48,7 @@ public class ControladorLoginTest {
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("login"));
     assertThat(
       modelAndView.getModel().get("error").toString(),
-      equalToIgnoringCase("Usuario o clave incorrecta")
+      equalToIgnoringCase("El email o la contraseña no son correctos")
     );
     verify(sessionMock, times(0)).setAttribute("ROL", "ADMIN");
   }
@@ -130,7 +130,7 @@ public class ControladorLoginTest {
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
     assertThat(
       modelAndView.getModel().get("error").toString(),
-      equalToIgnoringCase("El usuario ya existe")
+      equalToIgnoringCase("Ya hay una cuenta con ese email")
     );
   }
 
@@ -146,7 +146,7 @@ public class ControladorLoginTest {
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
     assertThat(
       modelAndView.getModel().get("error").toString(),
-      equalToIgnoringCase("Error al registrar el nuevo usuario")
+      equalToIgnoringCase("No se pudo crear la cuenta. Probá de nuevo en unos minutos")
     );
   }
 
@@ -171,21 +171,12 @@ public class ControladorLoginTest {
   }
 
   @Test
-  public void irAHomeDeberiaRetornarVistaHome() {
-    // ejecucion
-    ModelAndView modelAndView = controladorLogin.irAHome();
-
-    // validacion
-    assertThat(modelAndView.getViewName(), equalToIgnoringCase("home"));
-  }
-
-  @Test
-  public void inicioDeberiaRedirigirALogin() {
+  public void inicioDeberiaRedirigirAlHomeDeEventos() {
     // ejecucion
     ModelAndView modelAndView = controladorLogin.inicio();
 
     // validacion
-    assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/login"));
+    assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/home-eventos"));
   }
 
   @Test

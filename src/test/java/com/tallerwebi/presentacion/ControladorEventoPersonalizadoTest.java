@@ -284,7 +284,7 @@ public class ControladorEventoPersonalizadoTest {
     ModelAndView mav = controlador.elegirSalon(datos, sesion);
 
     verify(servicio).elegirSalon(evento, 1L);
-    assertThat(mav.getViewName(), startsWith("redirect:/evento-personalizado"));
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado#salones"));
   }
 
   @Test
@@ -329,9 +329,10 @@ public class ControladorEventoPersonalizadoTest {
     DatosIdForm datos = new DatosIdForm();
     datos.setId(2L);
 
-    controlador.elegirCatering(datos, sesion);
+    ModelAndView mav = controlador.elegirCatering(datos, sesion);
 
     verify(servicio).elegirCatering(evento, 2L);
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado#caterings"));
   }
 
   @Test
@@ -355,9 +356,10 @@ public class ControladorEventoPersonalizadoTest {
     DatosIdForm datos = new DatosIdForm();
     datos.setId(3L);
 
-    controlador.agregarServicio(datos, sesion);
+    ModelAndView mav = controlador.agregarServicio(datos, sesion);
 
     verify(servicio).agregarServicio(evento, 3L);
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado#servicios"));
   }
 
   @Test
@@ -379,9 +381,10 @@ public class ControladorEventoPersonalizadoTest {
     DatosIdForm datos = new DatosIdForm();
     datos.setId(3L);
 
-    controlador.quitarServicio(datos, sesion);
+    ModelAndView mav = controlador.quitarServicio(datos, sesion);
 
     verify(servicio).quitarServicio(evento, 3L);
+    assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado#servicios"));
   }
 
   @Test

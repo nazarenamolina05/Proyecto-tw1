@@ -6,6 +6,7 @@
     <title>Evento personalizado</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" th:href="@{/css/encabezado.css}" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}"/>
     <link rel="stylesheet" th:href="@{/css/evento-personalizado.css}"/>
 </head>
@@ -126,8 +127,8 @@
 
                 <div class="col-12 col-lg-8">
 
-                    <!-- SALONES -->
-                    <div class="mb-3">
+                    <!-- SALONES (el id es el destino del redirect al elegir) -->
+                    <div id="salones" class="mb-3 seccion-ancla">
                         <h2 class="fw-bold mb-1">Salón</h2>
                         <div class="linea-titulo"></div>
                     </div>
@@ -159,7 +160,7 @@
                     </div>
 
                     <!-- CATERING -->
-                    <div class="mb-3">
+                    <div id="caterings" class="mb-3 seccion-ancla">
                         <h2 class="fw-bold mb-1">Catering</h2>
                         <div class="linea-titulo"></div>
                     </div>
@@ -194,7 +195,7 @@
                     </div>
 
                     <!-- SERVICIOS ADICIONALES -->
-                    <div class="mb-3">
+                    <div id="servicios" class="mb-3 seccion-ancla">
                         <h2 class="fw-bold mb-1">Servicios adicionales</h2>
                         <div class="linea-titulo"></div>
                     </div>

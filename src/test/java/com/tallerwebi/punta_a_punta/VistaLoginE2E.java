@@ -115,7 +115,6 @@ public class VistaLoginE2E {
     VistaNuevoUsuario vistaNuevoUsuario = new VistaNuevoUsuario(context.pages().get(0));
     vistaNuevoUsuario.escribirEMAIL(email);
     vistaNuevoUsuario.escribirClave(clave);
-    vistaNuevoUsuario.escribirConfirmacionClave(clave);
     vistaNuevoUsuario.darClickEnRegistrarme();
   }
 }

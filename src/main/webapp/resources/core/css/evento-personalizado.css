@@ -275,3 +275,8 @@ body {
         transition: none;
     }
 }
+
+/* ---------- Secciones a las que vuelve el redirect (#salones, #caterings, #servicios) ---------- */
+.seccion-ancla {
+    scroll-margin-top: 1.5rem;
+}

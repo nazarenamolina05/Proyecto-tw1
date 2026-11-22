@@ -76,7 +76,10 @@ public class ControladorEventoPersonalizado {
   ) {
     session.removeAttribute(EVENTO);
     session.removeAttribute(PAQUETE_PENDIENTE);
-    return volverAlEvento(MODO, modo);
+    // Acá el parámetro sí se usa: el GET de /evento-personalizado lee el modo.
+    Map<String, Object> modelo = new ModelMap();
+    modelo.put(MODO, modo);
+    return new ModelAndView("redirect:/evento-personalizado", modelo);
   }
 
   @RequestMapping(value = "/evento-personalizado", method = RequestMethod.POST)
@@ -145,7 +148,7 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       servicioEvento.elegirSalon(evento, datos.getId());
     }
-    return volverAlEvento("salon", datos.getId());
+    return volverAlEvento("salones");
   }
 
   @RequestMapping(value = "/evento-personalizado/catering", method = RequestMethod.POST)
@@ -159,7 +162,7 @@ public class ControladorEventoPersonalizado {
       servicioEvento.elegirCatering(evento, datos.getId());
     }
 
-    return volverAlEvento("catering", datos.getId());
+    return volverAlEvento("caterings");
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/agregar", method = RequestMethod.POST)
@@ -171,7 +174,7 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       servicioEvento.agregarServicio(evento, datos.getId());
     }
-    return volverAlEvento("agregarServicio", datos.getId());
+    return volverAlEvento("servicios");
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/quitar", method = RequestMethod.POST)
@@ -183,7 +186,7 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       servicioEvento.quitarServicio(evento, datos.getId());
     }
-    return volverAlEvento("quitarServicio", datos.getId());
+    return volverAlEvento("servicios");
   }
 
   // Paso 1 de "predefinidos": deja anotado qué paquete eligió y vuelve a la pantalla,
@@ -283,9 +286,9 @@ public class ControladorEventoPersonalizado {
     return new ModelAndView("redirect:/evento-personalizado");
   }
 
-  private ModelAndView volverAlEvento(String clave, Object valor) {
-    Map<String, Object> modelo = new ModelMap();
-    modelo.put(clave, valor);
-    return new ModelAndView("redirect:/evento-personalizado", modelo);
+  // Vuelve a la pantalla del evento bajando hasta la sección donde estaba el usuario
+  // (el "#seccion" es el id de un elemento de evento-personalizado.html).
+  private ModelAndView volverAlEvento(String seccion) {
+    return new ModelAndView("redirect:/evento-personalizado#" + seccion);
   }
 }

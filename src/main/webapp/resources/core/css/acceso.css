@@ -1,0 +1,154 @@
+/* ============================================
+   LOGIN Y REGISTRO (login.html, nuevo-usuario.html)
+   Usa los colores del home: noche #17104d, violeta #6d3fd6
+   y el degradé coral de los botones principales.
+   ============================================ */
+
+.acceso {
+    --acceso-noche: #17104d;
+    --acceso-violeta: #6d3fd6;
+    --acceso-borde: #ebe4fa;
+    --acceso-texto: #3d3560;
+    --acceso-texto-suave: #6f6890;
+
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    background: #fff;
+    border: 1px solid var(--acceso-borde);
+    border-radius: 1.4rem;
+    overflow: hidden;
+    box-shadow: 0 18px 40px -22px rgba(37, 18, 89, 0.45);
+}
+
+/* ---------- Panel de marca (izquierda) ---------- */
+
+.acceso-panel {
+    padding: 1.75rem 1.5rem;
+    color: #fff;
+    background: linear-gradient(135deg, #17104d 0%, #251466 55%, #45209b 100%);
+}
+
+.acceso-panel h2 {
+    margin: 0;
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+}
+
+.acceso-panel p {
+    margin: 0.75rem 0 0;
+    max-width: 34ch;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* Misma forma que la foto del hero del home */
+.acceso-imagen {
+    display: none;
+    width: 100%;
+    height: 220px;
+    margin-top: 2rem;
+    object-fit: cover;
+    border-radius: 50% 50% 18px 50%;
+    border: 4px solid rgba(180, 87, 255, 0.45);
+}
+
+/* ---------- Formulario (derecha) ---------- */
+
+.acceso-form {
+    padding: 2rem 1.5rem;
+}
+
+.acceso-form h1 {
+    margin: 0 0 1.5rem;
+    color: var(--acceso-noche);
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+.acceso-form .form-label {
+    color: var(--acceso-texto);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.acceso-form .form-control {
+    border: 1px solid var(--acceso-borde);
+    border-radius: 0.8rem;
+    padding: 0.65rem 0.9rem;
+    color: #171331;
+}
+
+.acceso-form .form-control:focus {
+    border-color: var(--acceso-violeta);
+    box-shadow: 0 0 0 3px rgba(109, 63, 214, 0.2);
+}
+
+.acceso-ayuda {
+    margin-top: 0.35rem;
+    color: var(--acceso-texto-suave);
+    font-size: 0.8rem;
+}
+
+.acceso-form .btn-buscar {
+    padding: 0.75rem 1.25rem;
+    font-weight: 700;
+}
+
+.acceso-form .btn-buscar:disabled {
+    opacity: 0.55;
+}
+
+.acceso-form .btn-buscar:focus-visible {
+    outline: 3px solid rgba(109, 63, 214, 0.5);
+    outline-offset: 2px;
+}
+
+.acceso-alternativa {
+    margin: 1.5rem 0 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--acceso-borde);
+    color: var(--acceso-texto);
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.acceso-alternativa a {
+    color: var(--acceso-violeta);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.acceso-alternativa a:hover,
+.acceso-alternativa a:focus-visible {
+    text-decoration: underline;
+}
+
+/* ---------- Pantallas grandes: panel y formulario lado a lado ---------- */
+
+@media (min-width: 992px) {
+    .acceso {
+        grid-template-columns: 5fr 6fr;
+    }
+
+    .acceso-panel {
+        padding: 3rem 2.5rem;
+    }
+
+    .acceso-panel h2 {
+        font-size: 2.1rem;
+    }
+
+    .acceso-imagen {
+        display: block;
+    }
+
+    .acceso-form {
+        padding: 3rem 3rem;
+        align-self: center;
+    }
+}
