@@ -14,6 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -62,7 +63,7 @@ public class ControladorPago {
   @RequestMapping(path = "/pago/abonar/{reservaId}", method = RequestMethod.POST)
   public ModelAndView abonar(
     @PathVariable("reservaId") Long reservaId,
-    @RequestParam(value = "monto", required = false) Double monto,
+    @ModelAttribute("datosAbono") DatosAbono datosAbono,
     HttpServletRequest request
   ) {
     Usuario usuario = (Usuario) request.getSession().getAttribute(USUARIO);
@@ -71,7 +72,8 @@ public class ControladorPago {
     }
 
     try {
-      String urlDePago = servicioPago.iniciarAbono(reservaId, usuario, monto);
+      // si el monto llega vacío queda en null: el servicio lo rechaza con MontoDeAbonoInvalido
+      String urlDePago = servicioPago.iniciarAbono(reservaId, usuario, datosAbono.getMonto());
       return new ModelAndView("redirect:" + urlDePago);
     } catch (ReservaNoEncontrada e) {
       LOG.warn("Reserva no encontrada al iniciar el abono", e);

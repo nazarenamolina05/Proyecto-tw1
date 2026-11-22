@@ -1,5 +1,6 @@
 package com.tallerwebi.dominio;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -61,8 +62,12 @@ public class Reserva {
   private TipoPago tipoPago;
 
   private Double montoAbonado;
-  private String nombreContacto;
-  private String telefonoContacto;
+
+  // Datos de contacto que carga el usuario al reservar.
+  // cascade PERSIST: al guardar la reserva se guarda también su contacto
+  // (el contacto se crea junto con la reserva y no existe sin ella).
+  @OneToOne(cascade = CascadeType.PERSIST)
+  private ContactoReserva contacto;
 
   public Double calcularSaldoPendiente() {
     if (presupuesto == null || montoAbonado == null) {
@@ -166,19 +171,11 @@ public class Reserva {
     this.montoAbonado = montoAbonado;
   }
 
-  public String getNombreContacto() {
-    return nombreContacto;
+  public ContactoReserva getContacto() {
+    return contacto;
   }
 
-  public void setNombreContacto(String nombreContacto) {
-    this.nombreContacto = nombreContacto;
-  }
-
-  public String getTelefonoContacto() {
-    return telefonoContacto;
-  }
-
-  public void setTelefonoContacto(String telefonoContacto) {
-    this.telefonoContacto = telefonoContacto;
+  public void setContacto(ContactoReserva contacto) {
+    this.contacto = contacto;
   }
 }

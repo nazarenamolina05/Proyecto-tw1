@@ -45,6 +45,23 @@
                 </dl>
             </div>
 
+            <div class="detalle-card mb-4" th:if="${reserva.contacto != null}">
+                <h2 class="h5 fw-bold mb-3">Datos de contacto</h2>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Nombre</dt>
+                    <dd class="col-sm-7" th:text="${reserva.contacto.nombreCompleto}"></dd>
+
+                    <dt class="col-sm-5">DNI</dt>
+                    <dd class="col-sm-7" th:text="${reserva.contacto.dni}"></dd>
+
+                    <dt class="col-sm-5">Teléfono</dt>
+                    <dd class="col-sm-7" th:text="${reserva.contacto.telefono}"></dd>
+
+                    <dt class="col-sm-5">Mail</dt>
+                    <dd class="col-sm-7" th:text="${reserva.contacto.email}"></dd>
+                </dl>
+            </div>
+
             <div class="detalle-card mb-4" th:if="${not serviciosDelEvento.isEmpty()}">
                 <h2 class="h5 fw-bold mb-3">Servicios adicionales</h2>
                 <ul class="list-unstyled mb-0">

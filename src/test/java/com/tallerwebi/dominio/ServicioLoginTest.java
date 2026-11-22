@@ -42,8 +42,7 @@ public class ServicioLoginTest {
     Usuario usuario = new Usuario();
     usuario.setEmail("nuevo@test.com");
     usuario.setPassword("123");
-    when(this.repositorioUsuarioMock.buscarUsuario(usuario.getEmail(), usuario.getPassword()))
-      .thenReturn(null);
+    when(this.repositorioUsuarioMock.buscar(usuario.getEmail())).thenReturn(null);
 
     // ejecucion
     this.servicioLogin.registrar(usuario);
@@ -58,11 +57,26 @@ public class ServicioLoginTest {
     Usuario usuario = new Usuario();
     usuario.setEmail("existe@test.com");
     usuario.setPassword("123");
-    when(this.repositorioUsuarioMock.buscarUsuario(usuario.getEmail(), usuario.getPassword()))
-      .thenReturn(new Usuario());
+    when(this.repositorioUsuarioMock.buscar(usuario.getEmail())).thenReturn(new Usuario());
 
     // ejecucion y validacion
     assertThrows(UsuarioExistente.class, () -> this.servicioLogin.registrar(usuario));
     verify(this.repositorioUsuarioMock, times(0)).guardar(usuario);
+  }
+
+  @Test
+  public void registrarUsuarioConEmailExistenteYOtraPasswordDeberiaLanzarExcepcion() {
+    // preparacion
+    Usuario existente = new Usuario();
+    existente.setEmail("repetido@test.com");
+    existente.setPassword("123");
+    Usuario nuevo = new Usuario();
+    nuevo.setEmail("repetido@test.com");
+    nuevo.setPassword("otraClave");
+    when(this.repositorioUsuarioMock.buscar("repetido@test.com")).thenReturn(existente);
+
+    // ejecucion y validacion
+    assertThrows(UsuarioExistente.class, () -> this.servicioLogin.registrar(nuevo));
+    verify(this.repositorioUsuarioMock, times(0)).guardar(nuevo);
   }
 }
