@@ -27,12 +27,14 @@
 
     <div class="container">
       <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">
-        <form action="#" th:action="@{/registrarme}" method="POST" accept-charset="UTF-8" th:object="${usuario}">
+        <form action="#" th:action="@{/registrarme}" method="POST" accept-charset="UTF-8" th:object="${datosRegistro}">
           <h3 class="form-signin-heading">Nuevo Usuario</h3>
           <hr class="colorgraph"><br>
 
           <input th:field="*{email}" id="email" class="form-control" required />
           <input th:field="*{password}" type="password" id="password" class="form-control" required />
+          <input th:field="*{confirmacionPassword}" type="password" id="confirmacionPassword" class="form-control"
+            placeholder="Repetí la contraseña" required />
 
           <button id="btn-registrarme" class="btn btn-lg btn-primary w-100 mt-3" type="submit"><i class="bi bi-person-plus me-1"></i>Registrarme</button>
           <p th:if="${error != null}" class="alert alert-danger" th:text="'Error ' + ${error}">

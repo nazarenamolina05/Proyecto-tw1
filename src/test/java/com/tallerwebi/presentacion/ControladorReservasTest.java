@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControladorReservasTest {
@@ -46,20 +47,20 @@ public class ControladorReservasTest {
 
   @Test
   void siNoHayUsuarioLogueadoDeberiaRedirigirAlLogin() {
-    ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/login"));
-    verify(servicioReservaMock, never()).reservar(any(), any(), any());
+    verify(servicioReservaMock, never()).reservar(any(), any(), any(), any());
   }
 
   @Test
   void siNoHayEventoEnSesionDeberiaVolverAlArmadoDelEvento() {
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
 
-    ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado"));
-    verify(servicioReservaMock, never()).reservar(any(), any(), any());
+    verify(servicioReservaMock, never()).reservar(any(), any(), any(), any());
   }
 
   @Test
@@ -70,13 +71,58 @@ public class ControladorReservasTest {
     reservaCreada.setId(10L);
     when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
     when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
-    when(servicioReservaMock.reservar(usuario, evento, TipoPago.TOTAL)).thenReturn(reservaCreada);
+    when(servicioReservaMock.reservar(eq(usuario), eq(evento), eq(TipoPago.TOTAL), any()))
+      .thenReturn(reservaCreada);
 
-    ModelAndView mav = controlador.reservar(TipoPago.TOTAL, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.TOTAL), requestMock);
 
-    verify(servicioReservaMock).reservar(usuario, evento, TipoPago.TOTAL);
+    verify(servicioReservaMock).reservar(eq(usuario), eq(evento), eq(TipoPago.TOTAL), any());
     verify(sessionMock).removeAttribute(EVENTO);
     assertThat(mav.getViewName(), equalTo("redirect:/pago/iniciar/10"));
+  }
+
+  @Test
+  void alReservarDeberiaPasarleAlServicioLosDatosDeContactoDelFormulario() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    Reserva reservaCreada = new Reserva();
+    reservaCreada.setId(10L);
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+    when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
+    when(servicioReservaMock.reservar(any(), any(), any(), any())).thenReturn(reservaCreada);
+    ArgumentCaptor<ContactoReserva> captor = ArgumentCaptor.forClass(ContactoReserva.class);
+
+    controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
+
+    verify(servicioReservaMock).reservar(any(), any(), eq(TipoPago.SENIA), captor.capture());
+    ContactoReserva contacto = captor.getValue();
+    assertThat(contacto.getNombre(), equalTo("Ana"));
+    assertThat(contacto.getApellido(), equalTo("Pérez"));
+    assertThat(contacto.getDni(), equalTo("30123456"));
+    assertThat(contacto.getTelefono(), equalTo("1122334455"));
+    assertThat(contacto.getEmail(), equalTo("ana@mail.com"));
+  }
+
+  @Test
+  void siNoLlegaElTipoDePagoDeberiaVolverAlResumenSinReservar() {
+    Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
+    when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
+
+    ModelAndView mav = controlador.reservar(datosReservaCon(null), requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/reservar"));
+    verify(servicioReservaMock, never()).reservar(any(), any(), any(), any());
+  }
+
+  private DatosReserva datosReservaCon(TipoPago tipoPago) {
+    ContactoReserva contacto = new ContactoReserva(
+      "Ana",
+      "Pérez",
+      "30123456",
+      "1122334455",
+      "ana@mail.com"
+    );
+    return new DatosReserva(tipoPago, contacto);
   }
 
   @Test
@@ -84,9 +130,10 @@ public class ControladorReservasTest {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
-    when(servicioReservaMock.reservar(any(), any(), any())).thenThrow(new SalonNoDisponible());
+    when(servicioReservaMock.reservar(any(), any(), any(), any()))
+      .thenThrow(new SalonNoDisponible());
 
-    ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     assertThat(
       mav.getViewName(),
@@ -100,9 +147,9 @@ public class ControladorReservasTest {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().minusDays(1), 30);
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
-    when(servicioReservaMock.reservar(any(), any(), any())).thenThrow(new FechaInvalida());
+    when(servicioReservaMock.reservar(any(), any(), any(), any())).thenThrow(new FechaInvalida());
 
-    ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=fecha"));
   }
@@ -112,9 +159,10 @@ public class ControladorReservasTest {
     Evento evento = new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30);
     when(sessionMock.getAttribute(USUARIO)).thenReturn(new Usuario());
     when(sessionMock.getAttribute(EVENTO)).thenReturn(evento);
-    when(servicioReservaMock.reservar(any(), any(), any())).thenThrow(new EventoIncompleto());
+    when(servicioReservaMock.reservar(any(), any(), any(), any()))
+      .thenThrow(new EventoIncompleto());
 
-    ModelAndView mav = controlador.reservar(TipoPago.SENIA, requestMock);
+    ModelAndView mav = controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/evento-personalizado?error=incompleto"));
   }
@@ -181,7 +229,7 @@ public class ControladorReservasTest {
 
   @Test
   void siNoHayUsuarioAlReservarDeberiaGuardarElEventoComoDestinoTrasElLogin() {
-    controlador.reservar(TipoPago.SENIA, requestMock);
+    controlador.reservar(datosReservaCon(TipoPago.SENIA), requestMock);
 
     verify(sessionMock).setAttribute(ControladorLogin.DESTINO_POST_LOGIN, "/evento-personalizado");
   }

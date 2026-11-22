@@ -3,6 +3,7 @@ package com.tallerwebi.presentacion;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.text.IsEqualIgnoringCase.equalToIgnoringCase;
 import static org.mockito.Mockito.*;
 
@@ -13,12 +14,13 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.web.servlet.ModelAndView;
 
 public class ControladorLoginTest {
 
   private ControladorLogin controladorLogin;
-  private Usuario usuarioMock;
+  private DatosRegistro datosRegistro;
   private DatosLogin datosLoginMock;
   private HttpServletRequest requestMock;
   private HttpSession sessionMock;
@@ -27,8 +29,7 @@ public class ControladorLoginTest {
   @BeforeEach
   public void init() {
     datosLoginMock = new DatosLogin("dami@unlam.com", "123");
-    usuarioMock = mock(Usuario.class);
-    when(usuarioMock.getEmail()).thenReturn("dami@unlam.com");
+    datosRegistro = new DatosRegistro("dami@unlam.com", "123", "123");
     requestMock = mock(HttpServletRequest.class);
     sessionMock = mock(HttpSession.class);
     servicioLoginMock = mock(ServicioLogin.class);
@@ -74,21 +75,56 @@ public class ControladorLoginTest {
   public void registrameSiUsuarioNoExisteDeberiaCrearUsuarioYVolverAlLogin()
     throws UsuarioExistente {
     // ejecucion
-    ModelAndView modelAndView = controladorLogin.registrarme(usuarioMock);
+    ModelAndView modelAndView = controladorLogin.registrarme(datosRegistro);
 
     // validacion
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("redirect:/login"));
-    verify(servicioLoginMock, times(1)).registrar(usuarioMock);
+    verify(servicioLoginMock, times(1)).registrar(any(Usuario.class));
+  }
+
+  @Test
+  public void registrarmeDeberiaCrearElUsuarioSoloConEmailYPassword() throws UsuarioExistente {
+    // preparacion
+    ArgumentCaptor<Usuario> captor = ArgumentCaptor.forClass(Usuario.class);
+
+    // ejecucion
+    controladorLogin.registrarme(datosRegistro);
+
+    // validacion
+    verify(servicioLoginMock).registrar(captor.capture());
+    Usuario usuarioCreado = captor.getValue();
+    assertThat(usuarioCreado.getEmail(), equalTo("dami@unlam.com"));
+    assertThat(usuarioCreado.getPassword(), equalTo("123"));
+    assertThat(usuarioCreado.getRol(), nullValue());
+    assertThat(usuarioCreado.getActivo(), equalTo(false));
+  }
+
+  @Test
+  public void registrarmeConPasswordsDistintasDeberiaVolverAFormularioSinRegistrar()
+    throws UsuarioExistente {
+    // preparacion
+    DatosRegistro datosConPasswordsDistintas = new DatosRegistro("dami@unlam.com", "123", "456");
+
+    // ejecucion
+    ModelAndView modelAndView = controladorLogin.registrarme(datosConPasswordsDistintas);
+
+    // validacion
+    assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
+    assertThat(
+      modelAndView.getModel().get("error").toString(),
+      equalToIgnoringCase("Las contraseñas no coinciden")
+    );
+    verify(servicioLoginMock, never()).registrar(any(Usuario.class));
   }
 
   @Test
   public void registrarmeSiUsuarioExisteDeberiaVolverAFormularioYMostrarError()
     throws UsuarioExistente {
     // preparacion
-    doThrow(UsuarioExistente.class).when(servicioLoginMock).registrar(usuarioMock);
+    doThrow(UsuarioExistente.class).when(servicioLoginMock).registrar(any(Usuario.class));
 
     // ejecucion
-    ModelAndView modelAndView = controladorLogin.registrarme(usuarioMock);
+    ModelAndView modelAndView = controladorLogin.registrarme(datosRegistro);
 
     // validacion
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
@@ -101,10 +137,10 @@ public class ControladorLoginTest {
   @Test
   public void errorEnRegistrarmeDeberiaVolverAFormularioYMostrarError() throws UsuarioExistente {
     // preparacion
-    doThrow(RuntimeException.class).when(servicioLoginMock).registrar(usuarioMock);
+    doThrow(RuntimeException.class).when(servicioLoginMock).registrar(any(Usuario.class));
 
     // ejecucion
-    ModelAndView modelAndView = controladorLogin.registrarme(usuarioMock);
+    ModelAndView modelAndView = controladorLogin.registrarme(datosRegistro);
 
     // validacion
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
@@ -125,13 +161,13 @@ public class ControladorLoginTest {
   }
 
   @Test
-  public void nuevoUsuarioDeberiaRetornarVistaNuevoUsuarioConUsuarioVacio() {
+  public void nuevoUsuarioDeberiaRetornarVistaNuevoUsuarioConDatosRegistroVacios() {
     // ejecucion
     ModelAndView modelAndView = controladorLogin.nuevoUsuario();
 
     // validacion
     assertThat(modelAndView.getViewName(), equalToIgnoringCase("nuevo-usuario"));
-    assertThat(modelAndView.getModel().get("usuario"), instanceOf(Usuario.class));
+    assertThat(modelAndView.getModel().get("datosRegistro"), instanceOf(DatosRegistro.class));
   }
 
   @Test

@@ -12,10 +12,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -75,7 +75,7 @@ public class ControladorReservas {
 
   @RequestMapping(path = "/reservas", method = RequestMethod.POST)
   public ModelAndView reservar(
-    @RequestParam("tipoPago") TipoPago tipoPago,
+    @ModelAttribute("datosReserva") DatosReserva datosReserva,
     HttpServletRequest request
   ) {
     HttpSession session = request.getSession();
@@ -87,10 +87,20 @@ public class ControladorReservas {
     if (!(session.getAttribute(EVENTO) instanceof Evento evento)) {
       return new ModelAndView(VOLVER_AL_EVENTO);
     }
+    // Antes lo garantizaba @RequestParam (era obligatorio); ahora hay que validarlo.
+    if (datosReserva.getTipoPago() == null) {
+      return new ModelAndView("redirect:/reservar");
+    }
 
     Reserva reserva;
     try {
-      reserva = servicioReserva.reservar(usuario, evento, tipoPago);
+      reserva =
+        servicioReserva.reservar(
+          usuario,
+          evento,
+          datosReserva.getTipoPago(),
+          datosReserva.getContacto()
+        );
     } catch (SalonNoDisponible e) {
       return new ModelAndView(VOLVER_AL_EVENTO + "?error=salonNoDisponible");
     } catch (FechaInvalida e) {

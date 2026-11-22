@@ -76,6 +76,32 @@ public class RepositorioReservaTest {
   @Test
   @Transactional
   @Rollback
+  public void deberiaGuardarLosDatosDeContactoJuntoConLaReserva() {
+    // preparacion
+    Usuario usuario = this.dadoQueExisteUnUsuario("usuario@test.com");
+    Evento evento = this.dadoQueTengoUnEvento(null, LocalDate.now().plusDays(30));
+    Reserva reserva = this.dadoQueTengoUnaReserva(usuario, evento, EstadoReserva.PENDIENTE_PAGO);
+    reserva.setContacto(
+      new ContactoReserva("Ana", "Pérez", "30123456", "1122334455", "ana@mail.com")
+    );
+
+    // ejecucion
+    repositorioReserva.guardar(reserva);
+    // se vacía la sesión para que la búsqueda lea de la base y no de memoria
+    sessionFactory.getCurrentSession().flush();
+    sessionFactory.getCurrentSession().clear();
+
+    // validacion
+    Reserva obtenida = this.cuandoBuscoLaReservaPorId(reserva.getId());
+    assertThat(obtenida.getContacto().getId(), is(notNullValue()));
+    assertThat(obtenida.getContacto().getNombreCompleto(), is(equalTo("Ana Pérez")));
+    assertThat(obtenida.getContacto().getDni(), is(equalTo("30123456")));
+    assertThat(obtenida.getContacto().getEmail(), is(equalTo("ana@mail.com")));
+  }
+
+  @Test
+  @Transactional
+  @Rollback
   public void deberiaObtenerSoloLasFechasOcupadasDelSalonIndicado() {
     Salon salon = this.dadoQueExisteUnSalon("Salón A");
     Salon otroSalon = this.dadoQueExisteUnSalon("Salón B");
