@@ -5,6 +5,7 @@ import com.tallerwebi.dominio.excepcion.FechaInvalida;
 import com.tallerwebi.dominio.excepcion.PaqueteNoEncontrado;
 import com.tallerwebi.dominio.excepcion.SeleccionInvalida;
 import jakarta.servlet.http.HttpSession;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,8 @@ public class ControladorEventoPersonalizado {
   private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
   private static final String ERROR_PAQUETE = "errorPaquete";
   private static final String DATOS = "datos";
+  // id de la sección de servicios en evento-personalizado.html (destino de los redirects)
+  private static final String SECCION_SERVICIOS = "servicios";
 
   private ServicioEvento servicioEvento;
   private ServicioSugerenciaServicios servicioSugerenciaServicios;
@@ -174,7 +177,7 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       servicioEvento.agregarServicio(evento, datos.getId());
     }
-    return volverAlEvento("servicios");
+    return volverAlEvento(SECCION_SERVICIOS);
   }
 
   @RequestMapping(value = "/evento-personalizado/servicio/quitar", method = RequestMethod.POST)
@@ -186,7 +189,21 @@ public class ControladorEventoPersonalizado {
     if (evento != null) {
       servicioEvento.quitarServicio(evento, datos.getId());
     }
-    return volverAlEvento("servicios");
+    return volverAlEvento(SECCION_SERVICIOS);
+  }
+
+  // "Volver al paquete original": deshace los cambios de servicios.
+  // No recibe datos del form, por eso no lleva @ModelAttribute.
+  @RequestMapping(value = "/evento-personalizado/servicios/restaurar", method = RequestMethod.POST)
+  public ModelAndView restaurarServicios(HttpSession session) {
+    Evento evento = obtenerEvento(session);
+    if (evento != null && evento.getPaqueteOrigen() != null) {
+      servicioEvento.restaurarServiciosDelPaquete(
+        evento,
+        servicioPaquetes.consultarServiciosDe(evento.getPaqueteOrigen())
+      );
+    }
+    return volverAlEvento(SECCION_SERVICIOS);
   }
 
   // Paso 1 de "predefinidos": deja anotado qué paquete eligió y vuelve a la pantalla,
@@ -240,9 +257,6 @@ public class ControladorEventoPersonalizado {
     modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
     modelo.put("caterings", servicioEvento.obtenerCaterings());
 
-    ServiciosClasificados clasificados = servicioSugerenciaServicios.clasificar(evento);
-    modelo.put("serviciosSugeridos", clasificados.getSugeridos());
-    modelo.put("serviciosRestantes", clasificados.getRestantes());
     // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
     // evento-personalizado.html los lee de ${serviciosDelEvento}.
     List<ServicioAdicional> serviciosDelEvento = servicioEvento.obtenerServiciosDe(evento);
@@ -260,10 +274,47 @@ public class ControladorEventoPersonalizado {
       "cateringElegidoId",
       evento.getCatering() == null ? null : evento.getCatering().getId()
     );
+    modelo.put("serviciosElegidosIds", idsDe(serviciosDelEvento));
+    cargarServiciosParaEditar(modelo, evento, serviciosDelEvento, serviciosDelPaquete);
+  }
+
+  // Lo que necesita la sección de servicios: qué trae el paquete, qué se puede sumar
+  // y qué cambió el usuario respecto del paquete.
+  private void cargarServiciosParaEditar(
+    Map<String, Object> modelo,
+    Evento evento,
+    List<ServicioAdicional> serviciosDelEvento,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
+    List<Long> sugeridosIds = idsDe(servicioSugerenciaServicios.clasificar(evento).getSugeridos());
+    List<Long> idsDelPaquete = idsDe(serviciosDelPaquete);
+
+    modelo.put("hayPaquete", evento.getPaqueteOrigen() != null);
+    modelo.put("serviciosIncluidos", serviciosDelPaquete);
+    modelo.put("sugeridosIds", sugeridosIds);
+    // Todos los servicios que no vienen en el paquete, con los sugeridos primero
+    // (sorted es estable: false va antes que true y el resto mantiene su orden).
     modelo.put(
-      "serviciosElegidosIds",
-      serviciosDelEvento.stream().map(ServicioAdicional::getId).toList()
+      "serviciosParaSumar",
+      servicioEvento
+        .obtenerServiciosAdicionales()
+        .stream()
+        .filter(servicio -> !idsDelPaquete.contains(servicio.getId()))
+        .sorted(Comparator.comparing(servicio -> !sugeridosIds.contains(servicio.getId())))
+        .toList()
     );
+    modelo.put(
+      "serviciosAgregados",
+      evento.serviciosAgregados(serviciosDelEvento, serviciosDelPaquete)
+    );
+    modelo.put(
+      "serviciosQuitados",
+      evento.serviciosQuitados(serviciosDelEvento, serviciosDelPaquete)
+    );
+  }
+
+  private List<Long> idsDe(List<ServicioAdicional> servicios) {
+    return servicios.stream().map(ServicioAdicional::getId).toList();
   }
 
   private List<Salon> obtenerSalonesDisponibles(Evento evento, Map<String, Object> modelo) {
