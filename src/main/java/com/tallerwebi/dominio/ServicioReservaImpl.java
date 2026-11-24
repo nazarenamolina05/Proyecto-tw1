@@ -85,4 +85,10 @@ public class ServicioReservaImpl implements ServicioReserva {
       Objects.equals(reserva.getUsuario().getId(), usuario.getId())
     );
   }
+
+  @Override
+  public void cancelarReserva(Long idReserva, Usuario usuario) {
+    Reserva reserva = this.obtenerReservaDe(idReserva, usuario);
+    reserva.cancelar();
+  }
 }

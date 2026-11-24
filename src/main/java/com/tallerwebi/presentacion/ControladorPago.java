@@ -3,12 +3,7 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.EstadoPago;
 import com.tallerwebi.dominio.ServicioPago;
 import com.tallerwebi.dominio.Usuario;
-import com.tallerwebi.dominio.excepcion.AbonoNoPermitido;
-import com.tallerwebi.dominio.excepcion.MontoDeAbonoInvalido;
-import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
-import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
-import com.tallerwebi.dominio.excepcion.PasarelaNoDisponible;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +52,8 @@ public class ControladorPago {
     } catch (PasarelaNoDisponible e) {
       LOG.error("No se pudo iniciar el pago con Mercado Pago", e);
       return new ModelAndView(MIS_RESERVAS_CON_ERROR);
+    } catch (ReservaCancelada e) {
+      return new ModelAndView(MIS_RESERVAS + "?error=cancelada");
     }
   }
 

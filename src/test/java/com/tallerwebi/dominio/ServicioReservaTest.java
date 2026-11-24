@@ -5,10 +5,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import com.tallerwebi.dominio.excepcion.EventoIncompleto;
-import com.tallerwebi.dominio.excepcion.FechaInvalida;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
-import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
+import com.tallerwebi.dominio.excepcion.*;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -177,6 +174,57 @@ public class ServicioReservaTest {
       ReservaNoEncontrada.class,
       () -> servicioReserva.obtenerReservaDe(10L, otroUsuario)
     );
+  }
+
+  @Test
+  void deberiaCancelarLaReservaDelUsuario() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    Reserva reserva = this.dadoQueExisteUnaReservaVigenteDe(usuario);
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
+
+    servicioReserva.cancelarReserva(10L, usuario);
+
+    assertThat(reserva.getEstado(), equalTo(EstadoReserva.CANCELADA));
+  }
+
+  @Test
+  void noDeberiaCancelarUnaReservaQueNoExiste() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(null);
+
+    assertThrows(ReservaNoEncontrada.class, () -> servicioReserva.cancelarReserva(10L, usuario));
+  }
+
+  @Test
+  void noDeberiaCancelarLaReservaDeOtroUsuario() {
+    Usuario duenio = this.dadoQueExisteUnUsuarioConId(1L);
+    Usuario otroUsuario = this.dadoQueExisteUnUsuarioConId(2L);
+    Reserva reserva = this.dadoQueExisteUnaReservaVigenteDe(duenio);
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
+
+    assertThrows(
+      ReservaNoEncontrada.class,
+      () -> servicioReserva.cancelarReserva(10L, otroUsuario)
+    );
+    assertThat(reserva.getEstado(), equalTo(EstadoReserva.SENIADA));
+  }
+
+  @Test
+  void noDeberiaCancelarUnaReservaCuyoEventoYaPaso() {
+    Usuario usuario = this.dadoQueExisteUnUsuarioConId(1L);
+    Reserva reserva = this.dadoQueExisteUnaReservaVigenteDe(usuario);
+    reserva.getEvento().setFecha(LocalDate.now().minusDays(1));
+    when(repositorioReservaMock.buscarPorId(10L)).thenReturn(reserva);
+
+    assertThrows(ReservaNoCancelable.class, () -> servicioReserva.cancelarReserva(10L, usuario));
+    assertThat(reserva.getEstado(), equalTo(EstadoReserva.SENIADA));
+  }
+
+  private Reserva dadoQueExisteUnaReservaVigenteDe(Usuario usuario) {
+    Reserva reserva = this.dadoQueExisteUnaReservaDe(usuario);
+    reserva.setEvento(new Evento(TipoPaquete.CUMPLEANIOS, LocalDate.now().plusDays(30), 30));
+    reserva.setEstado(EstadoReserva.SENIADA);
+    return reserva;
   }
 
   private Usuario dadoQueExisteUnUsuarioConId(Long id) {
