@@ -8,4 +8,6 @@ public interface ServicioReserva {
   Reserva reservar(Usuario usuario, Evento evento, TipoPago tipoPago, ContactoReserva contacto);
 
   Reserva obtenerReservaDe(Long idReserva, Usuario usuario);
+
+  void cancelarReserva(Long idReserva, Usuario usuario);
 }

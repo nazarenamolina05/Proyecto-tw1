@@ -34,6 +34,10 @@
         </div>
     </th:block>
 
+    <div class="alert alert-success mb-4" th:if="${param.cancelacion != null and param.cancelacion[0] == 'ok'}">
+        <i class="bi bi-check-circle-fill me-1"></i>Tu reserva fue cancelada.
+    </div>
+
     <!-- Aviso de errores (viene en la URL: ?error=...) -->
     <th:block th:if="${param.error != null}">
         <div th:switch="${param.error[0]}" class="mb-4">
@@ -42,6 +46,9 @@
             </div>
             <div th:case="'abono'" class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i>Esta reserva no admite abonos en este momento.
+            </div>
+            <div th:case="'cancelada'" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>Esa reserva está cancelada y no admite pagos.
             </div>
             <div th:case="*" class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-1"></i>No pudimos procesar el pago. Intentá de nuevo.

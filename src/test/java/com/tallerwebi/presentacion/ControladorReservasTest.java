@@ -8,10 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import com.tallerwebi.dominio.*;
-import com.tallerwebi.dominio.excepcion.EventoIncompleto;
-import com.tallerwebi.dominio.excepcion.FechaInvalida;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
-import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.time.LocalDate;
@@ -285,5 +282,46 @@ public class ControladorReservasTest {
     ModelAndView mav = controlador.verDetalleDeReserva(10L, requestMock);
 
     assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
+  }
+
+  @Test
+  void siNoHayUsuarioLogueadoAlCancelarDeberiaRedirigirAlLogin() {
+    ModelAndView mav = controlador.cancelarReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/login"));
+    verify(servicioReservaMock, never()).cancelarReserva(any(), any());
+  }
+
+  @Test
+  void deberiaCancelarLaReservaYVolverAMisReservasConAviso() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+
+    ModelAndView mav = controlador.cancelarReserva(10L, requestMock);
+
+    verify(servicioReservaMock).cancelarReserva(10L, usuario);
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas?cancelacion=ok"));
+  }
+
+  @Test
+  void alCancelarUnaReservaInexistenteODeOtroUsuarioDeberiaVolverAMisReservas() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    doThrow(new ReservaNoEncontrada()).when(servicioReservaMock).cancelarReserva(10L, usuario);
+
+    ModelAndView mav = controlador.cancelarReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas"));
+  }
+
+  @Test
+  void alCancelarUnaReservaQueNoSePuedeCancelarDeberiaVolverAlDetalleConError() {
+    Usuario usuario = new Usuario();
+    when(sessionMock.getAttribute(USUARIO)).thenReturn(usuario);
+    doThrow(new ReservaNoCancelable()).when(servicioReservaMock).cancelarReserva(10L, usuario);
+
+    ModelAndView mav = controlador.cancelarReserva(10L, requestMock);
+
+    assertThat(mav.getViewName(), equalTo("redirect:/mis-reservas/10?error=cancelacion"));
   }
 }

@@ -1,10 +1,7 @@
 package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.*;
-import com.tallerwebi.dominio.excepcion.EventoIncompleto;
-import com.tallerwebi.dominio.excepcion.FechaInvalida;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
-import com.tallerwebi.dominio.excepcion.SalonNoDisponible;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
@@ -12,10 +9,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -25,6 +19,7 @@ public class ControladorReservas {
   public static final String USUARIO = "USUARIO";
   private static final String RUTA_EVENTO = "/evento-personalizado"; // NUEVO
   private static final String VOLVER_AL_EVENTO = "redirect:" + RUTA_EVENTO;
+  private static final String IR_AL_LOGIN = "redirect:/login";
 
   private ServicioReserva servicioReserva;
   private ServicioEvento servicioEvento;
@@ -120,7 +115,7 @@ public class ControladorReservas {
     Map<String, Object> modelo = new ModelMap();
 
     if (usuarioLogueado == null) {
-      return new ModelAndView("redirect:/login");
+      return new ModelAndView(IR_AL_LOGIN);
     }
 
     List<Reserva> reservas = servicioReserva.obtenerReservasDe(usuarioLogueado);
@@ -131,7 +126,7 @@ public class ControladorReservas {
   // deja anotado en la sesión a dónde volver y manda al login
   private ModelAndView irAlLoginYVolverAlEvento(HttpSession session) {
     session.setAttribute(ControladorLogin.DESTINO_POST_LOGIN, RUTA_EVENTO);
-    return new ModelAndView("redirect:/login");
+    return new ModelAndView(IR_AL_LOGIN);
   }
 
   @RequestMapping(path = "/mis-reservas/{id}", method = RequestMethod.GET)
@@ -139,7 +134,7 @@ public class ControladorReservas {
     Usuario usuarioLogueado = (Usuario) request.getSession().getAttribute(USUARIO);
 
     if (usuarioLogueado == null) {
-      return new ModelAndView("redirect:/login");
+      return new ModelAndView(IR_AL_LOGIN);
     }
 
     try {
@@ -154,5 +149,24 @@ public class ControladorReservas {
     } catch (ReservaNoEncontrada e) {
       return new ModelAndView("redirect:/mis-reservas");
     }
+  }
+
+  @PostMapping(path = "/mis-reservas/{id}/cancelar")
+  public ModelAndView cancelarReserva(@PathVariable("id") Long id, HttpServletRequest request) {
+    Usuario usuarioLogueado = (Usuario) request.getSession().getAttribute(USUARIO);
+
+    if (usuarioLogueado == null) {
+      return new ModelAndView(IR_AL_LOGIN);
+    }
+
+    try {
+      servicioReserva.cancelarReserva(id, usuarioLogueado);
+    } catch (ReservaNoEncontrada e) {
+      return new ModelAndView("redirect:/mis-reservas");
+    } catch (ReservaNoCancelable e) {
+      return new ModelAndView("redirect:/mis-reservas/" + id + "?error=cancelacion");
+    }
+
+    return new ModelAndView("redirect:/mis-reservas?cancelacion=ok");
   }
 }

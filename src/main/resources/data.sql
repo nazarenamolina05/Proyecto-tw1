@@ -128,3 +128,31 @@ FROM Reserva r JOIN Evento e ON r.evento_id = e.id WHERE e.fecha = '2026-07-05';
 INSERT INTO Resenia(reserva_id, puntaje, comentario, fecha)
 SELECT r.id, 4, 'Muy lindo todo. El DJ llegó un poco tarde.', '2026-06-22'
 FROM Reserva r JOIN Evento e ON r.evento_id = e.id WHERE e.fecha = '2026-06-20';
+
+-- RESERVAS FUTURAS DEL USUARIO TEST (para probar cancelar reserva) --
+-- Las fechas son relativas a hoy (la base se recrea en cada arranque),
+-- así que nunca se vencen.
+
+-- 1) Reserva SEÑADA con evento a 30 días: se puede cancelar (aparece el botón)
+--    y además admite abonos. Presupuesto 165000, seña 30% = 49500.
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id, paqueteOrigen_id)
+SELECT DATE_ADD(CURDATE(), INTERVAL 30 DAY), 'CUMPLEANIOS', 40, p.salon_id, p.catering_id, p.id
+FROM Paquete p WHERE p.nombre = 'Básico';
+
+INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoAbonado)
+VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
+        (SELECT id FROM Evento WHERE fecha = DATE_ADD(CURDATE(), INTERVAL 30 DAY)),
+        165000.0, 'SENIADA', 'SENIA', 49500.0);
+
+-- 2) Reserva CONFIRMADA con evento a 6 días: NO se puede cancelar (falta menos de 7),
+--    no aparece el botón y se ve el aviso.
+--    Presupuesto: salon Jardin del Sol 90000 + Catering Medio 3000 x 30 = 180000.
+INSERT INTO Evento(fecha, tipoPaquete, cantidadInvitados, salon_id, catering_id)
+VALUES (DATE_ADD(CURDATE(), INTERVAL 6 DAY), 'FIESTA_DE_15', 30,
+        (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
+        (SELECT id FROM Catering WHERE nombre = 'Catering Medio'));
+
+INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoAbonado)
+VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
+        (SELECT id FROM Evento WHERE fecha = DATE_ADD(CURDATE(), INTERVAL 6 DAY)),
+        180000.0, 'CONFIRMADA', 'TOTAL', 180000.0);
