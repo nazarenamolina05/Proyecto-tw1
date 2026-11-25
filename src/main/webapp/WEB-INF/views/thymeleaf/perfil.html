@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.2.0/css/bootstrap.min.css}" />
+    <link rel="stylesheet" th:href="@{/css/main.css}" />
+</head>
+<body>
+<div th:replace="~{fragments/encabezado :: encabezado}"></div>
+
+<main class="container py-4">
+    <h1 class="mb-4">Mi Perfil</h1>
+
+    <!-- Formulario de datos básicos -->
+    <section class="card mb-4">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Datos personales</h2>
+        </div>
+        <div class="card-body">
+            <div th:if="${mensajeExitoDatos != null}" class="alert alert-success" th:text="${mensajeExitoDatos}"></div>
+            <div th:if="${errorDatos != null}" class="alert alert-danger" th:text="${errorDatos}"></div>
+
+            <form th:action="@{/perfil/datos}" method="post">
+                <div class="mb-3">
+                    <label for="nombreUsuario" class="form-label">Nombre de usuario</label>
+                    <input
+                            type="text"
+                            id="nombreUsuario"
+                            name="nombreUsuario"
+                            class="form-control"
+                            th:value="${usuario != null ? usuario.nombreUsuario : ''}"
+                            required
+                    />
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Correo electrónico</label>
+                    <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-control"
+                            th:value="${usuario != null ? usuario.email : ''}"
+                            required
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar datos</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Formulario de cambio de contraseña -->
+    <section class="card">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Cambiar contraseña</h2>
+        </div>
+        <div class="card-body">
+            <div th:if="${mensajeExitoPassword != null}" class="alert alert-success" th:text="${mensajeExitoPassword}"></div>
+            <div th:if="${errorPassword != null}" class="alert alert-danger" th:text="${errorPassword}"></div>
+
+            <form th:action="@{/perfil/password}" method="post">
+                <div class="mb-3">
+                    <label for="passwordActual" class="form-label">Contraseña actual</label>
+                    <input
+                            type="password"
+                            id="passwordActual"
+                            name="passwordActual"
+                            class="form-control"
+                            required
+                    />
+                </div>
+
+                <div class="mb-3">
+                    <label for="passwordNueva" class="form-label">Nueva contraseña</label>
+                    <input
+                            type="password"
+                            id="passwordNueva"
+                            name="passwordNueva"
+                            class="form-control"
+                            required
+                    />
+                </div>
+
+                <div class="mb-3">
+                    <label for="confirmacionPassword" class="form-label">Confirmar nueva contraseña</label>
+                    <input
+                            type="password"
+                            id="confirmacionPassword"
+                            name="confirmacionPassword"
+                            class="form-control"
+                            required
+                    />
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Actualizar contraseña</button>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>
