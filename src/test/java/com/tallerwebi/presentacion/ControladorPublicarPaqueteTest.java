@@ -55,7 +55,7 @@ public class ControladorPublicarPaqueteTest {
     ModelAndView mav = controlador.publicar(10L, datos, requestMock);
 
     verify(servicioMock).publicar(10L, usuario, "Mi cumple");
-    assertThat(mav.getViewName(), equalTo("redirect:/paquetes"));
+    assertThat(mav.getViewName(), equalTo("redirect:/paquetes?publicado=ok"));
   }
 
   @Test

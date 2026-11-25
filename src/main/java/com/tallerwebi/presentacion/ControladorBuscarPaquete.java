@@ -35,6 +35,8 @@ public class ControladorBuscarPaquete {
     );
 
     modelo.put("paquetes", paquetesBuscados);
+    // Sin filtros se muestran todos los paquetes; con filtros, los resultados de la búsqueda.
+    modelo.put("hayFiltros", tipo != null || precioMaximo != null || invitados != null);
     // [REFACTOR PAQUETE] paquete-card.html lee los servicios de este mapa.
     modelo.put(
       "serviciosPorPaquete",

@@ -99,6 +99,29 @@ public class ControladorBuscarPaqueteTest {
     assertThat(mav.getModel().get("paquetes"), equalTo(paquetesEsperados));
   }
 
+  @Test
+  public void alBuscarSinFiltrosNoDeberiaIndicarQueHayFiltros() {
+    when(servicioBuscarPaqueteMock.buscarPorFiltros(null, null, null)).thenReturn(List.of());
+
+    ModelAndView mav = controladorBuscarPaquete.buscarPorFiltros(null, null, null);
+
+    assertThat(mav.getModel().get("hayFiltros"), equalTo(false));
+  }
+
+  @Test
+  public void alBuscarConAlgunFiltroDeberiaIndicarQueHayFiltros() {
+    when(servicioBuscarPaqueteMock.buscarPorFiltros(TipoPaquete.CUMPLEANIOS, null, null))
+      .thenReturn(List.of());
+
+    ModelAndView mav = controladorBuscarPaquete.buscarPorFiltros(
+      TipoPaquete.CUMPLEANIOS,
+      null,
+      null
+    );
+
+    assertThat(mav.getModel().get("hayFiltros"), equalTo(true));
+  }
+
   // Método auxiliar para crear paquetes en los tests
   private Paquete crearPaquete(String nombre, TipoPaquete tipo) {
     return new Paquete(
