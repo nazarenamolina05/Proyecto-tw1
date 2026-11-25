@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -103,6 +104,38 @@ public class Evento {
         incluido.equals(servicio) ||
         (incluido.getId() != null && incluido.getId().equals(servicio.getId()))
       );
+  }
+
+  // Servicios que tiene el evento y no venían en el paquete.
+  public List<ServicioAdicional> serviciosAgregados(
+    List<ServicioAdicional> serviciosDelEvento,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
+    if (paqueteOrigen == null) {
+      return new ArrayList<>();
+    }
+    return serviciosQueNoEstanEn(serviciosDelEvento, serviciosDelPaquete);
+  }
+
+  // Servicios que venían en el paquete y el evento ya no tiene.
+  public List<ServicioAdicional> serviciosQuitados(
+    List<ServicioAdicional> serviciosDelEvento,
+    List<ServicioAdicional> serviciosDelPaquete
+  ) {
+    if (paqueteOrigen == null) {
+      return new ArrayList<>();
+    }
+    return serviciosQueNoEstanEn(serviciosDelPaquete, serviciosDelEvento);
+  }
+
+  // Compara por id porque ServicioAdicional no tiene equals:
+  // dos objetos con los mismos datos traídos de la base no son "iguales" para Java.
+  private List<ServicioAdicional> serviciosQueNoEstanEn(
+    List<ServicioAdicional> servicios,
+    List<ServicioAdicional> otros
+  ) {
+    List<Long> idsDeOtros = otros.stream().map(ServicioAdicional::getId).toList();
+    return servicios.stream().filter(servicio -> !idsDeOtros.contains(servicio.getId())).toList();
   }
 
   public String getNombre() {

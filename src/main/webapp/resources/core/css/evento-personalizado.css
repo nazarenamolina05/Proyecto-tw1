@@ -581,3 +581,220 @@ body {
         transition: none;
     }
 }
+/* ---------- Secciones a las que vuelve el redirect (#salones, #caterings, #servicios) ---------- */
+.seccion-ancla {
+    scroll-margin-top: 1.5rem;
+}
+
+/* ============================================
+   Editar paquete: filas de salón/catering y de servicios
+   Colores: noche #17104d, violeta #6d3fd6, borde #ebe4fa, texto suave #5d5680
+   ============================================ */
+
+.fila-opcion,
+.lista-filas {
+    background: #fff;
+    border: 1px solid #ebe4fa;
+    border-radius: 16px;
+}
+
+.fila-opcion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+}
+
+.fila-opcion > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.fila-etiqueta {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #6d3fd6;
+}
+
+.fila-nombre {
+    font-size: 16px;
+    font-weight: 700;
+    color: #17104d;
+}
+
+.fila-detalle {
+    font-size: 14px;
+    color: #5d5680;
+}
+
+.lista-filas {
+    overflow: hidden;
+    margin-bottom: 32px;
+}
+
+.fila-servicio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 20px;
+    border-top: 1px solid #f0ebfa;
+}
+
+.fila-servicio:first-child {
+    border-top: none;
+}
+
+.fila-texto {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.fila-agregada {
+    background: #faf7ff;
+}
+
+.fila-quitada {
+    background: #fff7f3;
+}
+
+.fila-nota {
+    font-size: 13px;
+    font-weight: 600;
+    color: #5a3fb0;
+}
+
+.fila-nota-quitado {
+    color: #a8401c;
+}
+
+.fila-costo {
+    font-weight: 600;
+    color: #17104d;
+}
+
+.fila-costo.inactivo {
+    color: #6f6890;
+}
+
+.fila-quitada .fila-costo {
+    text-decoration: line-through;
+}
+
+.etiqueta {
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 3px 10px;
+}
+
+.etiqueta-incluido {
+    color: #5a3fb0;
+    background: #f3eeff;
+}
+
+.etiqueta-sugerido {
+    color: #0b6b4f;
+    background: #e3fbf2;
+}
+
+/* Interruptor: es un <button> real dentro del form, área táctil de 44px */
+.interruptor {
+    width: 56px;
+    min-height: 44px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.interruptor .interruptor-bolita {
+    width: 46px;
+    height: 26px;
+    border-radius: 999px;
+    background: #cfc8e6;
+    position: relative;
+    transition: background 0.15s;
+}
+
+.interruptor .interruptor-bolita::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(23, 16, 77, 0.3);
+    transition: left 0.15s;
+}
+
+.interruptor.activo .interruptor-bolita {
+    background: #6d3fd6;
+}
+
+.interruptor.activo .interruptor-bolita::after {
+    left: 23px;
+}
+
+.interruptor:focus-visible {
+    outline: 3px solid rgba(109, 63, 214, 0.4);
+    outline-offset: 2px;
+    border-radius: 999px;
+}
+
+.btn-outline-pack {
+    color: #6d3fd6;
+    border: 1.5px solid #6d3fd6;
+    background: #fff;
+    font-weight: 600;
+    min-height: 44px;
+}
+
+.btn-outline-pack:hover {
+    background: #f3eeff;
+    color: #6d3fd6;
+}
+
+/* Resumen lateral: subtítulos "Agregaste" / "Quitaste" y la línea "Incluye ..." */
+.resumen-subtitulo {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem;
+}
+
+.resumen-incluye {
+    opacity: 0.8;
+}
+
+/* El resumen tiene fondo oscuro: el link va en blanco y subrayado */
+.aside-restaurar .btn-link {
+    color: #fff;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.aside-restaurar .btn-link:hover,
+.aside-restaurar .btn-link:focus-visible {
+    color: #e9defd;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .interruptor .interruptor-bolita,
+    .interruptor .interruptor-bolita::after {
+        transition: none;
+    }
+}

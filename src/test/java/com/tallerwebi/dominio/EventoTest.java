@@ -1,6 +1,8 @@
 package com.tallerwebi.dominio;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -248,6 +250,82 @@ public class EventoTest {
     Paquete paquete = new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, salon, catering, 165000.0);
 
     return paquete.crearEvento(TipoPaquete.CUMPLEANIOS, LocalDate.now(), 50);
+  }
+
+  // ---------- Servicios agregados y quitados respecto del paquete ----------
+
+  @Test
+  public void siAgregoUnServicioQueNoTraiaElPaqueteApareceComoAgregado() {
+    // Preparación
+    Evento evento = dadoQueTengoUnEventoDesdeUnPaquete();
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional cotillon = servicioConId(2L, "Cotillon");
+
+    // Ejecución
+    List<ServicioAdicional> agregados = evento.serviciosAgregados(
+      List.of(dj, cotillon),
+      List.of(dj)
+    );
+
+    // Validación
+    assertThat(agregados, contains(cotillon));
+    assertThat(evento.serviciosQuitados(List.of(dj, cotillon), List.of(dj)), is(empty()));
+  }
+
+  @Test
+  public void siQuitoUnServicioDelPaqueteApareceComoQuitado() {
+    // Preparación
+    Evento evento = dadoQueTengoUnEventoDesdeUnPaquete();
+    ServicioAdicional dj = servicioConId(1L, "DJ");
+    ServicioAdicional fotografia = servicioConId(2L, "Fotografia");
+
+    // Ejecución
+    List<ServicioAdicional> quitados = evento.serviciosQuitados(
+      List.of(dj),
+      List.of(dj, fotografia)
+    );
+
+    // Validación
+    assertThat(quitados, contains(fotografia));
+    assertThat(evento.serviciosAgregados(List.of(dj), List.of(dj, fotografia)), is(empty()));
+  }
+
+  @Test
+  public void siNoCambioLosServiciosNoHayAgregadosNiQuitados() {
+    // Preparación
+    Evento evento = dadoQueTengoUnEventoDesdeUnPaquete();
+    List<ServicioAdicional> delPaquete = List.of(servicioConId(1L, "DJ"));
+    // otra instancia con el mismo id, como si viniera de otra consulta a la base
+    List<ServicioAdicional> delEvento = List.of(servicioConId(1L, "DJ"));
+
+    // Ejecución y validación
+    assertThat(evento.serviciosAgregados(delEvento, delPaquete), is(empty()));
+    assertThat(evento.serviciosQuitados(delEvento, delPaquete), is(empty()));
+  }
+
+  @Test
+  public void unEventoSinPaqueteNoTieneAgregadosNiQuitados() {
+    // Preparación
+    Evento evento = dadoQueTengoUnEventoConInvitados(30);
+    List<ServicioAdicional> delEvento = List.of(servicioConId(1L, "DJ"));
+
+    // Ejecución y validación
+    assertThat(evento.serviciosAgregados(delEvento, List.of()), is(empty()));
+    assertThat(evento.serviciosQuitados(delEvento, List.of()), is(empty()));
+  }
+
+  private Evento dadoQueTengoUnEventoDesdeUnPaquete() {
+    Evento evento = dadoQueTengoUnEventoConInvitados(30);
+    evento.setPaqueteOrigen(
+      new Paquete(1L, "Básico", TipoPaquete.CUMPLEANIOS, null, null, 165000.0)
+    );
+    return evento;
+  }
+
+  private ServicioAdicional servicioConId(Long id, String nombre) {
+    ServicioAdicional servicio = new ServicioAdicional(nombre, 10000.0, false);
+    servicio.setId(id);
+    return servicio;
   }
 
   private Double cuandoCalculoElPresupuesto(

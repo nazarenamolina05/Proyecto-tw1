@@ -3,17 +3,13 @@ package com.tallerwebi.presentacion;
 import com.tallerwebi.dominio.EstadoPago;
 import com.tallerwebi.dominio.ServicioPago;
 import com.tallerwebi.dominio.Usuario;
-import com.tallerwebi.dominio.excepcion.AbonoNoPermitido;
-import com.tallerwebi.dominio.excepcion.MontoDeAbonoInvalido;
-import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
-import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
-import com.tallerwebi.dominio.excepcion.PasarelaNoDisponible;
-import com.tallerwebi.dominio.excepcion.ReservaNoEncontrada;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -56,13 +52,15 @@ public class ControladorPago {
     } catch (PasarelaNoDisponible e) {
       LOG.error("No se pudo iniciar el pago con Mercado Pago", e);
       return new ModelAndView(MIS_RESERVAS_CON_ERROR);
+    } catch (ReservaCancelada e) {
+      return new ModelAndView(MIS_RESERVAS + "?error=cancelada");
     }
   }
 
   @RequestMapping(path = "/pago/abonar/{reservaId}", method = RequestMethod.POST)
   public ModelAndView abonar(
     @PathVariable("reservaId") Long reservaId,
-    @RequestParam(value = "monto", required = false) Double monto,
+    @ModelAttribute("datosAbono") DatosAbono datosAbono,
     HttpServletRequest request
   ) {
     Usuario usuario = (Usuario) request.getSession().getAttribute(USUARIO);
@@ -71,7 +69,8 @@ public class ControladorPago {
     }
 
     try {
-      String urlDePago = servicioPago.iniciarAbono(reservaId, usuario, monto);
+      // si el monto llega vacío queda en null: el servicio lo rechaza con MontoDeAbonoInvalido
+      String urlDePago = servicioPago.iniciarAbono(reservaId, usuario, datosAbono.getMonto());
       return new ModelAndView("redirect:" + urlDePago);
     } catch (ReservaNoEncontrada e) {
       LOG.warn("Reserva no encontrada al iniciar el abono", e);

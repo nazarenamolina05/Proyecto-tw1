@@ -48,6 +48,6 @@ public class ControladorPublicarPaquete {
       return new ModelAndView(volverAlDetalle + "?error=nombre");
     }
 
-    return new ModelAndView("redirect:/paquetes");
+    return new ModelAndView("redirect:/paquetes?publicado=ok");
   }
 }

@@ -6,69 +6,15 @@
     <title>Eventos</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" th:href="@{/css/general.css}" />
+    <link rel="stylesheet" th:href="@{/css/encabezado.css}" />
     <link rel="stylesheet" th:href="@{/css/home-eventos.css}" />
 </head>
 <body>
 <!-- HEADER -->
 
-<header class="encabezado py-3">
-    <div class="container">
-        <nav class="d-flex justify-content-between align-items-center">
-            <a href="#inicio" class="text-light text-decoration-none">
-                <i class="bi bi-stars"></i>
-                <span>Eventos</span>
-            </a>
-
-            <ul class="d-flex list-unstyled gap-4 mb-0">
-                <li>
-                    <a href="#inicio" class="text-light text-decoration-none"
-                    >Inicio</a
-                    >
-                </li>
-                <li>
-                    <a href="#packs" class="text-light text-decoration-none"
-                    >Paquetes</a
-                    >
-                </li>
-                <li>
-                    <a href="#tipos-evento" class="text-light text-decoration-none"
-                    >Eventos</a
-                    >
-                </li>
-                <li>
-                    <a href="#como-funciona" class="text-light text-decoration-none"
-                    >Cómo funciona</a
-                    >
-                </li>
-            </ul>
-
-            <div class="d-flex align-items-center gap-3">
-                <a href="#inicio" class="btn btn-outline-light rounded-circle" aria-label="Buscar">
-                    <i class="bi bi-search"></i>
-                </a>
-
-                <a th:if="${session.USUARIO == null}" th:href="@{/login}" class="btn btn-outline-light rounded-pill px-4"
-                ><i class="bi bi-person me-1"></i>Ingresar</a
-                >
-
-                <a th:if="${session.USUARIO != null}" th:href="@{/mis-reservas}" class="btn btn-outline-light rounded-pill px-4"
-                ><i class="bi bi-calendar-check me-1"></i>Mis reservas</a
-                >
-
-                <a th:if="${session.USUARIO != null}" href="#" class="btn btn-outline-light rounded-pill px-4"
-                ><i class="bi bi-person-circle me-1"></i>Mi perfil</a
-                >
-
-                <form th:if="${session.USUARIO != null}" th:action="@{/cerrar-sesion}" method="post" class="m-0">
-                    <button type="submit" class="btn btn-outline-light rounded-pill px-4">
-                        <i class="bi bi-box-arrow-right me-1"></i>Cerrar sesión
-                    </button>
-                </form>
-
-            </div>
-        </nav>
-    </div>
-</header>
+<th:block th:replace="~{fragments/encabezado :: encabezado}"></th:block>
 
 <!-- MAIN -->
 
@@ -91,9 +37,9 @@
                 <!-- IMAGEN -->
                 <div class="col-12 col-lg-5">
                     <img
-                            th:src="@{/img/salon.jpg}"
+                            th:src="@{/img/fiesta.jpg}"
                             class="img-fluid hero-image"
-                            alt="Salón preparado para un evento"
+                            alt="Carpa iluminada con invitados durante una fiesta de noche"
                     />
                 </div>
             </div>
@@ -111,10 +57,10 @@
 
                     <select id="tipoEvento" name="tipo" class="form-select">
                         <option value="">Seleccioná una opción</option>
-                        <option value="CASAMIENTO">Casamiento</option>
-                        <option value="FIESTA_DE_15">Fiesta de 15</option>
-                        <option value="CUMPLEANIOS">Cumpleaños</option>
-                        <option value="EMPRESARIAL">Empresarial</option>
+                        <!-- Un option por cada TipoPaquete que manda el controlador -->
+                        <option th:each="tipo : ${tiposDeEvento}"
+                                th:value="${tipo.name()}"
+                                th:text="${tipo.etiqueta}">Casamiento</option>
                     </select>
                 </div>
 
@@ -131,10 +77,11 @@
                             class="form-select"
                     >
                         <option value="">Seleccioná una opción</option>
-                        <option value="100000">$0 - $100.000</option>
-                        <option value="250000">$100.001 - $250.000</option>
-                        <option value="500000">$250.001 - $500.000</option>
-                        <option value="1000000">$500.001 - $1.000.000</option>
+                        <!-- El filtro es por precio máximo: trae todos los paquetes hasta ese valor -->
+                        <option value="100000">Hasta $100.000</option>
+                        <option value="250000">Hasta $250.000</option>
+                        <option value="500000">Hasta $500.000</option>
+                        <option value="1000000">Hasta $1.000.000</option>
                     </select>
                 </div>
 
@@ -203,6 +150,13 @@
                     <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'ver-mas', false)}"></th:block>
                 </div>
             </div>
+
+            <!-- Ver todos (incluye los paquetes publicados por otros usuarios) -->
+            <div class="text-center mt-5">
+                <a th:href="@{/paquetes}" class="btn btn-buscar rounded-pill px-4">
+                    Ver todos los paquetes
+                </a>
+            </div>
         </div>
     </section>
 
@@ -221,7 +175,7 @@
             </p>
 
 
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-6 g-3 text-center">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3 text-center">
 
                 <div class="col">
                     <a th:href="@{/paquetes(tipo='CASAMIENTO')}" class="tipo-evento">
@@ -251,17 +205,11 @@
                     </a>
                 </div>
 
+                <!-- Para cualquier otro tipo de evento: se arma desde cero -->
                 <div class="col">
-                    <a href="#" class="tipo-evento">
-                        <span class="tipo-icono"><i class="bi bi-balloon"></i></span>
-                        <span>Infantiles</span>
-                    </a>
-                </div>
-
-                <div class="col">
-                    <a href="#" class="tipo-evento">
-                        <span class="tipo-icono"><i class="bi bi-three-dots"></i></span>
-                        <span>Otros</span>
+                    <a th:href="@{/evento-personalizado/nuevo(modo='desde-cero')}" class="tipo-evento">
+                        <span class="tipo-icono"><i class="bi bi-plus-lg"></i></span>
+                        <span>Armá el tuyo</span>
                     </a>
                 </div>
 

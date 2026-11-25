@@ -42,4 +42,7 @@ public interface ServicioEvento {
   void elegirCatering(Evento evento, Long idCatering);
   void agregarServicio(Evento evento, Long idServicio);
   void quitarServicio(Evento evento, Long idServicio);
+
+  // Deja en el evento exactamente los servicios del paquete.
+  void restaurarServiciosDelPaquete(Evento evento, List<ServicioAdicional> serviciosDelPaquete);
 }
