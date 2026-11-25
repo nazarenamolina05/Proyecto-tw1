@@ -11,7 +11,7 @@
          th:id="'paquete-' + ${paquete.id}">
 
     <div class="pack-media">
-        <img th:src="@{/img/salon.jpg}" class="pack-card-img" th:alt="${paquete.nombre}"/>
+        <img th:replace="~{fragments/imagen-salon :: imagenSalon(${paquete.salon}, 'pack-card-img', ${paquete.nombre})}"/>
 
         <span class="pack-tag" th:if="${mostrarTipo}" th:switch="${paquete.tipo.name()}">
         <span th:case="'CUMPLEANIOS'">Cumpleaños</span>

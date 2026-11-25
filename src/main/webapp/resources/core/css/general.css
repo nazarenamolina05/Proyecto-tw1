@@ -1,0 +1,9 @@
+/* -------------------------
+   ESTILOS GENERALES DEL SITIO (lo carga cada página, después de bootstrap.min.css)
+------------------------- */
+
+/* Montserrat para todos los textos. Bootstrap usa esta variable en el body;
+   botones e inputs la heredan. El logo usa su propia fuente (ver encabezado.css). */
+:root {
+    --bs-body-font-family: 'Montserrat', sans-serif;
+}

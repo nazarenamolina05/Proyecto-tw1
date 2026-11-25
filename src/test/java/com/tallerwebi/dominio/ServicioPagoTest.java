@@ -80,6 +80,17 @@ public class ServicioPagoTest {
   }
 
   @Test
+  void noDeberiaIniciarElPagoDeUnaReservaCancelada() {
+    Usuario usuario = new Usuario();
+    Reserva reserva = this.dadoQueExisteUnaReservaPendiente(usuario, TipoPago.SENIA);
+    reserva.setEstado(EstadoReserva.CANCELADA);
+
+    assertThrows(ReservaCancelada.class, () -> servicioPago.iniciarPago(10L, usuario));
+    verify(repositorioPagoMock, never()).guardar(any(Pago.class));
+    verify(pasarelaMock, never()).crearPago(any(), anyString(), anyDouble());
+  }
+
+  @Test
   void deberiaAprobarElPagoYConfirmarLaReservaSiMercadoPagoLoAprobo() {
     Pago pago = this.dadoQueExisteUnPagoPendienteDeSenia(5L);
     this.dadoQueMercadoPagoRespondeQueElPago(777L, EstadoPago.APROBADO, "5");

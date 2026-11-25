@@ -33,13 +33,19 @@ public class ServicioReservaImpl implements ServicioReserva {
   }
 
   @Override
-  public Reserva reservar(Usuario usuario, Evento evento, TipoPago tipoPago) {
+  public Reserva reservar(
+    Usuario usuario,
+    Evento evento,
+    TipoPago tipoPago,
+    ContactoReserva contacto
+  ) {
     validarFecha(evento);
     validarSalonLibre(evento);
 
     // [REFACTOR EVENTO] Los servicios del evento se consultan en EventoServicio.
     List<ServicioAdicional> serviciosDelEvento = repositorioEvento.buscarServicio(evento.getId());
     Reserva reserva = new Reserva(usuario, evento, tipoPago, serviciosDelEvento);
+    reserva.setContacto(contacto);
     repositorioReserva.guardar(reserva);
     return reserva;
   }
@@ -78,5 +84,11 @@ public class ServicioReservaImpl implements ServicioReserva {
       reserva.getUsuario().getId() != null &&
       Objects.equals(reserva.getUsuario().getId(), usuario.getId())
     );
+  }
+
+  @Override
+  public void cancelarReserva(Long idReserva, Usuario usuario) {
+    Reserva reserva = this.obtenerReservaDe(idReserva, usuario);
+    reserva.cancelar();
   }
 }

@@ -4,7 +4,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.tallerwebi.dominio.excepcion.ReservaNoCancelable;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -363,5 +365,133 @@ public class ReservaTest {
     reserva.registrarPago(3333.0);
 
     assertThat(reserva.calcularPorcentajeAbonado(), is(33));
+  }
+
+  @Test
+  public void unaReservaPendienteDePagoConEventoFuturoDebeAdmitirCancelacion() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.PENDIENTE_PAGO
+        );
+
+    assertThat(reserva.admiteCancelacion(), is(true));
+  }
+
+  @Test
+  public void unaReservaSeniadaOConfirmadaConEventoFuturoDebeAdmitirCancelacion() {
+    Reserva seniada =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.SENIADA
+        );
+    Reserva confirmada =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.CONFIRMADA
+        );
+
+    assertThat(seniada.admiteCancelacion(), is(true));
+    assertThat(confirmada.admiteCancelacion(), is(true));
+  }
+
+  @Test
+  public void unaReservaNoDebeAdmitirCancelacionElDiaDelEvento() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(LocalDate.now(), EstadoReserva.CONFIRMADA);
+
+    assertThat(reserva.admiteCancelacion(), is(false));
+  }
+
+  @Test
+  public void unaReservaNoDebeAdmitirCancelacionSiElEventoYaPaso() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.CONFIRMADA
+        );
+
+    assertThat(reserva.admiteCancelacion(), is(false));
+  }
+
+  @Test
+  public void unaReservaYaCanceladaOFinalizadaNoDebeAdmitirCancelacion() {
+    Reserva cancelada =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.CANCELADA
+        );
+    Reserva finalizada =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.FINALIZADA
+        );
+
+    assertThat(cancelada.admiteCancelacion(), is(false));
+    assertThat(finalizada.admiteCancelacion(), is(false));
+  }
+
+  @Test
+  public void alCancelarUnaReservaVigenteDebeQuedarCancelada() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.SENIADA
+        );
+
+    reserva.cancelar();
+
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.CANCELADA)));
+  }
+
+  @Test
+  public void noDebeCancelarseUnaReservaQueNoAdmiteCancelacion() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().minusDays(1),
+          EstadoReserva.CONFIRMADA
+        );
+
+    assertThrows(ReservaNoCancelable.class, reserva::cancelar);
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.CONFIRMADA)));
+  }
+
+  @Test
+  public void unPagoTardioNoDebeReactivarUnaReservaCancelada() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(10),
+          EstadoReserva.PENDIENTE_PAGO
+        );
+    reserva.setPresupuesto(100000.0);
+    reserva.setMontoAbonado(0.0);
+    reserva.cancelar();
+
+    reserva.registrarPago(30000.0);
+
+    assertThat(reserva.getEstado(), is(equalTo(EstadoReserva.CANCELADA)));
+    assertThat(reserva.getMontoAbonado(), is(closeTo(30000.0, 0.01)));
+  }
+
+  @Test
+  public void unaReservaDebeAdmitirCancelacionHastaElLimiteDeDiasMinimos() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(Reserva.DIAS_MINIMOS_PARA_CANCELAR),
+          EstadoReserva.SENIADA
+        );
+
+    assertThat(reserva.admiteCancelacion(), is(true));
+  }
+
+  @Test
+  public void unaReservaNoDebeAdmitirCancelacionConMenosDiasDeLosMinimos() {
+    Reserva reserva =
+      this.dadoQueTengoUnaReservaDeUnEventoDelDia(
+          LocalDate.now().plusDays(Reserva.DIAS_MINIMOS_PARA_CANCELAR - 1),
+          EstadoReserva.SENIADA
+        );
+
+    assertThat(reserva.admiteCancelacion(), is(false));
   }
 }

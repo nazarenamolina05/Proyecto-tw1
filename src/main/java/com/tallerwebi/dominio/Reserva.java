@@ -1,5 +1,7 @@
 package com.tallerwebi.dominio;
 
+import com.tallerwebi.dominio.excepcion.ReservaNoCancelable;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,6 +19,7 @@ public class Reserva {
   public static final double PORCENTAJE_SENIA = 0.30;
   private static final double TOLERANCIA = 0.01;
   private static final int CIEN_POR_CIENTO = 100;
+  public static final int DIAS_MINIMOS_PARA_CANCELAR = 7;
 
   public Reserva() {}
 
@@ -61,8 +64,12 @@ public class Reserva {
   private TipoPago tipoPago;
 
   private Double montoAbonado;
-  private String nombreContacto;
-  private String telefonoContacto;
+
+  // Datos de contacto que carga el usuario al reservar.
+  // cascade PERSIST: al guardar la reserva se guarda también su contacto
+  // (el contacto se crea junto con la reserva y no existe sin ella).
+  @OneToOne(cascade = CascadeType.PERSIST)
+  private ContactoReserva contacto;
 
   public Double calcularSaldoPendiente() {
     if (presupuesto == null || montoAbonado == null) {
@@ -78,6 +85,10 @@ public class Reserva {
   public void registrarPago(Double monto) {
     double abonadoHastaAhora = montoAbonado == null ? 0.0 : montoAbonado;
     this.montoAbonado = abonadoHastaAhora + monto;
+    if (estado == EstadoReserva.CANCELADA) {
+      // un pago que se acredita tarde se registra, pero no reactiva una reserva cancelada
+      return;
+    }
     this.estado =
       calcularSaldoPendiente() < TOLERANCIA ? EstadoReserva.CONFIRMADA : EstadoReserva.SENIADA;
   }
@@ -100,6 +111,24 @@ public class Reserva {
         estado == EstadoReserva.CONFIRMADA ||
         estado == EstadoReserva.FINALIZADA)
     );
+  }
+
+  public boolean admiteCancelacion() {
+    return (
+      evento != null &&
+      evento.getFecha() != null &&
+      !evento.getFecha().isBefore(LocalDate.now().plusDays(DIAS_MINIMOS_PARA_CANCELAR)) &&
+      (estado == EstadoReserva.PENDIENTE_PAGO ||
+        estado == EstadoReserva.SENIADA ||
+        estado == EstadoReserva.CONFIRMADA)
+    );
+  }
+
+  public void cancelar() {
+    if (!admiteCancelacion()) {
+      throw new ReservaNoCancelable();
+    }
+    this.estado = EstadoReserva.CANCELADA;
   }
 
   public int calcularPorcentajeAbonado() {
@@ -166,19 +195,11 @@ public class Reserva {
     this.montoAbonado = montoAbonado;
   }
 
-  public String getNombreContacto() {
-    return nombreContacto;
+  public ContactoReserva getContacto() {
+    return contacto;
   }
 
-  public void setNombreContacto(String nombreContacto) {
-    this.nombreContacto = nombreContacto;
-  }
-
-  public String getTelefonoContacto() {
-    return telefonoContacto;
-  }
-
-  public void setTelefonoContacto(String telefonoContacto) {
-    this.telefonoContacto = telefonoContacto;
+  public void setContacto(ContactoReserva contacto) {
+    this.contacto = contacto;
   }
 }

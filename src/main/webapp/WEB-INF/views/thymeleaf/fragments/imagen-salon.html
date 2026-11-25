@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Foto del salón de un paquete. Se elige por el nombre del salón (los de data.sql);
+     cualquier otro salón usa la foto genérica salon.jpg.
+     Uso: th:replace="~{fragments/imagen-salon :: imagenSalon(${paquete.salon}, 'pack-card-img', ${paquete.nombre})}" -->
+<img th:fragment="imagenSalon(salon, clase, textoAlternativo)"
+     th:with="nombreSalon=${salon != null ? salon.nombre : ''},
+              archivo=${nombreSalon == 'Salon Gran Bahia' ? 'salon-1.jpg'
+                      : (nombreSalon == 'Salon Jardin del Sol' ? 'salon-al-aire-libre.jpg'
+                      : (nombreSalon == 'Salon Los Alamos' ? 'salon-pequenio.jpg' : 'salon.jpg'))}"
+     th:src="@{'/img/' + ${archivo}}"
+     th:class="${clase}"
+     th:alt="${textoAlternativo}"
+     loading="lazy"/>
+
+</body>
+</html>
