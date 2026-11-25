@@ -1,9 +1,6 @@
 package com.tallerwebi.dominio;
 
-import com.tallerwebi.dominio.excepcion.AbonoNoPermitido;
-import com.tallerwebi.dominio.excepcion.MontoDeAbonoInvalido;
-import com.tallerwebi.dominio.excepcion.PagoNoCoincide;
-import com.tallerwebi.dominio.excepcion.PagoNoEncontrado;
+import com.tallerwebi.dominio.excepcion.*;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +28,9 @@ public class ServicioPagoImpl implements ServicioPago {
   @Override
   public String iniciarPago(Long reservaId, Usuario usuario) {
     Reserva reserva = servicioReserva.obtenerReservaDe(reservaId, usuario);
+    if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+      throw new ReservaCancelada();
+    }
     return this.crearPagoPendiente(reserva, reserva.getTipoPago(), reserva.calcularMontoAPagar());
   }
 

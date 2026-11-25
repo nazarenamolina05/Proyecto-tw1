@@ -19,6 +19,8 @@ public class ControladorLogin {
 
   public static final String DESTINO_POST_LOGIN = "DESTINO_POST_LOGIN";
   private static final String HOME = "/home-eventos";
+  private static final String VISTA_NUEVO_USUARIO = "nuevo-usuario";
+  private static final String DATOS_REGISTRO = "datosRegistro";
 
   private ServicioLogin servicioLogin;
 
@@ -50,22 +52,25 @@ public class ControladorLogin {
       return new ModelAndView("redirect:" + obtenerDestinoTrasLogin(session));
     } else {
       Map<String, Object> model = new ModelMap();
-      model.put("error", "Usuario o clave incorrecta");
+      model.put("error", "El email o la contraseña no son correctos");
       return new ModelAndView("login", model);
     }
   }
 
   @RequestMapping(path = "/registrarme", method = RequestMethod.POST)
-  public ModelAndView registrarme(@ModelAttribute("usuario") Usuario usuario) {
-    Map<String, Object> model = new ModelMap();
+  public ModelAndView registrarme(@ModelAttribute("datosRegistro") DatosRegistro datosRegistro) {
+    if (!datosRegistro.passwordsCoinciden()) {
+      return volverARegistro(datosRegistro, "Las contraseñas no coinciden");
+    }
     try {
-      servicioLogin.registrar(usuario);
+      servicioLogin.registrar(crearUsuario(datosRegistro));
     } catch (UsuarioExistente e) {
-      model.put("error", "El usuario ya existe");
-      return new ModelAndView("nuevo-usuario", model);
+      return volverARegistro(datosRegistro, "Ya hay una cuenta con ese email");
     } catch (Exception e) {
-      model.put("error", "Error al registrar el nuevo usuario");
-      return new ModelAndView("nuevo-usuario", model);
+      return volverARegistro(
+        datosRegistro,
+        "No se pudo crear la cuenta. Probá de nuevo en unos minutos"
+      );
     }
     return new ModelAndView("redirect:/login");
   }
@@ -73,18 +78,29 @@ public class ControladorLogin {
   @RequestMapping(path = "/nuevo-usuario", method = RequestMethod.GET)
   public ModelAndView nuevoUsuario() {
     Map<String, Object> model = new ModelMap();
-    model.put("usuario", new Usuario());
-    return new ModelAndView("nuevo-usuario", model);
+    model.put(DATOS_REGISTRO, new DatosRegistro());
+    return new ModelAndView(VISTA_NUEVO_USUARIO, model);
   }
 
-  @RequestMapping(path = "/home", method = RequestMethod.GET)
-  public ModelAndView irAHome() {
-    return new ModelAndView("home");
+  // Se copian solo email y password: rol y activo los decide la aplicación, no el form.
+  private Usuario crearUsuario(DatosRegistro datosRegistro) {
+    Usuario usuario = new Usuario();
+    usuario.setEmail(datosRegistro.getEmail());
+    usuario.setPassword(datosRegistro.getPassword());
+    return usuario;
   }
 
+  private ModelAndView volverARegistro(DatosRegistro datosRegistro, String error) {
+    Map<String, Object> model = new ModelMap();
+    model.put(DATOS_REGISTRO, datosRegistro);
+    model.put("error", error);
+    return new ModelAndView(VISTA_NUEVO_USUARIO, model);
+  }
+
+  // La raíz del sitio lleva al home de eventos, que se puede ver sin estar logueado.
   @RequestMapping(path = "/", method = RequestMethod.GET)
   public ModelAndView inicio() {
-    return new ModelAndView("redirect:/login");
+    return new ModelAndView("redirect:" + HOME);
   }
 
   // si alguien nos mandó al login desde otra pantalla, vuelve ahí; si no, al home

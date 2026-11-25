@@ -45,7 +45,7 @@ public class ControladorLoginTest {
   }
 
   @Test
-  public void debeRetornarLaPaginaLoginCuandoSeNavegaALaRaiz() throws Exception {
+  public void debeRedirigirAlHomeDeEventosCuandoSeNavegaALaRaiz() throws Exception {
     MvcResult result =
       this.mockMvc.perform(get("/"))
         /*.andDo(print())*/
@@ -55,7 +55,7 @@ public class ControladorLoginTest {
     ModelAndView modelAndView = result.getModelAndView();
     assert modelAndView != null;
     assertThat(
-      "redirect:/login",
+      "redirect:/home-eventos",
       equalToIgnoringCase(Objects.requireNonNull(modelAndView.getViewName()))
     );
     assertThat(true, is(modelAndView.getModel().isEmpty()));

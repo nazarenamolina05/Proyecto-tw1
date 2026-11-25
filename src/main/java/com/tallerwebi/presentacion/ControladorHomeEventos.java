@@ -2,6 +2,7 @@ package com.tallerwebi.presentacion;
 
 import com.tallerwebi.dominio.Paquete;
 import com.tallerwebi.dominio.ServicioConsultarPaquetesPredeterminados;
+import com.tallerwebi.dominio.TipoPaquete;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,8 @@ public class ControladorHomeEventos {
     modelo.put("paquetes", paquetes);
     // [REFACTOR PAQUETE] paquete-card.html lee los servicios de este mapa.
     modelo.put("serviciosPorPaquete", servicio.consultarServiciosPorPaquete(paquetes));
+    // Opciones del buscador: salen del enum para no repetirlas a mano en el HTML.
+    modelo.put("tiposDeEvento", TipoPaquete.values());
     return new ModelAndView("home-eventos", modelo);
   }
 }

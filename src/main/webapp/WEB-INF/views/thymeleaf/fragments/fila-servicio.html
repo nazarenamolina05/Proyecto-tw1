@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Fila de un servicio en evento-personalizado.html.
+     incluido = true si el servicio viene en el paquete de origen.
+     Usa del modelo: evento, serviciosElegidosIds y sugeridosIds.
+     El interruptor es el botón de un form: hace POST a agregar o quitar según el estado. -->
+<div class="fila-servicio" th:fragment="filaServicio(servicio, incluido)"
+     th:with="activo=${serviciosElegidosIds.contains(servicio.id)},
+              costo=${#numbers.formatDecimal(servicio.calcularCosto(evento.cantidadInvitados), 0, 'POINT', 0, 'COMMA')}"
+     th:classappend="${activo and !incluido} ? 'fila-agregada' : (${incluido and !activo} ? 'fila-quitada')">
+    <div class="fila-texto">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span class="fila-nombre" th:text="${servicio.nombre}">DJ</span>
+            <span th:if="${incluido}" class="etiqueta etiqueta-incluido">Incluido</span>
+            <span th:if="${!incluido and sugeridosIds.contains(servicio.id)}" class="etiqueta etiqueta-sugerido"
+                  th:text="'Sugerido para ' + ${evento.tipoPaquete.etiqueta}">Sugerido</span>
+        </div>
+        <span class="fila-detalle"
+              th:text="${servicio.precioPorInvitado} ? '$ ' + ${#numbers.formatDecimal(servicio.precio, 0, 'POINT', 0, 'COMMA')} + ' por invitado' : 'Precio fijo'">Precio fijo</span>
+        <span th:if="${incluido and !activo}" class="fila-nota fila-nota-quitado"
+              th:text="'Lo quitaste del paquete · - $ ' + ${costo}"></span>
+        <span th:if="${!incluido and activo}" class="fila-nota"
+              th:text="'Agregado · + $ ' + ${costo}"></span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <span class="fila-costo" th:classappend="${!activo} ? 'inactivo'" th:text="'$ ' + ${costo}">$ 0</span>
+        <form method="post" class="m-0"
+              th:action="${activo} ? @{/evento-personalizado/servicio/quitar} : @{/evento-personalizado/servicio/agregar}">
+            <input type="hidden" name="id" th:value="${servicio.id}"/>
+            <button type="submit" class="interruptor" th:classappend="${activo} ? 'activo'"
+                    th:attr="aria-pressed=${activo}, aria-label=(${activo} ? 'Quitar ' : 'Agregar ') + ${servicio.nombre}">
+                <span class="interruptor-bolita"></span>
+            </button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>
