@@ -14,6 +14,15 @@ public interface ServicioEvento {
     Integer cantidadInvitados
   );
 
+  Evento crearEventoDesdeArmadoAutomatico(
+    TipoPaquete tipoPaquete,
+    LocalDate fecha,
+    Integer cantidadInvitados,
+    ResultadoArmado resultado
+  );
+
+  void aplicarArmado(Evento evento, ResultadoArmado resultado);
+
   // [REFACTOR EVENTO] Antes el controlador hacía los set directamente sobre el evento.
   void actualizarDatos(
     Evento evento,

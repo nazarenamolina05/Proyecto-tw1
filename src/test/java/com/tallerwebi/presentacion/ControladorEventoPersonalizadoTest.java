@@ -46,6 +46,7 @@ public class ControladorEventoPersonalizadoTest {
   private static final String PAQUETE_PENDIENTE = "paqueteAModificar";
   private static final String ERROR_PAQUETE = "errorPaquete";
   private ServicioValidarSeleccionPaquete servicioValidacion;
+  private ServicioArmadoAutomatico servicioArmadoAutomaticoMock;
 
   @BeforeEach
   public void init() {
@@ -54,6 +55,7 @@ public class ControladorEventoPersonalizadoTest {
     servicioPaquetes = mock(ServicioConsultarPaquetesPredeterminados.class);
     servicioDisponibilidadSalon = mock(ServicioDisponibilidadSalon.class);
     servicioValidacion = mock(ServicioValidarSeleccionPaquete.class);
+    servicioArmadoAutomaticoMock = mock(ServicioArmadoAutomatico.class);
 
     controlador =
       new ControladorEventoPersonalizado(
@@ -61,7 +63,8 @@ public class ControladorEventoPersonalizadoTest {
         servicioSugerenciaServicios,
         servicioPaquetes,
         servicioDisponibilidadSalon,
-        servicioValidacion
+        servicioValidacion,
+        servicioArmadoAutomaticoMock
       );
 
     sesion = mock(HttpSession.class);

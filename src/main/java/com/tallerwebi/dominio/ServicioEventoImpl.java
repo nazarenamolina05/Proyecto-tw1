@@ -59,6 +59,46 @@ public class ServicioEventoImpl implements ServicioEvento {
   }
 
   @Override
+  public Evento crearEventoDesdeArmadoAutomatico(
+    TipoPaquete tipoPaquete,
+    LocalDate fecha,
+    Integer cantidadInvitados,
+    ResultadoArmado resultado
+  ) {
+    if (resultado.getTipoResultado() != TipoResultado.ARMADO) {
+      throw new IllegalArgumentException("Solo se puede crear un evento desde un armado exitoso");
+    }
+
+    Evento evento = new Evento(tipoPaquete, fecha, cantidadInvitados);
+    evento.setSalon(resultado.getSalon());
+    evento.setCatering(resultado.getCatering());
+    repositorioEvento.guardar(evento);
+
+    for (ServicioAdicional servicio : resultado.getServicioAdicional()) {
+      repositorioEvento.agregarServicio(evento, servicio);
+    }
+
+    return evento;
+  }
+
+  @Override
+  public void aplicarArmado(Evento evento, ResultadoArmado resultado) {
+    if (resultado.getTipoResultado() != TipoResultado.ARMADO) {
+      throw new IllegalArgumentException("Solo se puede aplicar un armado exitoso");
+    }
+
+    elegirSalon(evento, resultado.getSalon().getId());
+    elegirCatering(evento, resultado.getCatering().getId());
+
+    for (ServicioAdicional actual : obtenerServiciosDe(evento)) {
+      quitarServicio(evento, actual.getId());
+    }
+    for (ServicioAdicional nuevo : resultado.getServicioAdicional()) {
+      agregarServicio(evento, nuevo.getId());
+    }
+  }
+
+  @Override
   public void actualizarDatos(
     Evento evento,
     TipoPaquete tipoPaquete,

@@ -241,6 +241,165 @@ public class ServicioEventoTest {
     assertThat(evento.getSalon(), equalTo(grande));
   }
 
+  @Test
+  void alCrearUnEventoDesdeElArmadoAutomaticoDeberiaGuardarloConElSalonYElCateringElegidos() {
+    Salon salon = new Salon("Salon Los Alamos", 80000.0);
+    Catering catering = new Catering("Catering basico", 3000.0);
+    ResultadoArmado resultado = new ResultadoArmado(
+      TipoResultado.ARMADO,
+      salon,
+      catering,
+      List.of()
+    );
+    LocalDate fecha = LocalDate.now().plusMonths(2);
+
+    Evento evento = servicioEvento.crearEventoDesdeArmadoAutomatico(
+      TipoPaquete.CUMPLEANIOS,
+      fecha,
+      30,
+      resultado
+    );
+
+    verify(repositorioEventoMock).guardar(evento);
+    assertThat(evento.getTipoPaquete(), equalTo(TipoPaquete.CUMPLEANIOS));
+    assertThat(evento.getFecha(), equalTo(fecha));
+    assertThat(evento.getCantidadInvitados(), equalTo(30));
+    assertThat(evento.getSalon(), equalTo(salon));
+    assertThat(evento.getCatering(), equalTo(catering));
+    assertThat(evento.getPaqueteOrigen(), is(nullValue()));
+  }
+
+  @Test
+  void alCrearUnEventoDesdeElArmadoAutomaticoDeberiaAgregarCadaServicioElegido() {
+    ServicioAdicional animacion = new ServicioAdicional(
+      "Animacion",
+      20000.0,
+      false,
+      CategoriaServicio.ANIMACION
+    );
+    ServicioAdicional dj = new ServicioAdicional("DJ", 15000.0, false, CategoriaServicio.DJ);
+    ResultadoArmado resultado = new ResultadoArmado(
+      TipoResultado.ARMADO,
+      new Salon("Salon Los Alamos", 80000.0),
+      new Catering("Catering basico", 3000.0),
+      List.of(animacion, dj)
+    );
+
+    Evento evento = servicioEvento.crearEventoDesdeArmadoAutomatico(
+      TipoPaquete.CUMPLEANIOS,
+      LocalDate.now().plusMonths(2),
+      30,
+      resultado
+    );
+
+    verify(repositorioEventoMock).agregarServicio(evento, animacion);
+    verify(repositorioEventoMock).agregarServicio(evento, dj);
+  }
+
+  @Test
+  void alCrearUnEventoDesdeElArmadoAutomaticoSinServiciosNoDeberiaAgregarNinguno() {
+    ResultadoArmado resultado = new ResultadoArmado(
+      TipoResultado.ARMADO,
+      new Salon("Salon Los Alamos", 80000.0),
+      new Catering("Catering basico", 3000.0),
+      List.of()
+    );
+
+    servicioEvento.crearEventoDesdeArmadoAutomatico(
+      TipoPaquete.CUMPLEANIOS,
+      LocalDate.now().plusMonths(2),
+      30,
+      resultado
+    );
+
+    verify(repositorioEventoMock, never()).agregarServicio(any(), any());
+  }
+
+  @Test
+  void noDeberiaCrearUnEventoSiElResultadoDelArmadoNoFueExitoso() {
+    ResultadoArmado resultado = new ResultadoArmado(TipoResultado.SIN_DISPONIBILIDAD, null);
+
+    assertThrows(
+      IllegalArgumentException.class,
+      () ->
+        servicioEvento.crearEventoDesdeArmadoAutomatico(
+          TipoPaquete.CUMPLEANIOS,
+          LocalDate.now().plusMonths(2),
+          30,
+          resultado
+        )
+    );
+    verify(repositorioEventoMock, never()).guardar(any());
+  }
+
+  @Test
+  void alAplicarUnArmadoDeberiaAsignarAlEventoElSalonYElCateringElegidos() {
+    Evento evento = this.dadoQueExisteUnEventoConId(10L);
+    Salon salon = new Salon("Salon Los Alamos", 80000.0);
+    salon.setId(1L);
+    Catering catering = new Catering("Catering basico", 3000.0);
+    catering.setId(2L);
+    when(repositorioSalonMock.buscarPorId(1L)).thenReturn(salon);
+    when(repositorioCateringMock.buscarPorId(2L)).thenReturn(catering);
+    ResultadoArmado resultado = new ResultadoArmado(
+      TipoResultado.ARMADO,
+      salon,
+      catering,
+      List.of()
+    );
+
+    servicioEvento.aplicarArmado(evento, resultado);
+
+    assertThat(evento.getSalon(), equalTo(salon));
+    assertThat(evento.getCatering(), equalTo(catering));
+  }
+
+  @Test
+  void alAplicarUnArmadoDeberiaReemplazarLosServiciosQueTeniaElEvento() {
+    Evento evento = this.dadoQueExisteUnEventoConId(10L);
+    Salon salon = new Salon("Salon Los Alamos", 80000.0);
+    salon.setId(1L);
+    Catering catering = new Catering("Catering basico", 3000.0);
+    catering.setId(2L);
+    ServicioAdicional viejo = new ServicioAdicional("DJ", 40000.0, false);
+    viejo.setId(5L);
+    ServicioAdicional nuevo = new ServicioAdicional(
+      "Animacion",
+      20000.0,
+      false,
+      CategoriaServicio.ANIMACION
+    );
+    nuevo.setId(6L);
+    when(repositorioSalonMock.buscarPorId(1L)).thenReturn(salon);
+    when(repositorioCateringMock.buscarPorId(2L)).thenReturn(catering);
+    when(repositorioEventoMock.buscarServicio(10L)).thenReturn(List.of(viejo));
+    when(repositorioEventoMock.tieneServicio(10L, 5L)).thenReturn(true);
+    when(repositorioServicioAdicionalMock.buscarPorId(6L)).thenReturn(nuevo);
+    ResultadoArmado resultado = new ResultadoArmado(
+      TipoResultado.ARMADO,
+      salon,
+      catering,
+      List.of(nuevo)
+    );
+
+    servicioEvento.aplicarArmado(evento, resultado);
+
+    verify(repositorioEventoMock).quitarServicio(10L, 5L);
+    verify(repositorioEventoMock).agregarServicio(evento, nuevo);
+  }
+
+  @Test
+  void noDeberiaAplicarUnArmadoQueNoFueExitoso() {
+    Evento evento = this.dadoQueExisteUnEventoConId(10L);
+    ResultadoArmado resultado = new ResultadoArmado(TipoResultado.SIN_DISPONIBILIDAD, null);
+
+    assertThrows(
+      IllegalArgumentException.class,
+      () -> servicioEvento.aplicarArmado(evento, resultado)
+    );
+    verify(repositorioEventoMock, never()).actualizar(any());
+  }
+
   // [REFACTOR EVENTO] Los servicios se guardan en EventoServicio, que necesita el id del
   // evento: por eso los eventos de estos tests tienen id (como si ya estuvieran guardados).
   private Evento dadoQueExisteUnEventoConId(Long id) {

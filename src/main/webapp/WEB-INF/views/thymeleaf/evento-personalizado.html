@@ -126,6 +126,196 @@
 
                 <div class="col-12 col-lg-8">
 
+                    <!-- ARMADO AUTOMÁTICO -->
+<!--                    <div class="armado-auto mb-5"-->
+<!--                         th:with="recordado=${session.armadoEventoId != null and session.armadoEventoId == evento.id}">-->
+
+<!--                        <h2 class="armado-auto-titulo"><i class="bi bi-stars me-2"></i>¿Preferís que lo armemos por vos?</h2>-->
+<!--                        <p class="armado-auto-texto">-->
+<!--                            Decinos cuánto querés gastar como máximo y qué es más importante para vos.-->
+<!--                            Nosotros elegimos salón, catering y servicios sin pasarnos del presupuesto.-->
+<!--                        </p>-->
+
+<!--                        <div th:if="${errorArmado != null}" class="alert alert-warning mt-3 mb-0" role="alert"-->
+<!--                             th:text="${errorArmado}">Error</div>-->
+
+<!--                        &lt;!&ndash; Lo básico: una sola franja compacta &ndash;&gt;-->
+<!--                        <div class="armado-minimo" th:if="${minimoEstimado != null}">-->
+<!--                            <h3 class="armado-minimo-titulo">-->
+<!--                                Lo básico para <span th:text="${evento.cantidadInvitados}">0</span> invitados-->
+<!--                            </h3>-->
+<!--                            <div class="armado-minimo-item">-->
+<!--                                <span>Salón más económico</span>-->
+<!--                                <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.salon, 0, 'POINT', 0, 'COMMA')}">0</span></strong>-->
+<!--                            </div>-->
+<!--                            <div class="armado-minimo-item">-->
+<!--                                <span>Catering más económico</span>-->
+<!--                                <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.catering, 0, 'POINT', 0, 'COMMA')}">0</span></strong>-->
+<!--                            </div>-->
+<!--                            <div class="armado-minimo-item armado-minimo-total">-->
+<!--                                <span>Presupuesto mínimo</span>-->
+<!--                                <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.total, 0, 'POINT', 0, 'COMMA')}">0</span></strong>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="armado-minimo armado-minimo-vacio" th:unless="${minimoEstimado != null}">-->
+<!--                            <p class="mb-0"-->
+<!--                               th:text="${errorFecha != null} ? 'Elegí una fecha posterior a hoy para calcular el mínimo.' : 'No hay salones o caterings disponibles para esa fecha y esa cantidad de invitados.'">-->
+<!--                                Sin disponibilidad-->
+<!--                            </p>-->
+<!--                        </div>-->
+
+<!--                        &lt;!&ndash; Formulario: campo + prioridad + botón en una sola fila &ndash;&gt;-->
+<!--                        <form id="formArmado" th:action="@{/evento-personalizado/armado-automatico}" method="post"-->
+<!--                              th:data-minimo="${minimoEstimado != null} ? ${minimoEstimado.total} : 0">-->
+
+<!--                            <div class="row g-3 align-items-start">-->
+
+<!--                                <div class="col-12 col-md-4">-->
+<!--                                    <label for="presupuestoVisible" class="form-label armado-etiqueta">Presupuesto máximo</label>-->
+<!--                                    <div class="input-group">-->
+<!--                                        <span class="input-group-text">$</span>-->
+<!--                                        <input type="text" inputmode="numeric" autocomplete="off" class="form-control"-->
+<!--                                               id="presupuestoVisible" required-->
+<!--                                               th:placeholder="${minimoEstimado != null} ? ${#numbers.formatDecimal(minimoEstimado.total, 0, 'POINT', 0, 'COMMA')} : 'Ingresá un monto'"-->
+<!--                                               th:value="${recordado} ? ${#numbers.formatDecimal(session.armadoPresupuesto, 0, 'POINT', 0, 'COMMA')} : ''"/>-->
+<!--                                    </div>-->
+<!--                                    <input type="hidden" id="presupuestoMaximo" name="presupuestoMaximo"/>-->
+<!--                                </div>-->
+
+<!--                                <div class="col-12 col-md-3">-->
+<!--                                    <label for="prioridad" class="form-label armado-etiqueta">¿Qué priorizás?</label>-->
+<!--                                    <select class="form-select" id="prioridad" name="prioridad" required>-->
+<!--                                        <option value="SALON"-->
+<!--                                                th:selected="${!recordado or session.armadoPrioridad.name() == 'SALON'}">El salón</option>-->
+<!--                                        <option value="CATERING"-->
+<!--                                                th:selected="${recordado and session.armadoPrioridad.name() == 'CATERING'}">El catering</option>-->
+<!--                                    </select>-->
+<!--                                </div>-->
+
+<!--                                <div class="col-12 col-md-5">-->
+<!--                                    &lt;!&ndash; Etiqueta invisible: baja el botón para que quede a la altura de los campos &ndash;&gt;-->
+<!--                                    <label class="form-label armado-etiqueta invisible d-none d-md-block" aria-hidden="true">&nbsp;</label>-->
+<!--                                    <button type="submit" class="btn btn-pack w-100 rounded-pill"-->
+<!--                                            th:disabled="${minimoEstimado == null}">-->
+<!--                                        <i class="bi bi-magic me-1"></i>Armar automáticamente-->
+<!--                                    </button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+
+<!--                            &lt;!&ndash; Mensaje dinámico (lo completa el JS: te faltan / te sobran) &ndash;&gt;-->
+<!--                            <p id="presupuestoAyuda" class="armado-ayuda"></p>-->
+
+<!--                            <p class="armado-auto-nota">-->
+<!--                                Elegimos primero lo que priorices y el resto se ajusta a lo que sobre.-->
+<!--                                Reemplaza el salón, el catering y los servicios que ya hayas elegido.-->
+<!--                            </p>-->
+<!--                        </form>-->
+<!--                    </div>-->
+
+                    <details class="armado-auto mb-5"
+                             th:with="recordado=${session.armadoEventoId != null and session.armadoEventoId == evento.id}"
+                             th:open="${recordado or errorArmado != null}">
+
+                        <summary class="armado-resumen">
+                            <span class="armado-resumen-ico"><i class="bi bi-stars"></i></span>
+
+                            <span class="armado-resumen-texto">
+            <h2 class="armado-auto-titulo">¿Preferís que lo armemos por vos?</h2>
+            <span class="armado-auto-texto armado-texto-corto">
+                Indicá tu presupuesto y elegimos salón, catering y servicios.
+            </span>
+            <span class="armado-auto-texto armado-texto-largo">
+                Decinos cuánto querés gastar como máximo y qué es más importante para vos.
+                Nosotros elegimos salón, catering y servicios sin pasarnos del presupuesto.
+            </span>
+        </span>
+
+                            <span class="armado-toggle">
+            <span class="armado-toggle-abrir">Armar por presupuesto</span>
+            <span class="armado-toggle-cerrar">Ocultar</span>
+            <i class="bi bi-chevron-down armado-chevron"></i>
+        </span>
+                        </summary>
+
+                        <div class="armado-cuerpo">
+
+                            <div th:if="${errorArmado != null}" class="alert alert-warning mb-3" role="alert"
+                                 th:text="${errorArmado}">Error</div>
+
+                            <!-- Lo básico: una sola franja compacta -->
+                            <div class="armado-minimo" th:if="${minimoEstimado != null}">
+                                <h3 class="armado-minimo-titulo">
+                                    Lo básico para <span th:text="${evento.cantidadInvitados}">0</span> invitados
+                                </h3>
+                                <div class="armado-minimo-item">
+                                    <span>Salón más económico</span>
+                                    <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.salon, 0, 'POINT', 0, 'COMMA')}">0</span></strong>
+                                </div>
+                                <div class="armado-minimo-item">
+                                    <span>Catering más económico</span>
+                                    <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.catering, 0, 'POINT', 0, 'COMMA')}">0</span></strong>
+                                </div>
+                                <div class="armado-minimo-item armado-minimo-total">
+                                    <span>Presupuesto mínimo</span>
+                                    <strong>$ <span th:text="${#numbers.formatDecimal(minimoEstimado.total, 0, 'POINT', 0, 'COMMA')}">0</span></strong>
+                                </div>
+                            </div>
+                            <div class="armado-minimo armado-minimo-vacio" th:unless="${minimoEstimado != null}">
+                                <p class="mb-0"
+                                   th:text="${errorFecha != null} ? 'Elegí una fecha posterior a hoy para calcular el mínimo.' : 'No hay salones o caterings disponibles para esa fecha y esa cantidad de invitados.'">
+                                    Sin disponibilidad
+                                </p>
+                            </div>
+
+                            <!-- Formulario: campo + prioridad + botón en una sola fila -->
+                            <form id="formArmado" th:action="@{/evento-personalizado/armado-automatico}" method="post"
+                                  th:data-minimo="${minimoEstimado != null} ? ${minimoEstimado.total} : 0">
+
+                                <div class="row g-3 align-items-start">
+
+                                    <div class="col-12 col-md-4">
+                                        <label for="presupuestoVisible" class="form-label armado-etiqueta">Presupuesto máximo</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="text" inputmode="numeric" autocomplete="off" class="form-control"
+                                                   id="presupuestoVisible" required
+                                                   th:placeholder="${minimoEstimado != null} ? ${#numbers.formatDecimal(minimoEstimado.total, 0, 'POINT', 0, 'COMMA')} : 'Ingresá un monto'"
+                                                   th:value="${recordado} ? ${#numbers.formatDecimal(session.armadoPresupuesto, 0, 'POINT', 0, 'COMMA')} : ''"/>
+                                        </div>
+                                        <input type="hidden" id="presupuestoMaximo" name="presupuestoMaximo"/>
+                                    </div>
+
+                                    <div class="col-12 col-md-3">
+                                        <label for="prioridad" class="form-label armado-etiqueta">¿Qué priorizás?</label>
+                                        <select class="form-select" id="prioridad" name="prioridad" required>
+                                            <option value="SALON"
+                                                    th:selected="${!recordado or session.armadoPrioridad.name() == 'SALON'}">El salón</option>
+                                            <option value="CATERING"
+                                                    th:selected="${recordado and session.armadoPrioridad.name() == 'CATERING'}">El catering</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-12 col-md-5">
+                                        <!-- Etiqueta invisible: baja el botón para que quede a la altura de los campos -->
+                                        <label class="form-label armado-etiqueta invisible d-none d-md-block" aria-hidden="true">&nbsp;</label>
+                                        <button type="submit" class="btn btn-pack w-100"
+                                                th:disabled="${minimoEstimado == null}">
+                                            <i class="bi bi-magic me-1"></i>Armar automáticamente
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Mensaje dinámico (lo completa el JS: te faltan / te sobran) -->
+                                <p id="presupuestoAyuda" class="armado-ayuda"></p>
+
+                                <p class="armado-auto-nota">
+                                    Elegimos primero lo que priorices y el resto se ajusta a lo que sobre.
+                                    Reemplaza el salón, el catering y los servicios que ya hayas elegido.
+                                </p>
+                            </form>
+                        </div>
+                    </details>
+
                     <!-- SALONES -->
                     <div class="mb-3">
                         <h2 class="fw-bold mb-1">Salón</h2>
@@ -335,6 +525,52 @@
             sessionStorage.removeItem(KEY);
             window.scrollTo({top: parseInt(y, 10), left: 0, behavior: 'instant'});
         }
+    })();
+</script>
+
+
+<script>
+    (function () {
+        var form = document.getElementById('formArmado');
+        var visible = document.getElementById('presupuestoVisible');
+        var oculto = document.getElementById('presupuestoMaximo');
+        var ayuda = document.getElementById('presupuestoAyuda');
+        if (!form || !visible || !oculto || !ayuda) {
+            return;
+        }
+
+        var minimo = Math.ceil(parseFloat(form.dataset.minimo)) || 0;
+
+        function conPuntos(numero) {
+            return String(numero).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function actualizar() {
+            var digitos = visible.value.replace(/\D/g, '').replace(/^0+/, '');
+            var valor = digitos === '' ? 0 : parseInt(digitos, 10);
+
+            visible.value = digitos === '' ? '' : conPuntos(digitos);
+            oculto.value = digitos;
+
+            if (valor === 0) {
+                ayuda.textContent = 'Tiene que ser de al menos $ ' + conPuntos(minimo) + '.';
+                ayuda.className = 'armado-ayuda';
+                visible.setCustomValidity('');
+            } else if (valor < minimo) {
+                ayuda.textContent = 'Te faltan $ ' + conPuntos(minimo - valor)
+                    + ' para cubrir el salón y el catering más económicos.';
+                ayuda.className = 'armado-ayuda armado-ayuda-falta';
+                visible.setCustomValidity('El presupuesto tiene que ser de al menos $ ' + conPuntos(minimo));
+            } else {
+                ayuda.textContent = 'Tenés $ ' + conPuntos(valor - minimo)
+                    + ' por encima de lo básico para mejorar el salón o el catering y sumar servicios.';
+                ayuda.className = 'armado-ayuda armado-ayuda-ok';
+                visible.setCustomValidity('');
+            }
+        }
+
+        visible.addEventListener('input', actualizar);
+        actualizar();
     })();
 </script>
 

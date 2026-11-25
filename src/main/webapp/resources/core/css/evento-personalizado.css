@@ -275,3 +275,309 @@ body {
         transition: none;
     }
 }
+
+.armado-auto {
+    background: #fff;
+    border: 1px solid #e2d6fb;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 1px 2px rgba(26, 16, 82, 0.04);
+}
+
+/* ---------- Barra (summary) ----------
+   Los selectores son largos a propósito: en este archivo ya existe una regla
+   ".seccion-clara details > summary" que le da forma de pastilla a todos los
+   desplegables, y acá la tenemos que anular. */
+
+.seccion-clara details.armado-auto > summary.armado-resumen {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    transform: none;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.seccion-clara details.armado-auto > summary.armado-resumen::-webkit-details-marker {
+    display: none;
+}
+
+.seccion-clara details.armado-auto > summary.armado-resumen::before {
+    content: none;
+}
+
+.seccion-clara details.armado-auto > summary.armado-resumen:hover {
+    background: transparent;
+    transform: none;
+    box-shadow: none;
+}
+
+.seccion-clara details.armado-auto > summary.armado-resumen:focus-visible {
+    outline: 3px solid rgba(109, 63, 214, 0.45);
+    outline-offset: 6px;
+    border-radius: 12px;
+}
+
+.armado-resumen-ico {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #f3eeff;
+    color: #6d3fd6;
+    font-size: 1.15rem;
+}
+
+.armado-resumen-texto {
+    flex: 1;
+    min-width: 0;
+}
+
+.armado-auto-titulo {
+    margin: 0;
+    color: #1a1052;
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.armado-auto-texto {
+    display: block;
+    margin: 0.15rem 0 0;
+    color: #8a82a8;
+    font-size: 0.88rem;
+    line-height: 1.35;
+}
+
+/* Cerrado: texto corto. Abierto: texto completo. */
+.armado-texto-largo {
+    display: none;
+}
+
+.armado-auto[open] .armado-texto-corto {
+    display: none;
+}
+
+.armado-auto[open] .armado-texto-largo {
+    display: block;
+}
+
+/* ---------- Botón de la barra ---------- */
+
+.armado-toggle {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid #6d3fd6;
+    border-radius: 8px;
+    background: #6d3fd6;
+    color: #fff;
+    font-size: 0.92rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.armado-resumen:hover .armado-toggle {
+    background: #5e31be;
+    border-color: #5e31be;
+}
+
+.armado-toggle-cerrar {
+    display: none;
+}
+
+.armado-chevron {
+    transition: transform 0.2s ease;
+}
+
+/* Abierto: el botón pasa a "Ocultar" con estilo suave y el chevron gira */
+.armado-auto[open] .armado-toggle {
+    background: #fff;
+    color: #6d3fd6;
+}
+
+.armado-auto[open] .armado-resumen:hover .armado-toggle {
+    background: #f3eeff;
+    border-color: #6d3fd6;
+}
+
+.armado-auto[open] .armado-toggle-abrir {
+    display: none;
+}
+
+.armado-auto[open] .armado-toggle-cerrar {
+    display: inline;
+}
+
+.armado-auto[open] .armado-chevron {
+    transform: rotate(180deg);
+}
+
+/* ---------- Contenido desplegado ---------- */
+
+.armado-cuerpo {
+    padding-top: 0.25rem;
+}
+
+.armado-auto-nota {
+    color: #8a82a8;
+    font-size: 0.8rem;
+    margin: 0.35rem 0 0;
+}
+
+/* ---------- Lo básico: franja compacta ---------- */
+
+.armado-minimo {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem 1.75rem;
+    background: #f3eeff;
+    border: 1px solid #e2d6fb;
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    margin: 1rem 0 1.25rem;
+}
+
+.armado-minimo-titulo {
+    flex: 1 0 100%;
+    margin: 0;
+    color: #1a1052;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.armado-minimo-item {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.armado-minimo-item span {
+    color: #6b6390;
+    font-size: 0.78rem;
+}
+
+.armado-minimo-item strong {
+    color: #1a1052;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.armado-minimo-total {
+    margin-left: auto;
+    text-align: right;
+}
+
+.armado-minimo-total strong {
+    font-size: 1.5rem;
+}
+
+.armado-minimo-vacio {
+    align-items: center;
+    color: #6b6390;
+    font-size: 0.92rem;
+}
+
+/* ---------- Formulario ---------- */
+
+.armado-etiqueta {
+    margin-bottom: 0.35rem;
+    color: #1a1052;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+/* Mismo alto que los campos (38px) */
+.armado-auto .btn-pack {
+    border: 1px solid transparent;
+    padding: 0.375rem 1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    box-shadow: 0 10px 22px -10px rgba(109, 63, 214, 0.6);
+}
+
+.armado-auto .btn-pack:disabled {
+    background: #ddd8ee;
+    color: #8a82a8;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Esquinas poco redondeadas, igual que la franja y la tarjeta */
+.armado-auto .form-control,
+.armado-auto .form-select,
+.armado-auto .input-group-text,
+.armado-auto .btn-pack {
+    border-radius: 8px;
+}
+
+.armado-auto .form-control:focus,
+.armado-auto .form-select:focus {
+    border-color: #6d3fd6;
+    box-shadow: 0 0 0 0.2rem rgba(109, 63, 214, 0.2);
+}
+
+/* ---------- Mensajes de ayuda ---------- */
+
+.armado-ayuda {
+    margin: 0.6rem 0 0;
+    min-height: 1.25rem; /* evita que el bloque "salte" cuando aparece el texto */
+    font-size: 0.85rem;
+    color: #6b6390;
+}
+
+.armado-ayuda-suave {
+    color: #8a82a8;
+}
+
+.armado-ayuda-falta {
+    color: #c0392b;
+    font-weight: 600;
+}
+
+.armado-ayuda-ok {
+    color: #1e8a5a;
+    font-weight: 600;
+}
+
+/* ---------- Celular ---------- */
+@media (max-width: 575px) {
+    .armado-auto {
+        padding: 1rem;
+    }
+
+    .seccion-clara details.armado-auto > summary.armado-resumen {
+        flex-wrap: wrap;
+    }
+
+    .armado-toggle {
+        flex: 1 0 100%;
+        justify-content: center;
+    }
+
+    .armado-minimo-total {
+        flex: 1 0 100%;
+        margin-left: 0;
+        text-align: left;
+        padding-top: 0.5rem;
+        border-top: 1px solid #e2d6fb;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .armado-chevron,
+    .armado-toggle {
+        transition: none;
+    }
+}
