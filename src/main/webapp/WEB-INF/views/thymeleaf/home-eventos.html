@@ -150,6 +150,13 @@
                     <th:block th:replace="~{fragments/paquete-card :: paqueteCard(${paquete}, 'ver-mas', false)}"></th:block>
                 </div>
             </div>
+
+            <!-- Ver todos (incluye los paquetes publicados por otros usuarios) -->
+            <div class="text-center mt-5">
+                <a th:href="@{/paquetes}" class="btn btn-buscar rounded-pill px-4">
+                    Ver todos los paquetes
+                </a>
+            </div>
         </div>
     </section>
 

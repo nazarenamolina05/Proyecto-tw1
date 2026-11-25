@@ -56,9 +56,12 @@
         </div>
     </th:block>
 
-    <p th:if="${reservas.isEmpty()}" class="text-muted">
-        Todavía no tenés reservas. Explorá los paquetes disponibles y organizá tu próximo evento.
-    </p>
+    <div th:if="${reservas.isEmpty()}" class="text-center py-5">
+        <p class="text-muted mb-3">
+            Todavía no tenés reservas. Explorá los paquetes disponibles y organizá tu próximo evento.
+        </p>
+        <a th:href="@{/paquetes}" class="btn btn-primary rounded-pill px-4">Explorar paquetes</a>
+    </div>
 
     <div class="row g-4" th:if="${not reservas.isEmpty()}">
         <div class="col-md-6 col-lg-4" th:each="reserva : ${reservas}">

@@ -201,6 +201,11 @@
                     Podés cancelar hasta 7 días antes del evento.
                 </p>
 
+                <p class="small mt-1 mb-0 opacity-75"
+                   th:if="${reserva.admiteCancelacion() and reserva.montoAbonado != null and reserva.montoAbonado > 0}">
+                    Lo que ya abonaste no se reintegra automáticamente.
+                </p>
+
             </div>
         </aside>
     </div>
