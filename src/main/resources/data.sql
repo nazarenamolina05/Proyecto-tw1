@@ -157,6 +157,30 @@ VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
         (SELECT id FROM Evento WHERE fecha = DATE_ADD(CURDATE(), INTERVAL 6 DAY)),
         180000.0, 'CONFIRMADA', 'TOTAL', 180000.0);
 
+-- PAQUETES PUBLICADOS POR USUARIOS (eventos reales compartidos desde "Compartí tu evento") --
+-- Igual que los que se crean desde la app: predeterminado = false y con publicador.
+-- Precio = salón + catering x invitados del evento + servicios.
+INSERT INTO Paquete(nombre, tipo, salon_id, catering_id, precioEstimado, predeterminado, publicador_id)
+VALUES
+    -- 30 invitados: 90000 + 3000 x 30 + DJ 40000 + Fotografia 30000 + Cotillon 500 x 30 = 265000
+    ('Cumple de 30 en el jardín', 'CUMPLEANIOS',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Medio'), 265000.0, false,
+     (SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar')),
+    -- 45 invitados: 50000 + 3000 x 45 + Fotografia 30000 + Decoracion 25000 = 240000
+    ('Cena de fin de año de la empresa', 'EMPRESARIAL',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Medio'), 240000.0, false,
+     (SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'));
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Cumple de 30 en el jardín' AND s.nombre IN ('DJ', 'Fotografia', 'Cotillon');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Cena de fin de año de la empresa' AND s.nombre IN ('Fotografia', 'Decoracion');
+
 -- =========================================================
 -- NUEVOS SERVICIOS ADICIONALES
 -- =========================================================
