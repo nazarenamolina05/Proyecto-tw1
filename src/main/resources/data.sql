@@ -156,3 +156,80 @@ INSERT INTO Reserva(usuario_id, evento_id, presupuesto, estado, tipoPago, montoA
 VALUES ((SELECT id FROM Usuario WHERE email = 'test@unlam.edu.ar'),
         (SELECT id FROM Evento WHERE fecha = DATE_ADD(CURDATE(), INTERVAL 6 DAY)),
         180000.0, 'CONFIRMADA', 'TOTAL', 180000.0);
+
+-- =========================================================
+-- NUEVOS SERVICIOS ADICIONALES
+-- =========================================================
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'DJ + Iluminación LED', 65000.0, false, 'DJ');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Sonido e Iluminación Ambiental', 25000.0, false, 'DJ');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Cabina de Fotos', 45000.0, false, 'FOTOGRAFIA');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Book de Fotos Pre-Evento', 35000.0, false, 'FOTOGRAFIA');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Video con Drone', 60000.0, false, 'VIDEO');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Plataforma 360', 50000.0, false, 'VIDEO');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Ambientación Temática', 40000.0, false, 'DECORACION');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Centros de Mesa y Arreglos Florales', 350.0, true, 'DECORACION');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Cotillón Luminoso LED', 900.0, true, 'COTILLON');
+INSERT INTO ServicioAdicional(id, nombre, precio, precioPorInvitado, categoriaServicio) VALUES(null, 'Show en Vivo / Animación Musical', 55000.0, false, 'ANIMACION');
+
+-- =========================================================
+-- NUEVOS PAQUETES PREDETERMINADOS (predeterminado = true)
+-- =========================================================
+INSERT INTO Paquete(nombre, tipo, salon_id, catering_id, precioEstimado, predeterminado)
+VALUES
+    ('Cumpleaños VIP', 'CUMPLEANIOS',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Medio'), 552000.0, true),
+    ('Quince Soñado', 'FIESTA_DE_15',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Completo'), 1048000.0, true),
+    ('Boda al Aire Libre', 'CASAMIENTO',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Jardin del Sol'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Completo'), 633000.0, true);
+
+-- =========================================================
+-- NUEVOS PAQUETES ADICIONALES (predeterminado = false)
+-- =========================================================
+INSERT INTO Paquete(nombre, tipo, salon_id, catering_id, precioEstimado, predeterminado)
+VALUES
+    ('Cumpleaños Infantil Full', 'CUMPLEANIOS',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Basico'), 225000.0, false),
+    ('Quince Teen Party', 'FIESTA_DE_15',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Los Alamos'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Medio'), 360000.0, false),
+    ('Boda Gala Nocturna', 'CASAMIENTO',
+     (SELECT id FROM Salon WHERE nombre = 'Salon Gran Bahia'),
+     (SELECT id FROM Catering WHERE nombre = 'Catering Completo'), 987000.0, false);
+
+-- =========================================================
+-- SERVICIOS DE LOS NUEVOS PAQUETES
+-- =========================================================
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Cumpleaños VIP'
+  AND s.nombre IN ('DJ + Iluminación LED', 'Cabina de Fotos', 'Ambientación Temática', 'Cotillón Luminoso LED');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Quince Soñado'
+  AND s.nombre IN ('DJ + Iluminación LED', 'Book de Fotos Pre-Evento', 'Plataforma 360', 'Ambientación Temática', 'Cotillón Luminoso LED');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Boda al Aire Libre'
+  AND s.nombre IN ('Sonido e Iluminación Ambiental', 'Fotografia', 'Video con Drone', 'Centros de Mesa y Arreglos Florales');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Cumpleaños Infantil Full'
+  AND s.nombre IN ('Animacion', 'Ambientación Temática', 'Cotillon');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Quince Teen Party'
+  AND s.nombre IN ('DJ + Iluminación LED', 'Plataforma 360', 'Cotillón Luminoso LED');
+
+INSERT INTO Paquete_Servicios(paquete_id, servicio_id)
+SELECT p.id, s.id FROM Paquete p, ServicioAdicional s
+WHERE p.nombre = 'Boda Gala Nocturna'
+  AND s.nombre IN ('DJ + Iluminación LED', 'Fotografia', 'Video', 'Show en Vivo / Animación Musical', 'Centros de Mesa y Arreglos Florales');
