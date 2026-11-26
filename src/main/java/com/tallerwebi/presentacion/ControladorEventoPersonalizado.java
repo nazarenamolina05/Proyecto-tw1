@@ -35,6 +35,7 @@ public class ControladorEventoPersonalizado {
   private ServicioConsultarPaquetesPredeterminados servicioPaquetes;
   private ServicioDisponibilidadSalon servicioDisponibilidadSalon;
   private ServicioValidarSeleccionPaquete servicioValidacion;
+  private ServicioArmadoAutomatico servicioArmadoAutomatico;
 
   @Autowired
   public ControladorEventoPersonalizado(
@@ -42,13 +43,15 @@ public class ControladorEventoPersonalizado {
     ServicioSugerenciaServicios servicioSugerenciaServicios,
     ServicioConsultarPaquetesPredeterminados servicioPaquetes,
     ServicioDisponibilidadSalon servicioDisponibilidadSalon,
-    ServicioValidarSeleccionPaquete servicioValidacion
+    ServicioValidarSeleccionPaquete servicioValidacion,
+    ServicioArmadoAutomatico servicioArmadoAutomatico
   ) {
     this.servicioEvento = servicioEvento;
     this.servicioSugerenciaServicios = servicioSugerenciaServicios;
     this.servicioPaquetes = servicioPaquetes;
     this.servicioDisponibilidadSalon = servicioDisponibilidadSalon;
     this.servicioValidacion = servicioValidacion;
+    this.servicioArmadoAutomatico = servicioArmadoAutomatico;
   }
 
   // Sin evento en sesión muestra la pantalla inicial (según el modo);
@@ -256,6 +259,7 @@ public class ControladorEventoPersonalizado {
     modelo.put("evento", evento);
     modelo.put("salones", obtenerSalonesDisponibles(evento, modelo));
     modelo.put("caterings", servicioEvento.obtenerCaterings());
+    modelo.put("minimoEstimado", calcularMinimo(evento));
 
     // [REFACTOR EVENTO] Los servicios del evento se consultan aparte (EventoServicio).
     // evento-personalizado.html los lee de ${serviciosDelEvento}.
@@ -326,6 +330,17 @@ public class ControladorEventoPersonalizado {
     } catch (FechaInvalida excepcion) {
       modelo.put("errorFecha", "Elegí una fecha posterior a hoy para ver los salones disponibles.");
       return evento.getSalon() == null ? List.of() : List.of(evento.getSalon());
+    }
+  }
+
+  private MontoMinimo calcularMinimo(Evento evento) {
+    try {
+      return servicioArmadoAutomatico.calcularMontoMinimo(
+        evento.getCantidadInvitados(),
+        evento.getFecha()
+      );
+    } catch (FechaInvalida excepcion) {
+      return null;
     }
   }
 
