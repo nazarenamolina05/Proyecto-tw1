@@ -22,6 +22,9 @@
     </div>
 
     <div class="pack-body">
+                <span class="pack-publicado" th:if="${paquete.publicado}">
+            <i class="bi bi-people-fill me-1" aria-hidden="true"></i>Evento real publicado por un usuario
+        </span>
         <h3 class="pack-nombre" th:text="${paquete.nombre}">Nombre</h3>
         <p class="pack-linea" th:text="${paquete.salon.nombre}">Salón</p>
         <p class="pack-linea pack-linea-suave" th:text="${paquete.catering.nombre}">Catering</p>

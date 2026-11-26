@@ -389,6 +389,20 @@ html, body {
     border-radius: 999px;
 }
 
+.pack-publicado {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    background: var(--pack-violeta-suave);
+    color: var(--pack-violeta);
+    border: 1px solid var(--pack-borde);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    margin-bottom: 0.6rem;
+}
+
 /* ---------- Precio ---------- */
 
 .pack-precio {

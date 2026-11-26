@@ -29,6 +29,15 @@
 
                 <div class="col-lg-6 p-4 p-lg-5 d-flex flex-column">
 
+                    <div class="mb-3" th:if="${paquete.publicado}">
+                        <span class="pack-publicado">
+                            <i class="bi bi-people-fill me-1" aria-hidden="true"></i>Evento real publicado por un usuario
+                        </span>
+                        <p class="small text-muted mt-2 mb-0">
+                            Este paquete se armó a partir de un evento que ya se realizó y que un usuario compartió con la comunidad.
+                        </p>
+                    </div>
+
                     <h1 class="fw-bold mb-4" th:text="${paquete.nombre}">Nombre del paquete</h1>
 
                     <h5 class="fw-bold">Qué incluye</h5>
